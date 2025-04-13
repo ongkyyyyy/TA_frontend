@@ -10,10 +10,10 @@ import DefaultLayout from "./components/layouts/DefaultLayout";
 // Pages
 import Login from "./components/pages/Login"
 import NotFoundPage from "./NotFoundPage"
-// Dashboard
+// ./Dashboard/...
 import Analytics from "./components/pages/dashboard/Analytics";
 import Reporting from "./components/pages/dashboard/Reporting";
-// Other menus
+// ./{Other Pages}..
 import Revenues from "./components/pages/Revenues";
 import Reviews from "./components/pages/Reviews";
 import Sentiments from "./components/pages/Sentiments";
