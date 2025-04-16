@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { ArrowUpDown, Edit, Eye, MoreHorizontal, Trash } from "lucide-react"
 import { format } from "date-fns"

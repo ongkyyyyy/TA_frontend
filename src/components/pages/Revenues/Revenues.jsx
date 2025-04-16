@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { CalendarIcon, Download, Filter, Plus, Search, SlidersHorizontal } from "lucide-react"
 

@@ -1,5 +1,3 @@
-"use client"
-
 import { format } from "date-fns"
 import PropTypes from "prop-types"
 
