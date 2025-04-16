@@ -14,6 +14,7 @@ import NotFoundPage from "./NotFoundPage"
 import Analytics from "./components/pages/dashboard/Analytics";
 import Reporting from "./components/pages/dashboard/Reporting";
 // ./{Other Pages}..
+import Hotels from "./components/pages/Hotels";
 import Revenues from "./components/pages/Revenues";
 import Reviews from "./components/pages/Reviews";
 import Sentiments from "./components/pages/Sentiments";
@@ -45,6 +46,7 @@ function App() {
             <Route  path="/" element={<Analytics/>} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/reporting" element={<Reporting />} />
+            <Route path="/hotels" element={<Hotels />} />
             <Route path="/revenues" element={<Revenues />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/sentiments" element={<Sentiments />} />

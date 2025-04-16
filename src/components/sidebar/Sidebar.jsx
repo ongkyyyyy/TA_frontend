@@ -1,33 +1,15 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard,
-  Settings,
-  LogOut,
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
-import { MdSentimentSatisfiedAlt, MdMoney, MdComment } from "react-icons/md";
 import MobileSidebar from "./MobileSidebar";
 import { CgMenuRight } from "react-icons/cg";
 
 import Logo from "../../assets/images/Logo.png";
 
-const menuItems = [
-  {
-    name: "Dashboard",
-    icon: LayoutDashboard,
-    subItems: [
-      { name: "Analytics", route: "/analytics" },
-      { name: "Reporting", route: "/reporting" },
-    ],
-  },
-  { name: "Revenues", icon: MdMoney, route: "/revenues" },
-  { name: "Reviews", icon: MdComment, route: "/reviews" },
-  { name: "Sentiments", icon: MdSentimentSatisfiedAlt, route: "/sentiments" },
-  { name: "Settings", icon: Settings, route: "/settings" },
-  { name: "Log Out", icon: LogOut, route: "/logout" },
-];
+import menuItems from "./menuItems";
 
 function Sidebar() {
   const location = useLocation(); 

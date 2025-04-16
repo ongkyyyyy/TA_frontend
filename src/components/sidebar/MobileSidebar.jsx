@@ -3,24 +3,8 @@ import { useState } from "react";
 import { CgClose } from "react-icons/cg";
 import { Link } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { MdSentimentSatisfiedAlt, MdMoney, MdComment } from "react-icons/md";
-import { LayoutDashboard, Settings, LogOut } from "lucide-react";
 
-const menuItems = [
-  {
-    name: "Dashboard",
-    icon: LayoutDashboard,
-    subItems: [
-      { name: "Analytics", route: "/analytics" },
-      { name: "Reporting", route: "/reporting" },
-    ],
-  },
-  { name: "Revenues", icon: MdMoney, route: "/revenues" },
-  { name: "Reviews", icon: MdComment, route: "/reviews" },
-  { name: "Sentiments", icon: MdSentimentSatisfiedAlt, route: "/sentiments" },
-  { name: "Settings", icon: Settings, route: "/settings" },
-  { name: "Log Out", icon: LogOut, route: "/logout" },
-];
+import menuItems from "./menuItems";
 
 function MobileSidebar({ mobileSidebar, toggleMobileSidebar }) {
   const [openMenus, setOpenMenus] = useState({});

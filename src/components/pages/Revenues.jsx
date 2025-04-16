@@ -17,7 +17,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Calendar as CalendarComponent } from "../ui/calendar"
 
-// Mock revenue data
 const revenueData = [
   {
     id: 1,
