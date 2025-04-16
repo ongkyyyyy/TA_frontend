@@ -1,5 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
-/* eslint-disable react/prop-types */
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
@@ -32,12 +30,13 @@ const buttonVariants = cva(
   }
 );
 
-// ✅ forwardRef here!
+// ✅ Forward the ref!
 const Button = React.forwardRef(({ className, variant, size, asChild = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button";
+
   return (
     <Comp
-      ref={ref}
+      ref={ref} // 👈 Now ref is correctly passed
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
@@ -45,6 +44,6 @@ const Button = React.forwardRef(({ className, variant, size, asChild = false, ..
   );
 });
 
-Button.displayName = "Button";
+Button.displayName = "Button"; // 🧼 Good practice for debugging
 
 export { Button, buttonVariants };

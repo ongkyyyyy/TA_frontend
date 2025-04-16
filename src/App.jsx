@@ -15,7 +15,7 @@ import Analytics from "./components/pages/dashboard/Analytics";
 import Reporting from "./components/pages/dashboard/Reporting";
 // ./{Other Pages}..
 import Hotels from "./components/pages/Hotels";
-import Revenues from "./components/pages/Revenues";
+import Revenues from "./components/pages/Revenues/Revenues";
 import Reviews from "./components/pages/Reviews";
 import Sentiments from "./components/pages/Sentiments";
 import Settings from "./components/pages/Settings";
