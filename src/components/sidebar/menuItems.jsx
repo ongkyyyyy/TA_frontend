@@ -4,7 +4,7 @@ import {
     LogOut,
   } from "lucide-react";
   import {
-    MdSentimentSatisfiedAlt,
+    // MdSentimentSatisfiedAlt,
     MdMoney,
     MdComment,
     MdHotel,
@@ -22,7 +22,7 @@ import {
     { name: "Hotels", icon: MdHotel, route: "/hotels" },
     { name: "Revenues", icon: MdMoney, route: "/revenues" },
     { name: "Reviews and Sentiments", icon: MdComment, route: "/reviews" },
-    { name: "Sentiments", icon: MdSentimentSatisfiedAlt, route: "/sentiments" },
+    // { name: "Sentiments", icon: MdSentimentSatisfiedAlt, route: "/sentiments" },
     { name: "Settings", icon: Settings, route: "/settings" },
     { name: "Log Out", icon: LogOut, route: "/logout" },
   ];

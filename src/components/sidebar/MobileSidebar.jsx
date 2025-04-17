@@ -20,7 +20,7 @@ function MobileSidebar({ mobileSidebar, toggleMobileSidebar }) {
       z-50 shadow-lg border-r border-gray-200`}
     >
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-primary">Sidebar</h2>
+        <h2 className="text-lg font-semibold text-primary">Hotel Analytics</h2>
         <CgClose
           className="h-6 w-6 text-primary cursor-pointer"
           onClick={toggleMobileSidebar}
@@ -68,7 +68,7 @@ function MobileSidebar({ mobileSidebar, toggleMobileSidebar }) {
                 </ul>
               )}
 
-              {name === "Sentiments" && (
+              {name === "Reviews and Sentiments" && (
                 <div className="my-3 border-t border-gray-200" />
               )}
             </li>
