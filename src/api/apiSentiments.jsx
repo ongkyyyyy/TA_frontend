@@ -1,8 +1,8 @@
 import useAxios from './index.jsx';
 
-export const getRevenue = async () => {
+export const getSentiments = async () => {
     try {
-      const response = await useAxios.get('/revenue', {
+      const response = await useAxios.get('/sentiments', {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -10,7 +10,7 @@ export const getRevenue = async () => {
   
       return response.data;
     } catch (error) {
-      console.error('Error fetching revenue data:', error);
+      console.error('Error fetching sentiments data:', error);
       throw error;
     }
 }

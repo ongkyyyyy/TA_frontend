@@ -14,3 +14,18 @@ export const getRevenues = async () => {
       throw error;
     }
 }
+
+export const inputRevenue = async (data) => {
+  try {
+    const response = await useAxios.post('/revenues', data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error uploading data:', error);
+    throw error;
+  }
+};
