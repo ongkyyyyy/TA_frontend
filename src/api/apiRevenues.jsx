@@ -8,7 +8,9 @@ export const getRevenues = async () => {
         },
       });
   
-      return response.data;
+      console.log('API response:', response.data); // 👀 Check this
+
+      return response.data; 
     } catch (error) {
       console.error('Error fetching revenues data:', error);
       throw error;
