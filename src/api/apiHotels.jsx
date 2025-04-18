@@ -75,4 +75,19 @@ export const getHotelById = async (id) => {
   }
 }
 
+export const searchHotels = async (searchTerm) => {
+  try {
+    const response = await useAxios.get('/hotels/search', {
+      params: { q: searchTerm },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error searching hotels:', error);
+    throw error;
+  }
+};
+
 

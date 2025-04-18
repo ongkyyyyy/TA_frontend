@@ -1,13 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect, useCallback } from "react"
-import { getHotels, deleteHotel } from "@/api/apiHotels"
+import { useState, useEffect, useCallback, useMemo } from "react"
+import { getHotels, deleteHotel, searchHotels } from "@/api/apiHotels"
 import HotelsList from "./hotels-list"
 import HotelForm from "./hotel-form"
 import SearchBar from "./hotel-search"
 import { Button } from "../../ui/button"
 import { PlusCircle, RefreshCw } from "lucide-react"
-import { useToast } from "../../toast/use-toast"
 import DeleteConfirmation from "./hotel-delete-confirmation"
+import { debounce } from "lodash"
+import { toast } from "react-toastify"
 
 export default function Hotels() {
   const [hotels, setHotels] = useState([])
@@ -19,7 +20,6 @@ export default function Hotels() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [hotelToDelete, setHotelToDelete] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const { successToast, errorToast} = useToast();
 
   const fetchHotels = useCallback(async () => {
     setIsLoading(true)
@@ -31,29 +31,32 @@ export default function Hotels() {
     } catch (error) {
       console.log(error)
       setError("Failed to fetch hotels. Please try again later.")
-      errorToast("Failed to fetch hotels. Please try again later.");
-      error
+      toast.error("Failed to fetch hotels. Please try again later.")
     } finally {
       setIsLoading(false)
     }
-  }, [])  
+  }, [])
 
   useEffect(() => {
     fetchHotels()
   }, [fetchHotels])
 
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = hotels.filter(
-        (hotel) =>
-          hotel.hotel_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          hotel.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          hotel.country.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-      setFilteredHotels(filtered)
+  const debouncedSearch = useMemo(() => debounce((term) => {
+    if (term.trim() !== "") {
+      searchHotels(term)
+        .then(setFilteredHotels)
+        .catch((error) => {
+          console.error(error)
+          toast.error("Failed to search hotels.")
+        });
     } else {
       setFilteredHotels(hotels)
     }
+  }, 500), [hotels]);
+
+  useEffect(() => {
+    debouncedSearch(searchTerm)
+    return () => debouncedSearch.cancel()
   }, [searchTerm, hotels])
 
   const handleAddHotel = () => {
@@ -77,10 +80,10 @@ export default function Hotels() {
     try {
       await deleteHotel(hotelToDelete._id)
       setHotels(hotels.filter((h) => h._id !== hotelToDelete._id))
-      successToast(`${hotelToDelete.hotel_name} has been deleted.`);
+      toast.success(`${hotelToDelete.hotel_name} has been deleted.`)
     } catch (error) {
       console.log(error)
-      errorToast("Failed to delete hotel. Please try again.");
+      toast.error("Failed to delete hotel. Please try again.")
     } finally {
       setIsDeleteModalOpen(false)
       setHotelToDelete(null)
@@ -89,20 +92,25 @@ export default function Hotels() {
 
   const handleFormClose = () => {
     setIsFormOpen(false)
-    fetchHotels() 
+    fetchHotels()
   }
 
   return (
     <div className="space-y-6 py-6">
       <h1 className="text-3xl font-bold">Hotels</h1>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <SearchBar setSearchTerm={setSearchTerm} searchTerm={searchTerm} />
         <div className="flex gap-2">
           <Button onClick={handleAddHotel} className="flex items-center gap-2">
             <PlusCircle className="h-4 w-4" />
             Add Hotel
           </Button>
-          <Button variant="outline" onClick={fetchHotels} disabled={isLoading} className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={fetchHotels}
+            disabled={isLoading}
+            className="flex items-center gap-2"
+          >
             <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
@@ -111,7 +119,12 @@ export default function Hotels() {
 
       {error && <div className="bg-destructive/15 text-destructive p-4 rounded-md">{error}</div>}
 
-      <HotelsList hotels={filteredHotels} isLoading={isLoading} onEdit={handleEditHotel} onDelete={handleDeleteHotel} />
+      <HotelsList
+        hotels={filteredHotels}
+        isLoading={isLoading}
+        onEdit={handleEditHotel}
+        onDelete={handleDeleteHotel}
+      />
 
       {isFormOpen && (
         <HotelForm hotel={selectedHotel} onClose={handleFormClose} setHotels={setHotels} />

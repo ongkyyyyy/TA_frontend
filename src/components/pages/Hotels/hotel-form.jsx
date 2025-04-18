@@ -1,17 +1,17 @@
   /* eslint-disable react/prop-types */
-  import { useState, useEffect } from "react"
-  import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription} from "../../ui/dialog"
-  import { Button } from "../../ui/button"
-  import { Input } from "../../ui/input"
-  import { Label } from "../../ui/label"
-  import { Loader2 } from "lucide-react"
-  import { inputHotels, updateHotel } from "@/api/apiHotels"
-  import { useToast } from "../../toast/use-toast"
+import { useState, useEffect } from "react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription} from "../../ui/dialog"
+import { Button } from "../../ui/button"
+import { Input } from "../../ui/input"
+import { Label } from "../../ui/label"
+import { Loader2 } from "lucide-react"
+import { inputHotels, updateHotel } from "@/api/apiHotels"
+import { toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"  
 
-  export default function HotelForm({ hotel, onClose, setHotels }) {
+export default function HotelForm({ hotel, onClose, setHotels }) {
     const isEditing = !!hotel
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const { successToast, errorToast } = useToast();
 
     const [formData, setFormData] = useState({
       hotel_name: "",
@@ -53,17 +53,17 @@
           const updatedHotel = await updateHotel(hotel._id, formData)
           const updatedWithId = { ...updatedHotel, _id: hotel._id }
           setHotels((prev) => prev.map((h) => (h._id === hotel._id ? updatedWithId : h)))
-          successToast("Hotel updated successfully");
+          toast.success("Hotel updated successfully")
           onClose(updatedWithId) 
         } else {
           const newHotel = await inputHotels(formData)
           setHotels((prev) => [...prev, newHotel])
-          successToast("Hotel added successfully");
+          toast.success("Hotel added successfully")
           onClose(newHotel)
         }
       } catch (error) {
         console.log(error)
-        errorToast(isEditing ? "Failed to update hotel" : "Failed to add hotel");
+        toast.error(isEditing ? "Failed to update hotel" : "Failed to add hotel");
       } finally {
         setIsSubmitting(false)
       }
