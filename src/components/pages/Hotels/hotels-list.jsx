@@ -65,7 +65,7 @@ export default function HotelsList({ hotels, isLoading, onEdit, onDelete }) {
                         href={hotel.agoda_link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 hover:bg-blue-200"
+                        className="inline-flex items-center text-xs px-2 py-1 rounded-full  bg-orange-100 text-orange-800 hover:bg-orange-200"
                       >
                         <ExternalLink className="h-3 w-3 mr-1" />
                         Agoda
@@ -76,7 +76,7 @@ export default function HotelsList({ hotels, isLoading, onEdit, onDelete }) {
                         href={hotel.traveloka_link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center text-xs px-2 py-1 rounded-full bg-orange-100 text-orange-800 hover:bg-orange-200"
+                        className="inline-flex items-center text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 hover:bg-blue-200"
                       >
                         <ExternalLink className="h-3 w-3 mr-1" />
                         Traveloka

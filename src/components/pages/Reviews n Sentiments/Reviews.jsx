@@ -64,14 +64,12 @@ export default function ReviewsWithFilters() {
   }
 
   const handleClearFilters = () => {
-    // Reset all filters
     setActiveFilters(0)
-    // Additional reset logic would go here
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-5xl">
-      <h1 className="text-3xl font-bold mb-2">Customer Reviews</h1>
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-2">Customer Reviews and Sentiments</h1>
       <p className="text-muted-foreground mb-6">Browse and search through guest feedback</p>
 
       {/* Search Bar */}

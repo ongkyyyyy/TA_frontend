@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react"
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect, useCallback } from "react"
 import { getHotels, deleteHotel } from "@/api/apiHotels"
 import HotelsList from "./hotels-list"
 import HotelForm from "./hotel-form"
@@ -18,31 +19,28 @@ export default function Hotels() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [hotelToDelete, setHotelToDelete] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
+  const { successToast, errorToast} = useToast();
 
-  const { toast } = useToast()
-
-  const fetchHotels = async () => {
+  const fetchHotels = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     try {
       const data = await getHotels()
       setHotels(data)
       setFilteredHotels(data)
-    } catch (err) {
+    } catch (error) {
+      console.log(error)
       setError("Failed to fetch hotels. Please try again later.")
-      toast({
-        title: "Error",
-        description: "Failed to fetch hotels. Please try again later.",
-        variant: "destructive",
-      })
+      errorToast("Failed to fetch hotels. Please try again later.");
+      error
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])  
 
   useEffect(() => {
     fetchHotels()
-  }, [])
+  }, [fetchHotels])
 
   useEffect(() => {
     if (searchTerm) {
@@ -79,31 +77,24 @@ export default function Hotels() {
     try {
       await deleteHotel(hotelToDelete._id)
       setHotels(hotels.filter((h) => h._id !== hotelToDelete._id))
-      toast({
-        title: "Success",
-        description: `${hotelToDelete.hotel_name} has been deleted.`,
-      })
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to delete hotel. Please try again.",
-        variant: "destructive",
-      })
+      successToast(`${hotelToDelete.hotel_name} has been deleted.`);
+    } catch (error) {
+      console.log(error)
+      errorToast("Failed to delete hotel. Please try again.");
     } finally {
       setIsDeleteModalOpen(false)
       setHotelToDelete(null)
     }
   }
 
-  const handleFormClose = (hotelAdded = false) => {
+  const handleFormClose = () => {
     setIsFormOpen(false)
-    if (hotelAdded) {
-      fetchHotels()
-    }
+    fetchHotels() 
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 py-6">
+      <h1 className="text-3xl font-bold">Hotels</h1>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <div className="flex gap-2">
@@ -123,7 +114,7 @@ export default function Hotels() {
       <HotelsList hotels={filteredHotels} isLoading={isLoading} onEdit={handleEditHotel} onDelete={handleDeleteHotel} />
 
       {isFormOpen && (
-        <HotelForm hotel={selectedHotel} onClose={handleFormClose} hotels={hotels} setHotels={setHotels} />
+        <HotelForm hotel={selectedHotel} onClose={handleFormClose} setHotels={setHotels} />
       )}
 
       <DeleteConfirmation

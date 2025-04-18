@@ -65,7 +65,7 @@ const sampleData = [
       average_room_rate: 6172.84,
     },
   },
-  // Add more sample data with different dates and values
+
   {
     _id: { $oid: "67ffe9472a9f9c1d2302f968" },
     hotel_id: { $oid: "67fcca4e852775d38fc10853" },
@@ -124,7 +124,6 @@ export default function RevenuePage() {
   })
   const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false)
 
-  // CRUD Operations
   const handleCreate = (newItem) => {
     setData([...data, { ...newItem, _id: { $oid: crypto.randomUUID() } }])
     setIsFormOpen(false)
@@ -143,7 +142,6 @@ export default function RevenuePage() {
     setEditingItem(item)
   }
 
-  // Filter data based on search term and date range
   const filteredData = data.filter((item) => {
     const matchesSearch =
       !searchTerm ||
