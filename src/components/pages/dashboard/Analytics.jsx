@@ -67,8 +67,10 @@ export default function HotelAnalytics() {
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="top-0 flex h-16 items-center gap-4 border-b bg-background px-6">
-        <Hotel className="h-6 w-6" />
-        <h1 className="text-xl font-semibold">Hotel Analytics Dashboard</h1>
+        <div className="flex flex-1 items-center gap-2">
+          <Hotel className="h-6 w-6" />
+          <h1 className="text-xl font-semibold">Hotel Analytics Dashboard</h1>
+        </div>
         <div className="ml-auto flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

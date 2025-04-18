@@ -10,11 +10,7 @@ export default function ReportPage() {
     setIsGeneratingPdf(true)
 
     try {
-      // In a real implementation, you would use a library like react-to-pdf or jsPDF
-      // This is a simulation of PDF generation
       await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Simulate PDF download
       const element = document.getElementById("report-content")
       if (element) {
         console.log("Generating PDF from element:", element)
@@ -29,9 +25,8 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/40">
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14 sm:pr-14">
-        <header className="top-0 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+      <div className="flex min-h-screen w-full flex-col">
+        <header className="top-0 flex h-16 items-center gap-4 border-b bg-background px-6">
           <div className="flex flex-1 items-center gap-2">
             <FileText className="h-6 w-6" />
             <h1 className="font-semibold text-lg md:text-xl">Monthly Sales Report</h1>
@@ -173,7 +168,6 @@ export default function ReportPage() {
           </div>
         </main>
       </div>
-    </div>
   )
 }
 
@@ -243,7 +237,6 @@ const productData = [
   },
 ]
 
-// Simple chart component for visualization
 function RevenueChart() {
   return (
     <div className="w-full h-full flex items-end justify-between gap-2 pt-2">
