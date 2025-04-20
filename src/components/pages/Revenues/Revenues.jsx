@@ -21,6 +21,20 @@ import {
 
 import { getRevenues } from "../../../api/apiRevenues"
 
+const revenueTabs = [
+  { label: "All Revenue", value: "all" },
+  { label: "Room Revenue", value: "room" },
+  { label: "Restaurant", value: "restaurant" },
+  { label: "Other Revenue", value: "other" },
+]
+
+const advancedFilterFields = [
+  { id: "min-revenue", label: "Min Revenue", type: "number", placeholder: "0" },
+  { id: "max-revenue", label: "Max Revenue", type: "number", placeholder: "10000000" },
+  { id: "min-occupancy", label: "Min Occupancy", type: "number", placeholder: "0" },
+  { id: "max-occupancy", label: "Max Occupancy", type: "number", placeholder: "100" },
+]
+
 export default function RevenuePage() {
   const [data, setData] = useState([])
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -84,12 +98,11 @@ export default function RevenuePage() {
   return (
     <div className="container mx-auto py-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Hotel Revenue Management</h1>
+        <h1 className="text-3xl font-bold">Hotel Revenues Management</h1>
         <Button onClick={() => setIsFormOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Add New Revenue
         </Button>
       </div>
-
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Revenue Filters</CardTitle>
@@ -136,10 +149,11 @@ export default function RevenuePage() {
       <Tabs defaultValue="all">
         <div className="flex items-center justify-between mb-4">
           <TabsList>
-            <TabsTrigger value="all">All Revenue</TabsTrigger>
-            <TabsTrigger value="room">Room Revenue</TabsTrigger>
-            <TabsTrigger value="restaurant">Restaurant</TabsTrigger>
-            <TabsTrigger value="other">Other Revenue</TabsTrigger>
+            {revenueTabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" onClick={() => setAdvancedFiltersOpen(true)}>
@@ -149,21 +163,16 @@ export default function RevenuePage() {
           </div>
         </div>
 
-        <TabsContent value="all" className="mt-0">
-          <RevenueTable data={filteredData} onEdit={handleEdit} onDelete={handleDelete} />
-        </TabsContent>
-
-        <TabsContent value="room" className="mt-0">
-          <RevenueTable data={filteredData} onEdit={handleEdit} onDelete={handleDelete} view="room" />
-        </TabsContent>
-
-        <TabsContent value="restaurant" className="mt-0">
-          <RevenueTable data={filteredData} onEdit={handleEdit} onDelete={handleDelete} view="restaurant" />
-        </TabsContent>
-
-        <TabsContent value="other" className="mt-0">
-          <RevenueTable data={filteredData} onEdit={handleEdit} onDelete={handleDelete} view="other" />
-        </TabsContent>
+        {revenueTabs.map((tab) => (
+          <TabsContent key={tab.value} value={tab.value} className="mt-0">
+            <RevenueTable
+              data={filteredData}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              view={tab.value === "all" ? undefined : tab.value}
+            />
+          </TabsContent>
+        ))}
       </Tabs>
 
       {(isFormOpen || editingItem) && (
@@ -177,7 +186,7 @@ export default function RevenuePage() {
           initialData={editingItem || undefined}
         />
       )}
-      {/* Advanced Filters Dialog */}
+      
       <Dialog open={advancedFiltersOpen} onOpenChange={setAdvancedFiltersOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -185,30 +194,19 @@ export default function RevenuePage() {
             <DialogDescription>Set additional filters to refine your revenue data.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="min-revenue" className="text-right">
-                Min Revenue
-              </Label>
-              <Input id="min-revenue" type="number" placeholder="0" className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="max-revenue" className="text-right">
-                Max Revenue
-              </Label>
-              <Input id="max-revenue" type="number" placeholder="10000000" className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="min-occupancy" className="text-right">
-                Min Occupancy
-              </Label>
-              <Input id="min-occupancy" type="number" placeholder="0" className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="max-occupancy" className="text-right">
-                Max Occupancy
-              </Label>
-              <Input id="max-occupancy" type="number" placeholder="100" className="col-span-3" />
-            </div>
+            {advancedFilterFields.map((field) => (
+              <div key={field.id} className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor={field.id} className="text-right">
+                  {field.label}
+                </Label>
+                <Input
+                  id={field.id}
+                  type={field.type}
+                  placeholder={field.placeholder}
+                  className="col-span-3"
+                />
+              </div>
+            ))}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAdvancedFiltersOpen(false)}>
