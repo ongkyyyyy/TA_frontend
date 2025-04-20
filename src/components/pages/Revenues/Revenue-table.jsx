@@ -187,7 +187,7 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
                 <TableCell className="font-medium">
                   {item.date && !isNaN(parse(item.date, "dd-MM-yyyy", new Date())) 
                     ? format(parse(item.date, "dd-MM-yyyy", new Date()), "dd MMM yyyy") 
-                    : "Invalid date"}
+                    : "Invalid date"}-{item._id.$oid}
                 </TableCell>
                 
                   {(view === "all" || view === "room") && (

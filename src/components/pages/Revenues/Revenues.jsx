@@ -69,15 +69,17 @@ export default function RevenuePage() {
     }
   }
 
-  const handleUpdate = (updatedItem) => {
-    setData(data.map((item) => {
-      const itemId = typeof item._id === "object" ? item._id.$oid : item._id
-      const updatedId = typeof updatedItem._id === "object" ? updatedItem._id.$oid : updatedItem._id
-      return itemId === updatedId ? updatedItem : item
-    }))    
-    setEditingItem(null)
-  }
-
+  const handleUpdate = async () => {
+    try {
+      const response = await getRevenues()
+      setData(response.data)
+    } catch (error) {
+      console.error("Failed to refresh revenue data after update", error)
+    } finally {
+      setEditingItem(null)
+    }
+  }  
+  
   const handleDelete = async (id) => {
     try {
       await deleteRevenue(id)

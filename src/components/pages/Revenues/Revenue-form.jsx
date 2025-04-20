@@ -136,16 +136,16 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
       toast.error("Please select a hotel.");
       return;
     }
-
-    console.log("formData", formData)
+  
+    console.log("formData", formData);
   
     const flatPayload = flattenRevenueData(formData);
   
     if (initialData?._id) {
       delete flatPayload.hotel_id;
     }
-
-    console.log ("flatPayload", flatPayload)
+  
+    console.log("flatPayload", flatPayload);
   
     try {
       let result;
@@ -155,13 +155,15 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
         result = await inputRevenue(flatPayload);
       }
   
-      onSubmit?.(result?.data);
+      if (result?.data) {
+        onSubmit?.(result?.data); 
+      }
       onClose?.();
     } catch (err) {
       console.error(err);
       toast.error("Failed to submit data. Please try again.");
     }
-  };
+  };  
 
   const renderFields = (fields, basePath = "") => (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
