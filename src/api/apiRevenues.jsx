@@ -32,7 +32,6 @@ export const inputRevenue = async (data) => {
 };
 
 export const updateRevenue = async (id, data) => {
-  console.log('response', data)
   try {
     const response = await useAxios.put(`/revenues/${id}`, data, {
       headers: {

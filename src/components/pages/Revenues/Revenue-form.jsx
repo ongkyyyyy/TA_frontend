@@ -137,15 +137,11 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
       return;
     }
   
-    console.log("formData", formData);
-  
     const flatPayload = flattenRevenueData(formData);
   
     if (initialData?._id) {
       delete flatPayload.hotel_id;
     }
-  
-    console.log("flatPayload", flatPayload);
   
     try {
       let result;
