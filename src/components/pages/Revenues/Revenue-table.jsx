@@ -48,28 +48,28 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
         valueB = new Date(b.date).getTime()
         break
       case "nett_revenue":
-        valueA = a.nett_revenue
-        valueB = b.nett_revenue
+        valueA = a.nett_revenue ?? 0
+        valueB = b.nett_revenue ?? 0
         break
       case "gross_revenue":
-        valueA = a.gross_revenue
-        valueB = b.gross_revenue
+        valueA = a.gross_revenue ?? 0
+        valueB = b.gross_revenue ?? 0
         break
       case "room_revenue":
-        valueA = a.room_details.total_room_revenue
-        valueB = b.room_details.total_room_revenue
+        valueA = a.room_details?.total_room_revenue ?? 0
+        valueB = b.room_details?.total_room_revenue ?? 0
         break
       case "restaurant_revenue":
-        valueA = a.restaurant.total_restaurant_revenue
-        valueB = b.restaurant.total_restaurant_revenue
+        valueA = a.restaurant?.total_restaurant_revenue ?? 0
+        valueB = b.restaurant?.total_restaurant_revenue ?? 0
         break
       case "other_revenue":
-        valueA = a.other_revenue.total_other_revenue
-        valueB = b.other_revenue.total_other_revenue
+        valueA = a.other_revenue?.total_other_revenue ?? 0
+        valueB = b.other_revenue?.total_other_revenue ?? 0
         break
       case "occupancy":
-        valueA = a.room_stats.occupancy
-        valueB = b.room_stats.occupancy
+        valueA = a.room_stats?.occupancy ?? 0
+        valueB = b.room_stats?.occupancy ?? 0
         break
       default:
         valueA = a.date
@@ -183,27 +183,27 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
             ) : (
               sortedData.map((item) => (
                 <TableRow key={item._id.$oid}>
-                <TableCell className="font-medium">
-                  {item.date && !isNaN(new Date(item.date)) 
-                    ? format(new Date(item.date), "dd MMM yyyy") 
-                    : "Invalid date"}
-                </TableCell>
+                  <TableCell className="font-medium">
+                    {item.date && !isNaN(new Date(item.date)) 
+                      ? format(new Date(item.date), "dd MMM yyyy") 
+                      : "Invalid date"}
+                  </TableCell>
 
                   {(view === "all" || view === "room") && (
-                    <TableCell>{formatCurrency(item.room_details.total_room_revenue)}</TableCell>
+                    <TableCell>{formatCurrency(item.room_details?.total_room_revenue ?? 0)}</TableCell>
                   )}
 
                   {(view === "all" || view === "restaurant") && (
-                    <TableCell>{formatCurrency(item.restaurant.total_restaurant_revenue)}</TableCell>
+                    <TableCell>{formatCurrency(item.restaurant?.total_restaurant_revenue ?? 0)}</TableCell>
                   )}
 
                   {(view === "all" || view === "other") && (
-                    <TableCell>{formatCurrency(item.other_revenue.total_other_revenue)}</TableCell>
+                    <TableCell>{formatCurrency(item.other_revenue?.total_other_revenue ?? 0)}</TableCell>
                   )}
 
-                  <TableCell>{formatCurrency(item.nett_revenue)}</TableCell>
-                  <TableCell>{formatCurrency(item.gross_revenue)}</TableCell>
-                  <TableCell>{item.room_stats.occupancy.toFixed(2)}%</TableCell>
+                  <TableCell>{formatCurrency(item.nett_revenue ?? 0)}</TableCell>
+                  <TableCell>{formatCurrency(item.gross_revenue ?? 0)}</TableCell>
+                  <TableCell>{(item.room_stats?.occupancy ?? 0).toFixed(2)}%</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -259,8 +259,6 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* View Details Dialog */}
       {viewingItem && <RevenueDetails data={viewingItem} isOpen={!!viewingItem} onClose={() => setViewingItem(null)} />}
     </>
   )

@@ -45,9 +45,15 @@ export default function RevenuePage() {
     fetchData()
   }, [])
 
-  const handleCreate = (newItem) => {
-    setData([...data, { ...newItem, _id: { $oid: crypto.randomUUID() } }])
-    setIsFormOpen(false)
+  const handleCreate = async () => {
+    try {
+      const response = await getRevenues() 
+      setData(response.data)
+    } catch (error) {
+      console.error("Failed to refresh revenue data after create", error)
+    } finally {
+      setIsFormOpen(false)
+    }
   }
 
   const handleUpdate = (updatedItem) => {
