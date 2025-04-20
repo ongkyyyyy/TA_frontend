@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { CalendarIcon, Download, Filter, Plus, Search, SlidersHorizontal } from "lucide-react"
-
 import { Button } from "../../ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../ui/card"
 import { Input } from "../../ui/input"
@@ -19,7 +18,7 @@ import {
   DialogTitle,
 } from "../../ui/dialog"
 
-import { getRevenues } from "../../../api/apiRevenues"
+import { getRevenues, deleteRevenue } from "../../../api/apiRevenues"
 
 const revenueTabs = [
   { label: "All Revenue", value: "all" },
@@ -71,12 +70,21 @@ export default function RevenuePage() {
   }
 
   const handleUpdate = (updatedItem) => {
-    setData(data.map((item) => (item._id.$oid === updatedItem._id.$oid ? updatedItem : item)))
+    setData(data.map((item) => {
+      const itemId = typeof item._id === "object" ? item._id.$oid : item._id
+      const updatedId = typeof updatedItem._id === "object" ? updatedItem._id.$oid : updatedItem._id
+      return itemId === updatedId ? updatedItem : item
+    }))    
     setEditingItem(null)
   }
 
-  const handleDelete = (id) => {
-    setData(data.filter((item) => item._id.$oid !== id))
+  const handleDelete = async (id) => {
+    try {
+      await deleteRevenue(id)
+      setData(data.filter((item) => item._id.$oid !== id))
+    } catch (error) {
+      console.error("Failed to delete revenue", error)
+    }
   }
 
   const handleEdit = (item) => {
@@ -95,6 +103,7 @@ export default function RevenuePage() {
 
     return matchesSearch && matchesDateRange
   })
+
   return (
     <div className="container mx-auto py-6">
       <div className="flex items-center justify-between mb-6">

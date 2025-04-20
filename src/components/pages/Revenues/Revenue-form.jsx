@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "react-toastify"
 import { inputRevenue, updateRevenue } from "@/api/apiRevenues"
 import { getHotels } from "@/api/apiHotels"
+import { parse } from "date-fns"
 
 const FormField = ({ label, value, onChange, readOnly = false, type = "number", hint }) => (
   <div className="space-y-1">
@@ -39,7 +40,7 @@ const FormField = ({ label, value, onChange, readOnly = false, type = "number", 
 )
 
 const defaultFormData = {
-  date: format(new Date(), "yyyy-MM-dd"),
+  date: format(new Date(), "dd-MM-yyyy"),
   room_details: { room_lodging: 0, rebate_discount: 0, total_room_revenue: 0 },
   restaurant: { breakfast: 0, restaurant_food: 0, restaurant_beverage: 0, total_restaurant_revenue: 0 },
   other_revenue: {
@@ -78,12 +79,15 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
   const [hotels, setHotels] = useState([])
 
   useEffect(() => {
-    if (initialData) {
+    if (initialData && hotels.length > 0) {
       const newData = structuredClone(initialData)
+      newData.hotel_id = getIdString(newData.hotel_id) 
       calculateTotals(newData)
       setFormData(newData)
+    } else if (!initialData) {
+      setFormData(defaultFormData)
     }
-  }, [initialData])
+  }, [initialData, hotels])  
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -118,36 +122,46 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
 
   const handleDateChange = (date) => {
     if (date instanceof Date && !isNaN(date)) {
-      updateFormData("date", format(date, "yyyy-MM-dd"))
+      updateFormData("date", format(date, "dd-MM-yyyy"))
     }
   }
 
+  const getIdString = (id) => {
+    if (!id) return "";
+    return typeof id === "string" ? id : id.$oid || "";
+  };
+
   const handleSubmit = async () => {
     if (!formData.hotel_id) {
-      toast.error("Please select a hotel.")
-      return
+      toast.error("Please select a hotel.");
+      return;
     }
+
+    console.log("formData", formData)
   
-    const baseData = {
-      ...formData,
-      hotel_id: initialData?.hotel_id ?? formData.hotel_id,
+    const flatPayload = flattenRevenueData(formData);
+  
+    if (initialData?._id) {
+      delete flatPayload.hotel_id;
     }
-  
-    const payload = initialData?._id ? baseData : flattenRevenueData(baseData)
-  
-    console.log("Payload being submitted:", payload)
+
+    console.log ("flatPayload", flatPayload)
   
     try {
-      initialData?._id
-        ? await updateRevenue(initialData._id, payload)
-        : await inputRevenue(payload)
-      onSubmit?.()
-      onClose?.()
+      let result;
+      if (initialData?._id) {
+        result = await updateRevenue(getIdString(initialData._id), flatPayload);
+      } else {
+        result = await inputRevenue(flatPayload);
+      }
+  
+      onSubmit?.(result?.data);
+      onClose?.();
     } catch (err) {
-      console.error(err)
-      toast.error("Failed to submit data. Please try again.")
+      console.error(err);
+      toast.error("Failed to submit data. Please try again.");
     }
-  }  
+  };
 
   const renderFields = (fields, basePath = "") => (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -197,8 +211,8 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
             >
               <option value="">Select a hotel</option>
               {hotels.map((hotel) => (
-                <option key={hotel._id} value={hotel._id}>
-                  {hotel.hotel_name} 
+                <option key={hotel._id} value={getIdString(hotel._id)}>
+                  {hotel.hotel_name}
                 </option>
               ))}
             </select>
@@ -209,13 +223,16 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-start text-left">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.date ? format(new Date(formData.date), "PPP") : "Select date"}
+
+                    {formData.date && parse(formData.date, "dd-MM-yyyy", new Date()).toString() !== "Invalid Date"
+                      ? format(parse(formData.date, "dd-MM-yyyy", new Date()), "PPP")
+                      : "Select date"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
                   <Calendar
                     mode="single"
-                    selected={formData.date ? new Date(formData.date) : undefined}
+                    selected={formData.date ? parse(formData.date, "dd-MM-yyyy", new Date()) : undefined}
                     onSelect={handleDateChange}
                     initialFocus
                   />
@@ -310,17 +327,26 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
   )
 }
 
-function flattenRevenueData(data) {
-  const flat = { hotel_id: data.hotel_id } 
+function flattenRevenueData(data, isNested = false) {
+  const flat = {};
+
+  if (!isNested && data.hotel_id) {
+    flat.hotel_id = data.hotel_id;
+  }
+
   for (const key in data) {
-    if (key === "hotel_id") continue 
-    if (typeof data[key] === "object" && data[key] !== null) {
-      Object.assign(flat, data[key])
+    if (key === "hotel_id") continue;
+    const value = data[key];
+    if (typeof value === "object" && value !== null && value.$oid) {
+      flat[key] = value.$oid;
+    } else if (typeof value === "object" && value !== null) {
+      Object.assign(flat, flattenRevenueData(value, true)); 
     } else {
-      flat[key] = data[key]
+      flat[key] = value;
     }
   }
-  return flat
+
+  return flat;
 }
 
 function calculateTotals(data) {
@@ -347,3 +373,5 @@ function calculateTotals(data) {
 
   return { ...data, room_details: rd, restaurant: rs, other_revenue: or, room_stats: rst }
 }
+
+

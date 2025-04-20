@@ -1,4 +1,4 @@
-import { format } from "date-fns"
+import { format, parse } from "date-fns"
 import PropTypes from "prop-types"
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../ui/dialog"
@@ -19,7 +19,8 @@ export function RevenueDetails({ data, isOpen, onClose }) {
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Revenue Details</DialogTitle>
-          <DialogDescription>Revenue data for {format(new Date(data.date), "PPP")}</DialogDescription>
+          <DialogDescription>Revenue data for {format(parse(data.date, "dd-MM-yyyy", new Date()), "PPP")
+          }</DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="summary">
@@ -34,7 +35,8 @@ export function RevenueDetails({ data, isOpen, onClose }) {
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Date</p>
-                <p className="text-lg">{format(new Date(data.date), "PPP")}</p>
+                <p className="text-lg">{format(parse(data.date, "dd-MM-yyyy", new Date()), "PPP")
+                }</p>
               </div>
 
               <div className="space-y-1">

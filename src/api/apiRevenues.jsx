@@ -16,6 +16,7 @@ export const getRevenues = async () => {
 }
 
 export const inputRevenue = async (data) => {
+  console.log('response', data)
   try {
     const response = await useAxios.post('/revenues', data, {
       headers: {
@@ -31,13 +32,13 @@ export const inputRevenue = async (data) => {
 };
 
 export const updateRevenue = async (id, data) => {
+  console.log('response', data)
   try {
     const response = await useAxios.put(`/revenues/${id}`, data, {
       headers: {
         'Content-Type': 'application/json',
       },
     });
-
     return response.data;
   } catch (error) {
     console.error('Error updating hotel data:', error);

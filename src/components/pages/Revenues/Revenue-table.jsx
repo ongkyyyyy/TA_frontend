@@ -2,7 +2,6 @@ import { useState } from "react"
 import { ArrowUpDown, Edit, Eye, MoreHorizontal, Trash } from "lucide-react"
 import { format } from "date-fns"
 import PropTypes from "prop-types"
-
 import { Button } from "../../ui/button"
 import {
   DropdownMenu,
@@ -22,6 +21,8 @@ import {
   DialogTitle,
 } from "../../ui/dialog"
 import { RevenueDetails } from "./revenue-details"
+import { parse } from "date-fns";
+
 
 export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
   const [sortColumn, setSortColumn] = useState("date")
@@ -183,12 +184,12 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
             ) : (
               sortedData.map((item) => (
                 <TableRow key={item._id.$oid}>
-                  <TableCell className="font-medium">
-                    {item.date && !isNaN(new Date(item.date)) 
-                      ? format(new Date(item.date), "dd MMM yyyy") 
-                      : "Invalid date"}
-                  </TableCell>
-
+                <TableCell className="font-medium">
+                  {item.date && !isNaN(parse(item.date, "dd-MM-yyyy", new Date())) 
+                    ? format(parse(item.date, "dd-MM-yyyy", new Date()), "dd MMM yyyy") 
+                    : "Invalid date"}
+                </TableCell>
+                
                   {(view === "all" || view === "room") && (
                     <TableCell>{formatCurrency(item.room_details?.total_room_revenue ?? 0)}</TableCell>
                   )}
