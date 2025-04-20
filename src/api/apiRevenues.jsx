@@ -7,8 +7,6 @@ export const getRevenues = async () => {
           'Content-Type': 'application/json',
         },
       });
-  
-      console.log('API response:', response.data); // 👀 Check this
 
       return response.data; 
     } catch (error) {
@@ -31,3 +29,34 @@ export const inputRevenue = async (data) => {
     throw error;
   }
 };
+
+export const updateRevenue = async (id, data) => {
+  try {
+    const response = await useAxios.put(`/revenues/${id}`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error updating hotel data:', error);
+    throw error;
+  }
+}
+
+export const deleteRevenue = async (id) => {
+  try {
+    const response = await useAxios.delete(`/revenues/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting hotel data:', error);
+    throw error;
+  }
+}
+

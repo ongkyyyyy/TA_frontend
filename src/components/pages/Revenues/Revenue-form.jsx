@@ -1,10 +1,9 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react"
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
-import PropTypes from "prop-types"
-
-import { Button } from "../../ui/button"
-import { Calendar } from "../../ui/calendar"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Dialog,
   DialogContent,
@@ -12,12 +11,35 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../ui/dialog"
-import { Input } from "../../ui/input"
-import { Label } from "../../ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs"
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
+import { inputRevenue, updateRevenue } from "@/api/apiRevenues"
+import { toast } from "react-toastify"
+
+const FormField = ({ label, value, onChange, readOnly = false, type = "number", hint }) => (
+  <div className="space-y-2">
+    <Label>{label}</Label>
+    <Input
+      type={type}
+      value={value}
+      onChange={
+        onChange
+          ? (e) => {
+              const val = type === "number" ? Number(e.target.value) : e.target.value;
+              onChange(val);
+            }
+          : undefined
+      }
+      readOnly={readOnly}
+      className={readOnly ? "bg-muted" : ""}
+    />
+    {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
+  </div>
+);
 
 export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
   const [formData, setFormData] = useState({
@@ -64,116 +86,162 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
     },
   })
 
-  // Initialize form with initial data if provided
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData)
+      const newData = structuredClone(initialData)
+      calculateTotals(newData)
+      setFormData(newData)
     }
-  }, [initialData])
+  }, [initialData])  
 
-  // Handle input changes
-  const handleInputChange = (path, value) => {
-    const pathParts = path.split(".")
-    const newData = { ...formData }
-
-    let current = newData
-    for (let i = 0; i < pathParts.length - 1; i++) {
-      if (!current[pathParts[i]]) {
-        current[pathParts[i]] = {}
+  const updateFormData = (path, value) => {
+    setFormData((prev) => {
+      const newData = structuredClone(prev);
+      const keys = path.split(".");
+      let current = newData;
+      for (let i = 0; i < keys.length - 1; i++) {
+        if (!current[keys[i]]) current[keys[i]] = {};
+        current = current[keys[i]];
       }
-      current = current[pathParts[i]]
-    }
+      current[keys.at(-1)] = value; 
+      calculateTotals(newData);
+      return newData;
+    });
+  };
 
-    current[pathParts[pathParts.length - 1]] =
-      typeof value === "string" && !isNaN(Number(value)) ? Number(value) : value
-
-    // Calculate totals
-    calculateTotals(newData)
-  }
-
-  // Calculate all totals based on input values
   const calculateTotals = (data) => {
-    if (data.room_details) {
-      data.room_details.total_room_revenue =
-        (data.room_details.room_lodging || 0) - (data.room_details.rebate_discount || 0)
-    }
-
-    if (data.restaurant) {
-      data.restaurant.total_restaurant_revenue =
-        (data.restaurant.breakfast || 0) +
-        (data.restaurant.restaurant_food || 0) +
-        (data.restaurant.restaurant_beverage || 0)
-    }
-
-    if (data.other_revenue) {
-      data.other_revenue.total_other_revenue =
-        (data.other_revenue.other_room_revenue || 0) +
-        (data.other_revenue.telephone || 0) +
-        (data.other_revenue.business_center || 0) +
-        (data.other_revenue.other_income || 0) +
-        (data.other_revenue.spa_therapy || 0) +
-        (data.other_revenue.misc || 0) -
-        (data.other_revenue.allowance_other || 0)
-    }
-
-    // Calculate nett revenue
+    const rd = data.room_details ?? {};
+    const rs = data.restaurant ?? {};
+    const or = data.other_revenue ?? {};
+    const rst = data.room_stats ?? {};
+  
+    rd.total_room_revenue =
+      (Number(rd.room_lodging) || 0) - (Number(rd.rebate_discount) || 0);
+  
+    rs.total_restaurant_revenue =
+      (Number(rs.breakfast) || 0) +
+      (Number(rs.restaurant_food) || 0) +
+      (Number(rs.restaurant_beverage) || 0);
+  
+    or.total_other_revenue =
+      (Number(or.other_room_revenue) || 0) +
+      (Number(or.telephone) || 0) +
+      (Number(or.business_center) || 0) +
+      (Number(or.other_income) || 0) +
+      (Number(or.spa_therapy) || 0) +
+      (Number(or.misc) || 0) -
+      (Number(or.allowance_other) || 0);
+  
+    data.room_details = rd;
+    data.restaurant = rs;
+    data.other_revenue = or;
+  
     data.nett_revenue =
-      (data.room_details?.total_room_revenue || 0) +
-      (data.restaurant?.total_restaurant_revenue || 0) +
-      (data.other_revenue?.total_other_revenue || 0)
-
-    // Calculate service charge (10%)
-    data.service_charge = (data.nett_revenue || 0) * 0.1
-
-    // Calculate government tax (11% of nett + service)
-    data.government_tax = ((data.nett_revenue || 0) + (data.service_charge || 0)) * 0.11
-
-    // Calculate gross revenue
-    data.gross_revenue = (data.nett_revenue || 0) + (data.service_charge || 0) + (data.government_tax || 0)
-
-    // Calculate grand total revenue
-    data.grand_total_revenue = (data.gross_revenue || 0) + (data.ap_restaurant || 0) + (data.tips || 0)
-
-    // Calculate room stats
-    if (data.room_stats) {
-      data.room_stats.rooms_occupied =
-        (data.room_stats.house_use || 0) + (data.room_stats.complimentary || 0) + (data.room_stats.rooms_sold || 0)
-
-      data.room_stats.vacant_rooms = (data.room_stats.room_available || 0) - (data.room_stats.rooms_occupied || 0)
-
-      data.room_stats.occupancy = data.room_stats.room_available
-        ? ((data.room_stats.rooms_occupied || 0) / data.room_stats.room_available) * 100
-        : 0
-
-      data.room_stats.average_room_rate = data.room_stats.rooms_sold
-        ? (data.room_details?.total_room_revenue || 0) / data.room_stats.rooms_sold
-        : 0
-    }
-
-    setFormData(data)
-  }
+      rd.total_room_revenue + rs.total_restaurant_revenue + or.total_other_revenue;
+  
+    data.service_charge = data.nett_revenue * 0.1;
+    data.government_tax = (data.nett_revenue + data.service_charge) * 0.11;
+    data.gross_revenue =
+      data.nett_revenue + data.service_charge + data.government_tax;
+  
+    data.grand_total_revenue =
+      data.gross_revenue +
+      (Number(data.ap_restaurant) || 0) +
+      (Number(data.tips) || 0);
+  
+    rst.rooms_occupied =
+      (Number(rst.house_use) || 0) +
+      (Number(rst.complimentary) || 0) +
+      (Number(rst.rooms_sold) || 0);
+  
+    rst.vacant_rooms =
+      (Number(rst.room_available) || 0) - rst.rooms_occupied;
+  
+    rst.occupancy = rst.room_available
+      ? (rst.rooms_occupied / Number(rst.room_available)) * 100
+      : 0;
+  
+    rst.average_room_rate = rst.rooms_sold
+      ? rd.total_room_revenue / Number(rst.rooms_sold)
+      : 0;
+  
+    data.room_stats = rst;
+    return data;
+  };  
 
   const handleDateChange = (date) => {
-    if (date) {
-      handleInputChange("date", format(date, "yyyy-MM-dd"))
+    if (date instanceof Date && !isNaN(date)) {
+      updateFormData("date", format(date, "yyyy-MM-dd"))
     }
-  }
+  }  
 
-  const handleSubmit = () => {
-    if (initialData) {
-      onSubmit({
-        ...formData,
-        _id: initialData._id,
-        hotel_id: initialData.hotel_id,
-      })
-    } else {
-      onSubmit({
-        ...formData,
-        _id: { $oid: crypto.randomUUID() },
-        hotel_id: { $oid: "67fcca4e852775d38fc10853" },
-      })
+  const renderFields = (fields, basePath) => (
+    <div className={`grid grid-cols-${fields.length > 2 ? 3 : 2} gap-4`}>
+      {fields.map(({ label, key, readOnly = false, hint }) => {
+        const fullKey = basePath ? `${basePath}.${key}` : key
+        const value = fullKey.split(".").reduce((o, k) => o?.[k], formData)
+
+        return (
+          <FormField
+            key={fullKey}
+            label={label}
+            value={value}
+            readOnly={readOnly}
+            hint={hint}
+            onChange={readOnly ? undefined : (v) => updateFormData(fullKey, v)}
+          />
+        )
+      })}
+    </div>
+  )
+
+  const handleSubmit = async () => {
+    const payload = JSON.parse(
+      JSON.stringify(
+        {
+          ...formData,
+          hotel_id: initialData?.hotel_id,
+        },
+        (key, value) => (value === "" ? 0 : value) 
+      )
+    );
+  
+    try {
+      if (initialData?._id) {
+        await updateRevenue(initialData._id, payload);
+      } else {
+        const payload = flattenRevenueData({
+          ...formData,
+          hotel_id: initialData?.hotel_id || "67fcca4e852775d38fc10853",
+        });
+        
+        console.log("Submitting payload:", payload);
+        await inputRevenue(payload);
+      }
+  
+      onSubmit?.();
+      onClose?.();
+    } catch (error) {
+      console.error("Submission failed:", error);
+      toast.error("Failed to submit data. Please try again.");
     }
-  }
+  };
+
+  function flattenRevenueData(data) {
+    const flat = {};
+  
+    for (const key in data) {
+      if (typeof data[key] === 'object' && data[key] !== null) {
+        for (const subKey in data[key]) {
+          flat[subKey] = data[key][subKey];
+        }
+      } else {
+        flat[key] = data[key];
+      }
+    }
+  
+    return flat;
+  }  
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -224,313 +292,89 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Nett Revenue</Label>
-                <Input type="number" value={formData.nett_revenue} readOnly className="bg-muted" />
-                <p className="text-sm text-muted-foreground">Automatically calculated</p>
-              </div>
+            {renderFields(
+              [
+                { label: "Nett Revenue", key: "nett_revenue", readOnly: true, hint: "Automatically calculated" },
+                { label: "Gross Revenue", key: "gross_revenue", readOnly: true, hint: "Automatically calculated" },
+              ],
+              "",
+            )}
 
-              <div className="space-y-2">
-                <Label>Gross Revenue</Label>
-                <Input type="number" value={formData.gross_revenue} readOnly className="bg-muted" />
-                <p className="text-sm text-muted-foreground">Automatically calculated</p>
-              </div>
-            </div>
+            {renderFields(
+              [
+                { label: "Service Charge (10%)", key: "service_charge" },
+                { label: "Government Tax (11%)", key: "government_tax" },
+                { label: "Grand Total Revenue", key: "grand_total_revenue", readOnly: true },
+              ],
+              "",
+            )}
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Service Charge (10%)</Label>
-                <Input
-                  type="number"
-                  value={formData.service_charge}
-                  onChange={(e) => handleInputChange("service_charge", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Government Tax (11%)</Label>
-                <Input
-                  type="number"
-                  value={formData.government_tax}
-                  onChange={(e) => handleInputChange("government_tax", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Grand Total Revenue</Label>
-                <Input type="number" value={formData.grand_total_revenue} readOnly className="bg-muted" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>AP Restaurant</Label>
-                <Input
-                  type="number"
-                  value={formData.ap_restaurant}
-                  onChange={(e) => handleInputChange("ap_restaurant", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Tips</Label>
-                <Input
-                  type="number"
-                  value={formData.tips}
-                  onChange={(e) => handleInputChange("tips", e.target.value)}
-                />
-              </div>
-            </div>
+            {renderFields(
+              [
+                { label: "AP Restaurant", key: "ap_restaurant" },
+                { label: "Tips", key: "tips" },
+              ],
+              "",
+            )}
           </TabsContent>
 
           <TabsContent value="room" className="space-y-4">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Room Lodging</Label>
-                <Input
-                  type="number"
-                  value={formData.room_details?.room_lodging}
-                  onChange={(e) => handleInputChange("room_details.room_lodging", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Rebate/Discount</Label>
-                <Input
-                  type="number"
-                  value={formData.room_details?.rebate_discount}
-                  onChange={(e) => handleInputChange("room_details.rebate_discount", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Total Room Revenue</Label>
-                <Input type="number" value={formData.room_details?.total_room_revenue} readOnly className="bg-muted" />
-                <p className="text-sm text-muted-foreground">Automatically calculated</p>
-              </div>
-            </div>
+            {renderFields(
+              [
+                { label: "Room Lodging", key: "room_lodging" },
+                { label: "Rebate/Discount", key: "rebate_discount" },
+                { label: "Total Room Revenue", key: "total_room_revenue", readOnly: true, hint: "Automatically calculated" },
+              ],
+              "room_details",
+            )}
 
             <div className="border-t pt-4">
               <h3 className="text-lg font-medium mb-4">Room Statistics</h3>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>Active Rooms</Label>
-                  <Input
-                    type="number"
-                    value={formData.room_stats?.active_rooms}
-                    onChange={(e) => handleInputChange("room_stats.active_rooms", e.target.value)}
-                  />
-                </div>
 
-                <div className="space-y-2">
-                  <Label>Room Available</Label>
-                  <Input
-                    type="number"
-                    value={formData.room_stats?.room_available}
-                    onChange={(e) => handleInputChange("room_stats.room_available", e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>House Use</Label>
-                  <Input
-                    type="number"
-                    value={formData.room_stats?.house_use}
-                    onChange={(e) => handleInputChange("room_stats.house_use", e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 mt-4">
-                <div className="space-y-2">
-                  <Label>Complimentary</Label>
-                  <Input
-                    type="number"
-                    value={formData.room_stats?.complimentary}
-                    onChange={(e) => handleInputChange("room_stats.complimentary", e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Rooms Sold</Label>
-                  <Input
-                    type="number"
-                    value={formData.room_stats?.rooms_sold}
-                    onChange={(e) => handleInputChange("room_stats.rooms_sold", e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Guests In House</Label>
-                  <Input
-                    type="number"
-                    value={formData.room_stats?.guests_in_house}
-                    onChange={(e) => handleInputChange("room_stats.guests_in_house", e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 mt-4">
-                <div className="space-y-2">
-                  <Label>Rooms Occupied</Label>
-                  <Input type="number" value={formData.room_stats?.rooms_occupied} readOnly className="bg-muted" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Vacant Rooms</Label>
-                  <Input type="number" value={formData.room_stats?.vacant_rooms} readOnly className="bg-muted" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Occupancy (%)</Label>
-                  <Input
-                    type="number"
-                    value={formData.room_stats?.occupancy?.toFixed(2)}
-                    readOnly
-                    className="bg-muted"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <div className="space-y-2">
-                  <Label>Average Room Rate</Label>
-                  <Input
-                    type="number"
-                    value={formData.room_stats?.average_room_rate?.toFixed(2)}
-                    readOnly
-                    className="bg-muted"
-                  />
-                </div>
-              </div>
+              {renderFields(
+                [
+                  { label: "Active Rooms", key: "active_rooms" },
+                  { label: "Room Available", key: "room_available" },
+                  { label: "House Use", key: "house_use" },
+                  { label: "Complimentary", key: "complimentary" },
+                  { label: "Rooms Sold", key: "rooms_sold" },
+                  { label: "Guests In House", key: "guests_in_house" },
+                  { label: "Rooms Occupied", key: "rooms_occupied", readOnly: true },
+                  { label: "Vacant Rooms", key: "vacant_rooms", readOnly: true },
+                  { label: "Occupancy (%)", key: "occupancy", readOnly: true },
+                  { label: "Average Room Rate", key: "average_room_rate", readOnly: true },
+                ],
+                "room_stats",
+              )}
             </div>
           </TabsContent>
 
           <TabsContent value="restaurant" className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Breakfast</Label>
-                <Input
-                  type="number"
-                  value={formData.restaurant?.breakfast}
-                  onChange={(e) => handleInputChange("restaurant.breakfast", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Restaurant Food</Label>
-                <Input
-                  type="number"
-                  value={formData.restaurant?.restaurant_food}
-                  onChange={(e) => handleInputChange("restaurant.restaurant_food", e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Restaurant Beverage</Label>
-                <Input
-                  type="number"
-                  value={formData.restaurant?.restaurant_beverage}
-                  onChange={(e) => handleInputChange("restaurant.restaurant_beverage", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Total Restaurant Revenue</Label>
-                <Input
-                  type="number"
-                  value={formData.restaurant?.total_restaurant_revenue}
-                  readOnly
-                  className="bg-muted"
-                />
-                <p className="text-sm text-muted-foreground">Automatically calculated</p>
-              </div>
-            </div>
+            {renderFields(
+              [
+                { label: "Breakfast", key: "breakfast" },
+                { label: "Restaurant Food", key: "restaurant_food" },
+                { label: "Restaurant Beverage", key: "restaurant_beverage" },
+                { label: "Total Restaurant Revenue", key: "total_restaurant_revenue", readOnly: true, hint: "Automatically calculated" },
+              ],
+              "restaurant",
+            )}
           </TabsContent>
 
           <TabsContent value="other" className="space-y-4">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Other Room Revenue</Label>
-                <Input
-                  type="number"
-                  value={formData.other_revenue?.other_room_revenue}
-                  onChange={(e) => handleInputChange("other_revenue.other_room_revenue", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Telephone</Label>
-                <Input
-                  type="number"
-                  value={formData.other_revenue?.telephone}
-                  onChange={(e) => handleInputChange("other_revenue.telephone", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Business Center</Label>
-                <Input
-                  type="number"
-                  value={formData.other_revenue?.business_center}
-                  onChange={(e) => handleInputChange("other_revenue.business_center", e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Other Income</Label>
-                <Input
-                  type="number"
-                  value={formData.other_revenue?.other_income}
-                  onChange={(e) => handleInputChange("other_revenue.other_income", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Spa Therapy</Label>
-                <Input
-                  type="number"
-                  value={formData.other_revenue?.spa_therapy}
-                  onChange={(e) => handleInputChange("other_revenue.spa_therapy", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Miscellaneous</Label>
-                <Input
-                  type="number"
-                  value={formData.other_revenue?.misc}
-                  onChange={(e) => handleInputChange("other_revenue.misc", e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Allowance Other</Label>
-                <Input
-                  type="number"
-                  value={formData.other_revenue?.allowance_other}
-                  onChange={(e) => handleInputChange("other_revenue.allowance_other", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Total Other Revenue</Label>
-                <Input
-                  type="number"
-                  value={formData.other_revenue?.total_other_revenue}
-                  readOnly
-                  className="bg-muted"
-                />
-                <p className="text-sm text-muted-foreground">Automatically calculated</p>
-              </div>
-            </div>
+            {renderFields(
+              [
+                { label: "Other Room Revenue", key: "other_room_revenue" },
+                { label: "Telephone", key: "telephone" },
+                { label: "Business Center", key: "business_center" },
+                { label: "Other Income", key: "other_income" },
+                { label: "Spa Therapy", key: "spa_therapy" },
+                { label: "Miscellaneous", key: "misc" },
+                { label: "Allowance Other", key: "allowance_other" },
+                { label: "Total Other Revenue", key: "total_other_revenue", readOnly: true, hint: "Automatically calculated" },
+              ],
+              "other_revenue",
+            )}
           </TabsContent>
         </Tabs>
 
@@ -543,12 +387,4 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
       </DialogContent>
     </Dialog>
   )
-}
-
-// Add prop validation
-RevenueForm.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  initialData: PropTypes.object,
 }

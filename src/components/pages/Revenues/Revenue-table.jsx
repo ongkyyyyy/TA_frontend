@@ -183,7 +183,11 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
             ) : (
               sortedData.map((item) => (
                 <TableRow key={item._id.$oid}>
-                  <TableCell className="font-medium">{format(new Date(item.date), "dd MMM yyyy")}</TableCell>
+                <TableCell className="font-medium">
+                  {item.date && !isNaN(new Date(item.date)) 
+                    ? format(new Date(item.date), "dd MMM yyyy") 
+                    : "Invalid date"}
+                </TableCell>
 
                   {(view === "all" || view === "room") && (
                     <TableCell>{formatCurrency(item.room_details.total_room_revenue)}</TableCell>
