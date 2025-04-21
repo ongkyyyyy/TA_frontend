@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from "../../ui/pagination"
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { getHotels, deleteHotel, searchHotels } from "@/api/apiHotels"
 import HotelsList from "./hotels-list"
@@ -21,13 +22,24 @@ export default function Hotels() {
   const [hotelToDelete, setHotelToDelete] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
 
-  const fetchHotels = useCallback(async () => {
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalHotels, setTotalHotels] = useState(0)
+  const HOTELS_PER_PAGE = 15
+
+  const fetchHotels = useCallback(async (page = 1) => {
+    if (typeof page !== "number") {
+      console.warn("fetchHotels received invalid page value:", page)
+      page = 1
+    }
+
     setIsLoading(true)
     setError(null)
     try {
-      const data = await getHotels()
-      setHotels(data)
-      setFilteredHotels(data)
+      const res = await getHotels(page, HOTELS_PER_PAGE)
+      setHotels(res.data)
+      setFilteredHotels(res.data)
+      setTotalHotels(res.total)
+      setCurrentPage(res.page)
     } catch (error) {
       console.log(error)
       setError("Failed to fetch hotels. Please try again later.")
@@ -35,29 +47,37 @@ export default function Hotels() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [])  
 
   useEffect(() => {
     fetchHotels()
   }, [fetchHotels])
 
-  const debouncedSearch = useMemo(() => debounce((term) => {
+  const debouncedSearch = useMemo(() => debounce((term, page = 1) => {
     if (term.trim() !== "") {
-      searchHotels(term)
-        .then(setFilteredHotels)
+      searchHotels(term, page, HOTELS_PER_PAGE)
+        .then(res => {
+          setFilteredHotels(res.data)
+          setTotalHotels(res.total)
+          setCurrentPage(res.page)
+        })
         .catch((error) => {
           console.error(error)
           toast.error("Failed to search hotels.")
         });
     } else {
-      setFilteredHotels(hotels)
+      fetchHotels(page)
     }
-  }, 500), [hotels]);
-
+  }, 500), [fetchHotels]);  
+  
   useEffect(() => {
-    debouncedSearch(searchTerm)
+    if (searchTerm.trim() !== "") {
+      debouncedSearch(searchTerm, currentPage)
+    } else {
+      fetchHotels(currentPage)
+    }
     return () => debouncedSearch.cancel()
-  }, [searchTerm, hotels])
+  }, [searchTerm, currentPage])
 
   const handleAddHotel = () => {
     setSelectedHotel(null)
@@ -73,6 +93,12 @@ export default function Hotels() {
     setHotelToDelete(hotel)
     setIsDeleteModalOpen(true)
   }
+
+  const handleClearSearch = () => {
+    setSearchTerm("") 
+    setCurrentPage(1)  
+  }
+  
 
   const confirmDelete = async () => {
     if (!hotelToDelete) return
@@ -92,14 +118,17 @@ export default function Hotels() {
 
   const handleFormClose = () => {
     setIsFormOpen(false)
-    fetchHotels()
   }
 
   return (
     <div className="space-y-6 py-6">
       <h1 className="text-3xl font-bold">Hotels Management</h1>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <SearchBar setSearchTerm={setSearchTerm} searchTerm={searchTerm} />
+      <SearchBar
+        setSearchTerm={setSearchTerm}
+        searchTerm={searchTerm}
+        onClear={handleClearSearch}
+      />
         <div className="flex gap-2">
           <Button onClick={handleAddHotel} className="flex items-center gap-2">
             <PlusCircle className="h-4 w-4" />
@@ -107,7 +136,7 @@ export default function Hotels() {
           </Button>
           <Button
             variant="outline"
-            onClick={fetchHotels}
+            onClick={handleClearSearch}
             disabled={isLoading}
             className="flex items-center gap-2"
           >
@@ -125,6 +154,46 @@ export default function Hotels() {
         onEdit={handleEditHotel}
         onDelete={handleDeleteHotel}
       />
+      {!isLoading && Array.isArray(filteredHotels) && filteredHotels.length > 0 && (
+        <Pagination>
+          <PaginationContent className="justify-center mt-4">
+            <PaginationItem>
+              <PaginationPrevious
+                className="cursor-pointer"
+                onClick={() => {
+                  if (currentPage > 1) {
+                    if (searchTerm) {
+                      debouncedSearch(searchTerm, currentPage - 1)
+                    } else {
+                      fetchHotels(currentPage - 1)
+                    }
+                  }
+                }}
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <span className="text-sm text-muted-foreground px-2">
+                Page {currentPage} of {Math.ceil(totalHotels / HOTELS_PER_PAGE)}
+              </span>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext
+                className="cursor-pointer"
+                onClick={() => {
+                  const maxPage = Math.ceil(totalHotels / HOTELS_PER_PAGE)
+                  if (currentPage < maxPage) {
+                    if (searchTerm) {
+                      debouncedSearch(searchTerm, currentPage + 1)
+                    } else {
+                      fetchHotels(currentPage + 1)
+                    }
+                  }
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
 
       {isFormOpen && (
         <HotelForm hotel={selectedHotel} onClose={handleFormClose} setHotels={setHotels} />
@@ -137,5 +206,6 @@ export default function Hotels() {
         hotel={hotelToDelete}
       />
     </div>
+    
   )
 }

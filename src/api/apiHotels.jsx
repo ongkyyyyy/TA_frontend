@@ -1,19 +1,31 @@
 import useAxios from './index.jsx';
 
-export const getHotels = async () => {
-    try {
-      const response = await useAxios.get('/hotels', {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching hotels data:', error);
-      throw error;
-    }
-}
+export const getHotels = async (page = 1, limit = 15) => {
+  try {
+    const response = await useAxios.get('/hotels', {
+      params: { page, limit },
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching hotels data:', error);
+    throw error;
+  }
+};
+
+export const searchHotels = async (searchTerm, page = 1, limit = 15) => {
+  try {
+    const response = await useAxios.get('/hotels/search', {
+      params: { q: searchTerm, page, limit },
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error searching hotels:', error);
+    throw error;
+  }
+};
 
 export const inputHotels = async (data) => {
   try {
@@ -75,19 +87,5 @@ export const getHotelById = async (id) => {
   }
 }
 
-export const searchHotels = async (searchTerm) => {
-  try {
-    const response = await useAxios.get('/hotels/search', {
-      params: { q: searchTerm },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error searching hotels:', error);
-    throw error;
-  }
-};
 
 

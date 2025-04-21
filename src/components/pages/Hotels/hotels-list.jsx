@@ -5,7 +5,7 @@ import { Edit, Trash2, ExternalLink } from "lucide-react"
 import { Card, CardContent } from "../../ui/card"
 import { Skeleton } from "../../ui/skeleton"
 
-export default function HotelsList({ hotels, isLoading, onEdit, onDelete }) {
+export default function HotelsList({ hotels = [], isLoading, onEdit, onDelete }) {
   if (isLoading) {
     return (
       <Card>
@@ -24,7 +24,7 @@ export default function HotelsList({ hotels, isLoading, onEdit, onDelete }) {
     )
   }
 
-  if (hotels.length === 0) {
+  if (!Array.isArray(hotels) || hotels.length === 0) {
     return (
       <Card>
         <CardContent className="p-6 text-center">

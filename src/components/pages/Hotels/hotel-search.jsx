@@ -3,11 +3,7 @@ import { Input } from "../../ui/input";
 import { Search, X } from "lucide-react";
 import { Button } from "../../ui/button";
 
-export default function SearchBar({ searchTerm, setSearchTerm }) {
-  const handleClear = () => {
-    setSearchTerm("");
-  };
-
+export default function SearchBar({ searchTerm, setSearchTerm, onClear }) {
   return (
     <div className="relative w-full sm:w-80">
       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -23,12 +19,13 @@ export default function SearchBar({ searchTerm, setSearchTerm }) {
           variant="ghost"
           size="sm"
           className="absolute right-0 top-0 h-9 w-9 p-0"
-          onClick={handleClear}
+          onClick={onClear}
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Clear search</span>
         </Button>
       )}
     </div>
-  );
+  )
 }
+
