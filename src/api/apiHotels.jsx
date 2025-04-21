@@ -14,6 +14,20 @@ export const getHotels = async (page = 1, limit = 15) => {
   }
 };
 
+export const getHotelsDropdown = async () => {
+  try {
+    const response = await useAxios.get('/hotels/dropdown', {
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching hotels data:', error);
+    throw error;
+  }
+};
+
+
 export const searchHotels = async (searchTerm, page = 1, limit = 15) => {
   try {
     const response = await useAxios.get('/hotels/search', {

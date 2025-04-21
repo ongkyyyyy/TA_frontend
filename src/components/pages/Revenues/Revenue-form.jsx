@@ -18,7 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "react-toastify"
 import { inputRevenue, updateRevenue } from "@/api/apiRevenues"
-import { getHotels } from "@/api/apiHotels"
+import { getHotelsDropdown } from "@/api/apiHotels"
 import { parse } from "date-fns"
 
 const FormField = ({ label, value, onChange, readOnly = false, type = "number", hint }) => (
@@ -92,7 +92,7 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
   useEffect(() => {
     const fetchHotels = async () => {
       try {
-        const data = await getHotels()
+        const data = await getHotelsDropdown()
         setHotels(data)
       } catch (err) {
         console.error(err)
@@ -147,8 +147,10 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
       let result;
       if (initialData?._id) {
         result = await updateRevenue(getIdString(initialData._id), flatPayload);
+        toast.success("Revenue data updated successfully.");
       } else {
         result = await inputRevenue(flatPayload);
+        toast.success("Revenue data created successfully.");
       }
   
       if (result?.data) {
