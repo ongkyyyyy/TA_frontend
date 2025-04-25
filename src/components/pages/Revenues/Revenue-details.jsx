@@ -40,8 +40,8 @@ export function RevenueDetails({ data, isOpen, onClose }) {
               </div>
 
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Hotel ID</p>
-                <p className="text-lg">{data.hotel_id.$oid}</p>
+                <p className="text-sm font-medium text-muted-foreground">Hotel Name</p>
+                <p className="text-lg">{data.hotel_id}</p>
               </div>
             </div>
 

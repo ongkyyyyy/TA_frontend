@@ -2,12 +2,12 @@ import useAxios from './index.jsx';
 
 export const getRevenues = async () => {
     try {
-      const response = await useAxios.get('/revenues', {
+      const response = await useAxios.get('/revenues/hotels-with-revenues', {
         headers: {
           'Content-Type': 'application/json',
         },
       });
-
+      console.log('response', response.data)
       return response.data; 
     } catch (error) {
       console.error('Error fetching revenues data:', error);

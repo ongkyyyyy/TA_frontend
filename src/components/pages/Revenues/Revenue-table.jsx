@@ -1,7 +1,8 @@
+
+/* eslint-disable react/prop-types */
 import { useState } from "react"
 import { ArrowUpDown, Edit, Eye, MoreHorizontal, Trash } from "lucide-react"
-import { format } from "date-fns"
-import PropTypes from "prop-types"
+import { format, parse } from "date-fns"
 import { Button } from "../../ui/button"
 import {
   DropdownMenu,
@@ -12,17 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "../../ui/dropdown-menu"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "../../ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../ui/dialog"
 import { RevenueDetails } from "./revenue-details"
-import { parse } from "date-fns";
-
 
 export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
   const [sortColumn, setSortColumn] = useState("date")
@@ -40,9 +32,33 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
     }
   }
 
-  const sortedData = [...data].sort((a, b) => {
-    let valueA, valueB
+  const getSafeRevenue = (item, viewKey, fallbackKey) => {
+    if (view === viewKey) {
+      return item.filteredCategoryRevenue?.[fallbackKey] ?? 0
+    }
+    const source =
+      viewKey === "room"
+        ? item.room_details
+        : viewKey === "restaurant"
+          ? item.restaurant
+          : viewKey === "other"
+            ? item.other_revenue
+            : null
+    return source?.[fallbackKey] ?? 0
+  }
 
+  const formatCurrency = (amount) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount)
+
+  const filteredData = data
+
+  const sortedData = [...filteredData].sort((a, b) => {
+    let valueA, valueB
     switch (sortColumn) {
       case "date":
         valueA = new Date(a.date).getTime()
@@ -76,12 +92,7 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
         valueA = a.date
         valueB = b.date
     }
-
-    if (sortDirection === "asc") {
-      return valueA > valueB ? 1 : -1
-    } else {
-      return valueA < valueB ? 1 : -1
-    }
+    return sortDirection === "asc" ? valueA - valueB : valueB - valueA
   })
 
   const confirmDelete = (id) => {
@@ -97,15 +108,6 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
     }
   }
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
-
   return (
     <>
       <div className="rounded-md border">
@@ -114,60 +116,75 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
             <TableRow>
               <TableHead className="w-[100px]">
                 <Button variant="ghost" onClick={() => handleSort("date")} className="flex items-center">
-                  Date
-                  <ArrowUpDown className="ml-2 h-4 w-4" />
+                  Date <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-
-              {(view === "all" || view === "room") && (
+              {view === "all" && (
                 <TableHead>
                   <Button variant="ghost" onClick={() => handleSort("room_revenue")} className="flex items-center">
-                    Room Revenue
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    Room Revenue <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </TableHead>
+              )}
+              {view === "room" && (
+                <TableHead>
+                  <Button variant="ghost" onClick={() => handleSort("room_revenue")} className="flex items-center">
+                    Room Revenue <ArrowUpDown className="ml-2 h-4 w-4" />
                   </Button>
                 </TableHead>
               )}
 
-              {(view === "all" || view === "restaurant") && (
+              {view === "all" && (
                 <TableHead>
                   <Button
                     variant="ghost"
                     onClick={() => handleSort("restaurant_revenue")}
                     className="flex items-center"
                   >
-                    Restaurant
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    Restaurant Revenue <ArrowUpDown className="ml-2 h-4 w-4" />
                   </Button>
                 </TableHead>
               )}
-
-              {(view === "all" || view === "other") && (
+              {view === "restaurant" && (
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleSort("restaurant_revenue")}
+                    className="flex items-center"
+                  >
+                    Restaurant Revenue <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </TableHead>
+              )}
+              {view === "all" && (
                 <TableHead>
                   <Button variant="ghost" onClick={() => handleSort("other_revenue")} className="flex items-center">
-                    Other Revenue
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    Other Revenue <ArrowUpDown className="ml-2 h-4 w-4" />
                   </Button>
                 </TableHead>
               )}
-
+              {view === "other" && (
+                <TableHead>
+                  <Button variant="ghost" onClick={() => handleSort("other_revenue")} className="flex items-center">
+                    Other Revenue <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </TableHead>
+              )}
               <TableHead>
                 <Button variant="ghost" onClick={() => handleSort("nett_revenue")} className="flex items-center">
-                  Nett Revenue
-                  <ArrowUpDown className="ml-2 h-4 w-4" />
+                  Nett Revenue <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
 
               <TableHead>
                 <Button variant="ghost" onClick={() => handleSort("gross_revenue")} className="flex items-center">
-                  Gross Revenue
-                  <ArrowUpDown className="ml-2 h-4 w-4" />
+                  Gross Revenue <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
 
               <TableHead>
                 <Button variant="ghost" onClick={() => handleSort("occupancy")} className="flex items-center">
-                  Occupancy
-                  <ArrowUpDown className="ml-2 h-4 w-4" />
+                  Occupancy <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
 
@@ -183,23 +200,25 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
               </TableRow>
             ) : (
               sortedData.map((item) => (
-                <TableRow key={item._id.$oid}>
-                <TableCell className="font-medium">
-                  {item.date && !isNaN(parse(item.date, "dd-MM-yyyy", new Date())) 
-                    ? format(parse(item.date, "dd-MM-yyyy", new Date()), "dd MMM yyyy") 
-                    : "Invalid date"}-{item._id.$oid}
-                </TableCell>
-                
+                <TableRow key={item._id?.$oid || item._id}>
+                  <TableCell className="font-medium">
+                    {item.date && !isNaN(parse(item.date, "dd-MM-yyyy", new Date()))
+                      ? format(parse(item.date, "dd-MM-yyyy", new Date()), "dd MMM yyyy")
+                      : "Invalid date"}
+                  </TableCell>
+
                   {(view === "all" || view === "room") && (
-                    <TableCell>{formatCurrency(item.room_details?.total_room_revenue ?? 0)}</TableCell>
+                    <TableCell>{formatCurrency(getSafeRevenue(item, "room", "total_room_revenue"))}</TableCell>
                   )}
 
                   {(view === "all" || view === "restaurant") && (
-                    <TableCell>{formatCurrency(item.restaurant?.total_restaurant_revenue ?? 0)}</TableCell>
+                    <TableCell>
+                      {formatCurrency(getSafeRevenue(item, "restaurant", "total_restaurant_revenue"))}
+                    </TableCell>
                   )}
 
                   {(view === "all" || view === "other") && (
-                    <TableCell>{formatCurrency(item.other_revenue?.total_other_revenue ?? 0)}</TableCell>
+                    <TableCell>{formatCurrency(getSafeRevenue(item, "other", "total_other_revenue"))}</TableCell>
                   )}
 
                   <TableCell>{formatCurrency(item.nett_revenue ?? 0)}</TableCell>
@@ -225,7 +244,7 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          onClick={() => confirmDelete(item._id.$oid)}
+                          onClick={() => confirmDelete(item._id?.$oid || item._id)}
                           className="text-destructive focus:text-destructive"
                         >
                           <Trash className="mr-2 h-4 w-4" />
@@ -240,8 +259,6 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
           </TableBody>
         </Table>
       </div>
-
-      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <DialogContent>
           <DialogHeader>
@@ -260,14 +277,8 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       {viewingItem && <RevenueDetails data={viewingItem} isOpen={!!viewingItem} onClose={() => setViewingItem(null)} />}
     </>
   )
-}
-
-RevenueTable.propTypes = {
-  data: PropTypes.array.isRequired,
-  onEdit: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
-  view: PropTypes.oneOf(["all", "room", "restaurant", "other"]),
 }

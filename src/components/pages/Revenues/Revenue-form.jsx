@@ -1,3 +1,5 @@
+"use client"
+
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react"
 import { CalendarIcon } from "lucide-react"
@@ -78,16 +80,19 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
   const [formData, setFormData] = useState(defaultFormData)
   const [hotels, setHotels] = useState([])
 
+  // Initialize form data when component mounts or initialData changes
   useEffect(() => {
-    if (initialData && hotels.length > 0) {
+    if (initialData) {
+      console.log("Setting initial data:", initialData)
       const newData = structuredClone(initialData)
-      newData.hotel_id = getIdString(newData.hotel_id) 
+      // Make sure hotel_id is properly extracted
+      newData.hotel_id = getIdString(initialData.hotel_id)
       calculateTotals(newData)
       setFormData(newData)
-    } else if (!initialData) {
+    } else {
       setFormData(defaultFormData)
     }
-  }, [initialData, hotels])  
+  }, [initialData])
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -99,11 +104,11 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
         toast.error("Failed to fetch hotel list")
       }
     }
-  
+
     if (isOpen) {
       fetchHotels()
     }
-  }, [isOpen])  
+  }, [isOpen])
 
   const updateFormData = (path, value) => {
     setFormData((prev) => {
@@ -126,42 +131,54 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
     }
   }
 
+  // Modify the getIdString function to be more robust
   const getIdString = (id) => {
-    if (!id) return "";
-    return typeof id === "string" ? id : id.$oid || "";
-  };
+    if (!id) return ""
+    // Handle different possible formats of the ID
+    if (typeof id === "string") return id
+    if (id.$oid) return id.$oid
+    // If it's an object with _id property
+    if (id._id) return typeof id._id === "string" ? id._id : id._id.$oid || ""
+    // Last resort, try to stringify the object
+    return String(id)
+  }
+
+  // Add debugging to see what's happening with the hotel_id
+  useEffect(() => {
+    if (initialData) {
+      console.log("Initial hotel_id:", initialData.hotel_id)
+      console.log("Processed hotel_id:", getIdString(initialData.hotel_id))
+      console.log("Current formData.hotel_id:", formData.hotel_id)
+    }
+  }, [initialData, formData.hotel_id])
 
   const handleSubmit = async () => {
     if (!formData.hotel_id) {
-      toast.error("Please select a hotel.");
-      return;
+      toast.error("Please select a hotel.")
+      return
     }
-  
-    const flatPayload = flattenRevenueData(formData);
-  
-    if (initialData?._id) {
-      delete flatPayload.hotel_id;
-    }
-  
+
+    const flatPayload = flattenRevenueData(formData)
+
     try {
-      let result;
+      let result
       if (initialData?._id) {
-        result = await updateRevenue(getIdString(initialData._id), flatPayload);
-        toast.success("Revenue data updated successfully.");
+        result = await updateRevenue(getIdString(initialData._id), flatPayload)
+        toast.success("Revenue data updated successfully.")
       } else {
-        result = await inputRevenue(flatPayload);
-        toast.success("Revenue data created successfully.");
+        result = await inputRevenue(flatPayload)
+        toast.success("Revenue data created successfully.")
       }
-  
+
       if (result?.data) {
-        onSubmit?.(result?.data); 
+        onSubmit?.(result?.data)
       }
-      onClose?.();
+      onClose?.()
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to submit data. Please try again.");
+      console.error(err)
+      toast.error("Failed to submit data. Please try again.")
     }
-  };  
+  }
 
   const renderFields = (fields, basePath = "") => (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -202,21 +219,21 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
           </TabsList>
 
           <TabsContent value="basic" className="space-y-4">
-          <div className="space-y-1">
-            <Label>Hotel</Label>
-            <select
-              value={formData.hotel_id}
-              onChange={(e) => updateFormData("hotel_id", e.target.value)}
-              className="w-full border rounded-md p-2 bg-background text-foreground"
-            >
-              <option value="">Select a hotel</option>
-              {hotels.map((hotel) => (
-                <option key={hotel._id} value={getIdString(hotel._id)}>
-                  {hotel.hotel_name}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="space-y-1">
+              <Label>Hotel</Label>
+              <select
+                value={formData.hotel_id || ""}
+                onChange={(e) => updateFormData("hotel_id", e.target.value)}
+                className="w-full border rounded-md p-2 bg-background text-foreground"
+              >
+                <option value="">Select a hotel</option>
+                {hotels.map((hotel) => (
+                  <option key={hotel._id} value={getIdString(hotel._id)}>
+                    {hotel.hotel_name}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="space-y-2">
               <Label>Date</Label>
               <Popover>
@@ -253,11 +270,7 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
                 value={formData.ap_restaurant}
                 onChange={(val) => updateFormData("ap_restaurant", val)}
               />
-              <FormField
-                label="Tips"
-                value={formData.tips}
-                onChange={(val) => updateFormData("tips", val)}
-              />
+              <FormField label="Tips" value={formData.tips} onChange={(val) => updateFormData("tips", val)} />
             </div>
           </TabsContent>
           <TabsContent value="room" className="space-y-4">
@@ -328,25 +341,25 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
 }
 
 function flattenRevenueData(data, isNested = false) {
-  const flat = {};
+  const flat = {}
 
   if (!isNested && data.hotel_id) {
-    flat.hotel_id = data.hotel_id;
+    flat.hotel_id = data.hotel_id
   }
 
   for (const key in data) {
-    if (key === "hotel_id") continue;
-    const value = data[key];
+    if (key === "hotel_id") continue
+    const value = data[key]
     if (typeof value === "object" && value !== null && value.$oid) {
-      flat[key] = value.$oid;
+      flat[key] = value.$oid
     } else if (typeof value === "object" && value !== null) {
-      Object.assign(flat, flattenRevenueData(value, true)); 
+      Object.assign(flat, flattenRevenueData(value, true))
     } else {
-      flat[key] = value;
+      flat[key] = value
     }
   }
 
-  return flat;
+  return flat
 }
 
 function calculateTotals(data) {
@@ -358,7 +371,13 @@ function calculateTotals(data) {
   rd.total_room_revenue = (rd.room_lodging || 0) - (rd.rebate_discount || 0)
   rs.total_restaurant_revenue = (rs.breakfast || 0) + (rs.restaurant_food || 0) + (rs.restaurant_beverage || 0)
   or.total_other_revenue =
-    (or.other_room_revenue || 0) + (or.telephone || 0) + (or.business_center || 0) + (or.other_income || 0) + (or.spa_therapy || 0) + (or.misc || 0) -(or.allowance_other || 0)
+    (or.other_room_revenue || 0) +
+    (or.telephone || 0) +
+    (or.business_center || 0) +
+    (or.other_income || 0) +
+    (or.spa_therapy || 0) +
+    (or.misc || 0) -
+    (or.allowance_other || 0)
 
   data.nett_revenue = rd.total_room_revenue + rs.total_restaurant_revenue + or.total_other_revenue
   data.service_charge = data.nett_revenue * 0.1
@@ -373,5 +392,3 @@ function calculateTotals(data) {
 
   return { ...data, room_details: rd, restaurant: rs, other_revenue: or, room_stats: rst }
 }
-
-

@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "../../ui/input"
 import { Badge } from "../../ui/badge"
 import { Search, ThumbsUp, ThumbsDown, Calendar, Building, ExternalLink } from "lucide-react"
-import { FilterBar } from "./revenueFilters/filter-bar"
+import { FilterBar } from "./reviewsFilters/filter-bar"
 
 export default function ReviewsWithFilters() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -38,7 +38,6 @@ export default function ReviewsWithFilters() {
     return new Date(b.timestamp.split("-").reverse().join("-")) - new Date(a.timestamp.split("-").reverse().join("-"))
   })
 
-  // Function to format date from DD-MM-YYYY to more readable format
   const formatDate = (dateString) => {
     const [day, month, year] = dateString.split("-")
     const date = new Date(`${year}-${month}-${day}`)
@@ -49,7 +48,6 @@ export default function ReviewsWithFilters() {
     }).format(date)
   }
 
-  // Function to get sentiment badge color
   const getSentimentColor = (sentiment) => {
     switch (sentiment?.toLowerCase()) {
       case "positive":
