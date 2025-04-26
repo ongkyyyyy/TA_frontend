@@ -1,5 +1,3 @@
-"use client"
-
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from "../../ui/pagination"
 import { useState, useEffect, useCallback, useMemo } from "react"
@@ -35,9 +33,9 @@ export default function Hotels() {
     }
 
     if (!silent) {
-      setIsLoading(true) // only set loading if NOT silent
+      setIsLoading(true) 
     } else {
-      setIsRefetching(true) // silent refetch = background refetch
+      setIsRefetching(true) 
     }
 
     setError(null)
@@ -118,17 +116,9 @@ export default function Hotels() {
 
     try {
       await deleteHotel(hotelToDelete._id)
-
-      // Immediately update the UI
       setFilteredHotels((prevHotels) => prevHotels.filter((h) => h._id !== hotelToDelete._id))
-
-      // Show success message
       toast.success(`${hotelToDelete.hotel_name} has been deleted.`)
-
-      // Silently refresh to ensure data consistency
       fetchHotels(currentPage, true)
-
-      // If we're on a page that might now be empty, go to previous page
       const remainingItems = filteredHotels.length - 1
       if (remainingItems === 0 && currentPage > 1) {
         fetchHotels(currentPage - 1, true)
@@ -145,7 +135,7 @@ export default function Hotels() {
   const handleFormClose = (hotel, shouldRefresh) => {
     setIsFormOpen(false)
     if (shouldRefresh) {
-      fetchHotels(currentPage, true) // Silent refresh after form submission
+      fetchHotels(currentPage, true) 
     }
   }
 
@@ -162,8 +152,8 @@ export default function Hotels() {
           <Button
             variant="outline"
             onClick={() => {
-              handleClearSearch() // Clear search term first
-              fetchHotels(1) // Reset to first page
+              handleClearSearch() 
+              fetchHotels(1)
             }}
             disabled={isLoading || isRefetching}
             className="flex items-center gap-2"

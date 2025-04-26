@@ -51,11 +51,11 @@ export default function ScrapePage() {
 
   return (
       <Card className="overflow-hidden border-0 shadow-lg">
-        <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-2" />
+        <div className="bg-gradient-to-r from-[#75f7db] via-[#0397a1] to-[#36c0ea] h-2" />
         <CardHeader className="pb-0">
           <CardTitle className="flex items-center gap-2 text-2xl">
             <Search className="h-6 w-6" />
-            Review Scraper Dashboard
+            <h1 className="text-2xl font-bold">Review Scraper Dashboard</h1>
           </CardTitle>
         </CardHeader>
 
