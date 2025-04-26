@@ -10,19 +10,20 @@ export default function ReviewsWithFilters() {
   const [searchTerm, setSearchTerm] = useState("")
   const [reviews, setReviews] = useState([])
   const [activeFilters, setActiveFilters] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const data = await getReviews()
-        setReviews(data.reviews || [])
+        const data = await getReviews(currentPage);
+        setReviews(data.reviews || []);
       } catch (error) {
-        console.error("Failed to load reviews:", error)
+        console.error("Failed to load reviews:", error);
       }
-    }
-
-    fetchReviews()
-  }, [])
+    };
+  
+    fetchReviews();
+  }, [currentPage]);  
 
   const filteredReviews = reviews.filter((review) => {
     const lower = searchTerm.toLowerCase()
@@ -70,7 +71,6 @@ export default function ReviewsWithFilters() {
       <h1 className="text-3xl font-bold mb-2">Customer Reviews and Sentiments</h1>
       <p className="text-muted-foreground mb-6">Browse and search through guest feedback</p>
 
-      {/* Search Bar */}
       <div className="relative mb-6">
         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
@@ -82,10 +82,10 @@ export default function ReviewsWithFilters() {
         />
       </div>
 
-      {/* Filter Bar */}
       <FilterBar activeFilters={activeFilters} onClearFilters={handleClearFilters} />
 
       {sortedReviews.length > 0 ? (
+        <>
         <div className="grid gap-6">
           {sortedReviews.map((review, idx) => (
             <Card key={idx} className="overflow-hidden border-none shadow-md hover:shadow-lg transition-shadow">
@@ -145,6 +145,24 @@ export default function ReviewsWithFilters() {
             </Card>
           ))}
         </div>
+        <div className="flex justify-center mt-8 gap-4">
+          <button
+            className="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300 disabled:opacity-50"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span className="self-center font-medium">Page {currentPage}</span>
+          <button
+            className="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300 disabled:opacity-50"
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+            disabled={reviews.length < 15}
+          >
+            Next
+          </button>
+        </div>
+        </>
       ) : (
         <div className="text-center py-16 bg-slate-50 rounded-xl border border-dashed">
           <Search className="h-10 w-10 text-muted-foreground mx-auto mb-4 opacity-50" />
