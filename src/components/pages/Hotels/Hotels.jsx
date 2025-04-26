@@ -1,3 +1,5 @@
+"use client"
+
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from "../../ui/pagination"
 import { useState, useEffect, useCallback, useMemo } from "react"
@@ -12,7 +14,6 @@ import { debounce } from "lodash"
 import { toast } from "react-toastify"
 
 export default function Hotels() {
-  const [hotels, setHotels] = useState([])
   const [filteredHotels, setFilteredHotels] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -24,19 +25,24 @@ export default function Hotels() {
 
   const [currentPage, setCurrentPage] = useState(1)
   const [totalHotels, setTotalHotels] = useState(0)
+  const [isRefetching, setIsRefetching] = useState(false)
   const HOTELS_PER_PAGE = 15
 
-  const fetchHotels = useCallback(async (page = 1) => {
+  const fetchHotels = useCallback(async (page = 1, silent = false) => {
     if (typeof page !== "number") {
       console.warn("fetchHotels received invalid page value:", page)
       page = 1
     }
 
-    setIsLoading(true)
+    if (!silent) {
+      setIsLoading(true) // only set loading if NOT silent
+    } else {
+      setIsRefetching(true) // silent refetch = background refetch
+    }
+
     setError(null)
     try {
       const res = await getHotels(page, HOTELS_PER_PAGE)
-      setHotels(res.data)
       setFilteredHotels(res.data)
       setTotalHotels(res.total)
       setCurrentPage(res.page)
@@ -45,31 +51,39 @@ export default function Hotels() {
       setError("Failed to fetch hotels. Please try again later.")
       toast.error("Failed to fetch hotels. Please try again later.")
     } finally {
-      setIsLoading(false)
+      if (!silent) {
+        setIsLoading(false)
+      } else {
+        setIsRefetching(false)
+      }
     }
-  }, [])  
+  }, [])
 
   useEffect(() => {
     fetchHotels()
   }, [fetchHotels])
 
-  const debouncedSearch = useMemo(() => debounce((term, page = 1) => {
-    if (term.trim() !== "") {
-      searchHotels(term, page, HOTELS_PER_PAGE)
-        .then(res => {
-          setFilteredHotels(res.data)
-          setTotalHotels(res.total)
-          setCurrentPage(res.page)
-        })
-        .catch((error) => {
-          console.error(error)
-          toast.error("Failed to search hotels.")
-        });
-    } else {
-      fetchHotels(page)
-    }
-  }, 500), [fetchHotels]);  
-  
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((term, page = 1) => {
+        if (term.trim() !== "") {
+          searchHotels(term, page, HOTELS_PER_PAGE)
+            .then((res) => {
+              setFilteredHotels(res.data)
+              setTotalHotels(res.total)
+              setCurrentPage(res.page)
+            })
+            .catch((error) => {
+              console.error(error)
+              toast.error("Failed to search hotels.")
+            })
+        } else {
+          fetchHotels(page)
+        }
+      }, 500),
+    [fetchHotels],
+  )
+
   useEffect(() => {
     if (searchTerm.trim() !== "") {
       debouncedSearch(searchTerm, currentPage)
@@ -95,18 +109,30 @@ export default function Hotels() {
   }
 
   const handleClearSearch = () => {
-    setSearchTerm("") 
-    setCurrentPage(1)  
+    setSearchTerm("")
+    setCurrentPage(1)
   }
-  
 
   const confirmDelete = async () => {
     if (!hotelToDelete) return
 
     try {
       await deleteHotel(hotelToDelete._id)
-      setHotels(hotels.filter((h) => h._id !== hotelToDelete._id))
+
+      // Immediately update the UI
+      setFilteredHotels((prevHotels) => prevHotels.filter((h) => h._id !== hotelToDelete._id))
+
+      // Show success message
       toast.success(`${hotelToDelete.hotel_name} has been deleted.`)
+
+      // Silently refresh to ensure data consistency
+      fetchHotels(currentPage, true)
+
+      // If we're on a page that might now be empty, go to previous page
+      const remainingItems = filteredHotels.length - 1
+      if (remainingItems === 0 && currentPage > 1) {
+        fetchHotels(currentPage - 1, true)
+      }
     } catch (error) {
       console.log(error)
       toast.error("Failed to delete hotel. Please try again.")
@@ -116,19 +142,18 @@ export default function Hotels() {
     }
   }
 
-  const handleFormClose = () => {
+  const handleFormClose = (hotel, shouldRefresh) => {
     setIsFormOpen(false)
+    if (shouldRefresh) {
+      fetchHotels(currentPage, true) // Silent refresh after form submission
+    }
   }
 
   return (
     <div className="space-y-6 py-6">
       <h1 className="text-3xl font-bold">Hotels Management</h1>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <SearchBar
-        setSearchTerm={setSearchTerm}
-        searchTerm={searchTerm}
-        onClear={handleClearSearch}
-      />
+        <SearchBar setSearchTerm={setSearchTerm} searchTerm={searchTerm} onClear={handleClearSearch} />
         <div className="flex gap-2">
           <Button onClick={handleAddHotel} className="flex items-center gap-2">
             <PlusCircle className="h-4 w-4" />
@@ -136,24 +161,22 @@ export default function Hotels() {
           </Button>
           <Button
             variant="outline"
-            onClick={handleClearSearch}
-            disabled={isLoading}
+            onClick={() => {
+              handleClearSearch() // Clear search term first
+              fetchHotels(1) // Reset to first page
+            }}
+            disabled={isLoading || isRefetching}
             className="flex items-center gap-2"
           >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-            Refresh
+            <RefreshCw className={`h-4 w-4 ${isLoading || isRefetching ? "animate-spin" : ""}`} />
+            {isRefetching ? "Refreshing..." : "Refresh"}
           </Button>
         </div>
       </div>
 
       {error && <div className="bg-destructive/15 text-destructive p-4 rounded-md">{error}</div>}
 
-      <HotelsList
-        hotels={filteredHotels}
-        isLoading={isLoading}
-        onEdit={handleEditHotel}
-        onDelete={handleDeleteHotel}
-      />
+      <HotelsList hotels={filteredHotels} isLoading={isLoading} onEdit={handleEditHotel} onDelete={handleDeleteHotel} />
       {!isLoading && Array.isArray(filteredHotels) && filteredHotels.length > 0 && (
         <Pagination>
           <PaginationContent className="justify-center mt-4">
@@ -196,7 +219,12 @@ export default function Hotels() {
       )}
 
       {isFormOpen && (
-        <HotelForm hotel={selectedHotel} onClose={handleFormClose} setHotels={setHotels} />
+        <HotelForm
+          isOpen={isFormOpen}
+          hotel={selectedHotel}
+          isEditing={!!selectedHotel}
+          onClose={handleFormClose}
+        />
       )}
 
       <DeleteConfirmation
@@ -206,6 +234,5 @@ export default function Hotels() {
         hotel={hotelToDelete}
       />
     </div>
-    
   )
 }

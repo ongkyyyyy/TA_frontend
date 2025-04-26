@@ -17,6 +17,7 @@ import Reporting from "./components/pages/dashboard/Reporting";
 import Hotels from "./components/pages/Hotels/Hotels";
 import Revenues from "./components/pages/Revenues/Revenues";
 import Reviews from "./components/pages/Reviews n Sentiments/Reviews";
+import Scrapes from "./components/pages/Scraping/Scrapes";
 import Sentiments from "./components/pages/Sentiments";
 import Settings from "./components/pages/Settings";
 
@@ -49,6 +50,7 @@ function App() {
             <Route path="/hotels" element={<Hotels />} />
             <Route path="/revenues" element={<Revenues />} />
             <Route path="/reviews" element={<Reviews />} />
+            <Route path="/scraping" element={<Scrapes />} />
             <Route path="/sentiments" element={<Sentiments />} />
             <Route path="/settings" element={<Settings />} />
            </Route>

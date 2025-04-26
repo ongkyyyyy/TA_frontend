@@ -68,7 +68,7 @@ function MobileSidebar({ mobileSidebar, toggleMobileSidebar }) {
                 </ul>
               )}
 
-              {name === "Reviews and Sentiments" && (
+              {name === "Scraping" && (
                 <div className="my-3 border-t border-gray-200" />
               )}
             </li>
