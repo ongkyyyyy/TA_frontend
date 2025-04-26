@@ -15,7 +15,8 @@ export default function ReviewsWithFilters() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const data = await getReviews(currentPage);
+        const data = await getReviews(currentPage, searchTerm);
+        console.log("Fetched reviews:", data.reviews)
         setReviews(data.reviews || []);
       } catch (error) {
         console.error("Failed to load reviews:", error);
@@ -23,21 +24,11 @@ export default function ReviewsWithFilters() {
     };
   
     fetchReviews();
-  }, [currentPage]);  
+  }, [currentPage, searchTerm]);  
 
-  const filteredReviews = reviews.filter((review) => {
-    const lower = searchTerm.toLowerCase()
-    return (
-      review.comment.toLowerCase().includes(lower) ||
-      review.username.toLowerCase().includes(lower) ||
-      review.hotel_name.toLowerCase().includes(lower) ||
-      review.OTA.toLowerCase().includes(lower)
-    )
-  })
-
-  const sortedReviews = [...filteredReviews].sort((a, b) => {
-    return new Date(b.timestamp.split("-").reverse().join("-")) - new Date(a.timestamp.split("-").reverse().join("-"))
-  })
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);  
 
   const formatDate = (dateString) => {
     const [day, month, year] = dateString.split("-")
@@ -84,10 +75,10 @@ export default function ReviewsWithFilters() {
 
       <FilterBar activeFilters={activeFilters} onClearFilters={handleClearFilters} />
 
-      {sortedReviews.length > 0 ? (
+      {reviews.length > 0 ? (
         <>
         <div className="grid gap-6">
-          {sortedReviews.map((review, idx) => (
+          {reviews.map((review, idx) => (
             <Card key={idx} className="overflow-hidden border-none shadow-md hover:shadow-lg transition-shadow">
               <CardHeader className="pb-2 bg-slate-50">
                 <div className="flex justify-between items-start flex-wrap gap-4">
