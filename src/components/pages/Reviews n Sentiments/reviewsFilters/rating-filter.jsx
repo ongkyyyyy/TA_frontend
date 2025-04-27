@@ -16,7 +16,7 @@ export function RatingFilter({ onFilterChange }) {
   const handleConfirm = () => {
     setAppliedRange(tempRange);
     if (onFilterChange) {
-      onFilterChange(tempRange[0], tempRange[1]);
+      onFilterChange({ min: tempRange[0], max: tempRange[1] });
     }
   };
 
@@ -24,7 +24,7 @@ export function RatingFilter({ onFilterChange }) {
     setTempRange([0, 10]);
     setAppliedRange([0, 10]);
     if (onFilterChange) {
-      onFilterChange(0, 10);
+      onFilterChange({ min: 0, max: 10 });
     }
   };
 
