@@ -18,7 +18,6 @@ export default function ReviewsWithFilters() {
       try {
         const sentimentParam = sentimentFilter !== "all" ? sentimentFilter : undefined;
         const data = await getReviews(currentPage, searchTerm, sentimentParam);
-        console.log("Fetched reviews:", data.reviews)
         setReviews(data.reviews || []);
       } catch (error) {
         console.error("Failed to load reviews:", error);
