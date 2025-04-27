@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover"
 import { Check, Building } from "lucide-react"
 import { getHotelsDropdown } from "@/api/apiHotels"
 
-export function HotelFilter({ onFilterChange }) {
+export function HotelFilter({ onFilterChange , resetSignal}) {
   const [open, setOpen] = useState(false)
   const [selectedHotel, setSelectedHotel] = useState(null)
   const [hotelOptions, setHotelOptions] = useState([]) 
@@ -35,6 +35,10 @@ export function HotelFilter({ onFilterChange }) {
       onFilterChange(value)
     }
   }
+
+  useEffect(() => {
+    setSelectedHotel(null)
+  }, [resetSignal])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

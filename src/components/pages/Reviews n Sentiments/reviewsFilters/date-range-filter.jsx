@@ -1,12 +1,12 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../../../ui/button";
 import { Calendar } from "../../../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 
-export function DateRangeFilter({ onFilterChange }) {
+export function DateRangeFilter({ onFilterChange, resetSignal }) {
   const [tempDate, setTempDate] = useState();
   const [appliedDate, setAppliedDate] = useState();
   const [open, setOpen] = useState(false);
@@ -30,6 +30,11 @@ export function DateRangeFilter({ onFilterChange }) {
       onFilterChange(undefined);
     }
   };
+
+  useEffect(() => {
+    setTempDate(undefined)
+    setAppliedDate(undefined)
+  }, [resetSignal])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

@@ -12,14 +12,15 @@ export function FilterBar({ onClearFilters,
   onRatingFilterChange,
   onDateRangeFilterChange,
   onHotelFilterChange,
-  onOtaFilterChange}) {
+  onOtaFilterChange,
+  resetSignal}) {
   return (
     <div className="flex flex-wrap items-center gap-2 mb-6">
-      <SentimentFilter onFilterChange={onSentimentFilterChange} />
-      <RatingFilter onFilterChange={onRatingFilterChange} />
-      <OtaFilter onFilterChange={onOtaFilterChange} />
-      <DateRangeFilter onFilterChange={onDateRangeFilterChange} />
-      <HotelFilter onFilterChange={onHotelFilterChange} />
+      <SentimentFilter onFilterChange={onSentimentFilterChange} resetSignal={resetSignal}/>
+      <RatingFilter onFilterChange={onRatingFilterChange} resetSignal={resetSignal}/>
+      <OtaFilter onFilterChange={onOtaFilterChange} resetSignal={resetSignal}/>
+      <DateRangeFilter onFilterChange={onDateRangeFilterChange} resetSignal={resetSignal}/>
+      <HotelFilter onFilterChange={onHotelFilterChange} resetSignal={resetSignal}/>
 
         <Button variant="ghost" size="sm" onClick={onClearFilters} className="h-9 px-3 text-xs">
           <X className="mr-1 h-4 w-4" />

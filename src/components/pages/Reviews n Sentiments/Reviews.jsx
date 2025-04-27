@@ -17,6 +17,7 @@ export default function ReviewsWithFilters() {
   const [minDate, setMinDate] = useState();
   const [maxDate, setMaxDate] = useState();
   const [hotelId, setHotelId] = useState();
+  const [resetSignal, setResetSignal] = useState(false);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -85,6 +86,7 @@ export default function ReviewsWithFilters() {
     setMinDate(undefined);
     setMaxDate(undefined);
     setHotelId(undefined);
+    setResetSignal(Date.now());;
   };  
 
   const handleSentimentFilterChange = (newSentiment) => {
@@ -128,13 +130,7 @@ export default function ReviewsWithFilters() {
         onOtaFilterChange={(ota) => {
           setOtaFilter(ota);
         }}
-        sentimentFilter={sentimentFilter}
-        minRating={minRating}
-        maxRating={maxRating}
-        minDate={minDate}
-        maxDate={maxDate}
-        hotelId={hotelId}
-        otaFilter={otaFilter}
+        resetSignal={resetSignal}
       />
 
       {reviews.length > 0 ? (

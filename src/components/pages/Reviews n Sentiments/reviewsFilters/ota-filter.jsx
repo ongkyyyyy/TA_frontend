@@ -3,7 +3,7 @@ import { Check, Filter } from "lucide-react"
 import { Button } from "../../../ui/button"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../../../ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 const otaOptions = [
   { label: "Agoda", value: "Agoda" },
@@ -12,7 +12,7 @@ const otaOptions = [
   { label: "Traveloka", value: "Traveloka" },
 ]
 
-export function OtaFilter({ onFilterChange }) {
+export function OtaFilter({ onFilterChange, resetSignal}) {
   const [open, setOpen] = useState(false)
   const [selectedOta, setSelectedOta] = useState(null)
 
@@ -23,6 +23,10 @@ export function OtaFilter({ onFilterChange }) {
       onFilterChange(value)
     }
   }
+
+  useEffect(() => {
+    setSelectedOta(null)
+  }, [resetSignal])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

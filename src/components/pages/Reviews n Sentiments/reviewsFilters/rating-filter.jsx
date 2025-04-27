@@ -1,13 +1,15 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Slider } from "../../../ui/slider";
 import { Star } from "lucide-react";
 import { Button } from "../../../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover";
 
-export function RatingFilter({ onFilterChange }) {
+export function RatingFilter({ onFilterChange , resetSignal}) {
   const [tempRange, setTempRange] = useState([0, 10]);
   const [appliedRange, setAppliedRange] = useState([0, 10]);
+  const [open, setOpen] = useState(false);
 
   const handleSliderChange = (value) => {
     setTempRange([value[0], value[1]]);
@@ -18,6 +20,7 @@ export function RatingFilter({ onFilterChange }) {
     if (onFilterChange) {
       onFilterChange({ min: tempRange[0], max: tempRange[1] });
     }
+    setOpen(false);
   };
 
   const handleReset = () => {
@@ -28,8 +31,12 @@ export function RatingFilter({ onFilterChange }) {
     }
   };
 
+  useEffect(() => {
+    handleReset();
+  }, [resetSignal]);
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="h-9 border-dashed">
           <Star className="mr-2 h-4 w-4" />

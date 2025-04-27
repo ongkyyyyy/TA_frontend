@@ -9,9 +9,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../../ui/dropdown-menu"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
-export function SentimentFilter({ onFilterChange }) {
+export function SentimentFilter({ onFilterChange, resetSignal }) {
   const [selectedSentiment, setSelectedSentiment] = useState("all")
 
   const handleSentimentChange = (sentiment) => {
@@ -20,6 +20,10 @@ export function SentimentFilter({ onFilterChange }) {
       onFilterChange(sentiment)
     }
   }
+
+   useEffect(() => {
+    setSelectedSentiment("all")
+  }, [resetSignal])
 
   return (
     <DropdownMenu>
