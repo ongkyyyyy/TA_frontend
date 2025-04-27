@@ -12,24 +12,55 @@ export default function ReviewsWithFilters() {
   const [reviews, setReviews] = useState([])
   const [activeFilters, setActiveFilters] = useState(0)
   const [currentPage, setCurrentPage] = useState(1);
+  const [minRating, setMinRating] = useState();
+  const [maxRating, setMaxRating] = useState();
+  const [otaFilter, setOtaFilter] = useState();
+  const [minDate, setMinDate] = useState();
+  const [maxDate, setMaxDate] = useState();
+  const [hotelId, setHotelId] = useState();
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
         const sentimentParam = sentimentFilter !== "all" ? sentimentFilter : undefined;
-        const data = await getReviews(currentPage, searchTerm, sentimentParam);
+        const data = await getReviews({
+          page: currentPage,
+          search: searchTerm,
+          sentiment: sentimentParam,
+          minRating,
+          maxRating,
+          ota: otaFilter,
+          minDate,
+          maxDate,
+          hotelId,
+        });
         setReviews(data.reviews || []);
       } catch (error) {
         console.error("Failed to load reviews:", error);
       }
-    };
+    };    
   
     fetchReviews();
-  }, [currentPage, searchTerm, sentimentFilter]);  
+  }, [currentPage, 
+    searchTerm, 
+    sentimentFilter, 
+    minRating, 
+    maxRating, 
+    otaFilter, 
+    minDate, 
+    maxDate, 
+    hotelId]);  
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, sentimentFilter]);  
+  }, [searchTerm, 
+      sentimentFilter,
+      minRating, 
+      maxRating, 
+      otaFilter, 
+      minDate, 
+      maxDate, 
+      hotelId]);  
 
   const formatDate = (dateString) => {
     const [day, month, year] = dateString.split("-")
@@ -55,8 +86,16 @@ export default function ReviewsWithFilters() {
   }
 
   const handleClearFilters = () => {
-    setActiveFilters(0)
-  }
+    setSearchTerm('');
+    setSentimentFilter('all');
+    setMinRating(undefined);
+    setMaxRating(undefined);
+    setOtaFilter(undefined);
+    setMinDate(undefined);
+    setMaxDate(undefined);
+    setHotelId(undefined);
+    setActiveFilters(0);
+  };  
 
   const handleSentimentFilterChange = (newSentiment) => {
     setSentimentFilter(newSentiment);
@@ -78,11 +117,25 @@ export default function ReviewsWithFilters() {
         />
       </div>
 
-      <FilterBar activeFilters={activeFilters} 
+      <FilterBar 
+        activeFilters={activeFilters}
         onClearFilters={handleClearFilters}
-        onSentimentFilterChange={handleSentimentFilterChange} 
-
-        />
+        onSentimentFilterChange={handleSentimentFilterChange}
+        onRatingFilterChange={({ min, max }) => {
+          setMinRating(min);
+          setMaxRating(max);
+        }}
+        onDateRangeFilterChange={({ min, max }) => {
+          setMinDate(min);
+          setMaxDate(max);
+        }}
+        onHotelFilterChange={(id) => {
+          setHotelId(id);
+        }}
+        onOtaFilterChange={(ota) => {
+          setOtaFilter(ota);
+        }}
+      />
 
       {reviews.length > 0 ? (
         <>

@@ -7,14 +7,20 @@ import { DateRangeFilter } from "./date-range-filter"
 import { HotelFilter } from "./hotel-filter"
 import { X } from "lucide-react"
 
-export function FilterBar({ onClearFilters, activeFilters = 0, onSentimentFilterChange}) {
+export function FilterBar({ onClearFilters, 
+  activeFilters = 0, 
+  onSentimentFilterChange,
+  onRatingFilterChange,
+  onDateRangeFilterChange,
+  onHotelFilterChange,
+  onOtaFilterChange}) {
   return (
     <div className="flex flex-wrap items-center gap-2 mb-6">
-      <SentimentFilter onFilterChange={onSentimentFilterChange}/>
-      <RatingFilter />
-      <OtaFilter />
-      <DateRangeFilter />
-      <HotelFilter />
+      <SentimentFilter onFilterChange={onSentimentFilterChange} />
+      <RatingFilter onFilterChange={onRatingFilterChange} />
+      <OtaFilter onFilterChange={onOtaFilterChange} />
+      <DateRangeFilter onFilterChange={onDateRangeFilterChange} />
+      <HotelFilter onFilterChange={onHotelFilterChange} />
 
       {activeFilters > 0 && (
         <Button variant="ghost" size="sm" onClick={onClearFilters} className="h-9 px-3 text-xs">

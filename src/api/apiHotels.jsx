@@ -16,7 +16,7 @@ export const getHotels = async (page = 1, limit = 15) => {
 
 export const getHotelsDropdown = async () => {
   try {
-    const response = await useAxios.get('/hotels/dropdown', {
+    const response = await useAxios.get('/  ', {
       headers: { 'Content-Type': 'application/json' },
     });
 

@@ -6,10 +6,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover"
 import { useState } from "react"
 
 const otaOptions = [
-  { label: "Agoda", value: "agoda" },
-  { label: "Ticket.com", value: "ticket.com" },
-  { label: "Trip.com", value: "trip.com" },
-  { label: "Traveloka", value: "traveloka" },
+  { label: "Agoda", value: "Agoda" },
+  { label: "Ticket.com", value: "Ticket.com" },
+  { label: "Trip.com", value: "Trip.com" },
+  { label: "Traveloka", value: "Traveloka" },
 ]
 
 export function OtaFilter({ onFilterChange }) {

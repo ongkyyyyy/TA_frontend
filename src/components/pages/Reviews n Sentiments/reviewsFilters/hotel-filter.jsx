@@ -1,21 +1,32 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "../../../ui/button"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../../../ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover"
 import { Check, Building } from "lucide-react"
-
-const hotelOptions = [
-  { label: "Hotel Mulia Senayan", value: "mulia-senayan" },
-  { label: "Grand Hyatt Jakarta", value: "grand-hyatt" },
-  { label: "Mandarin Oriental", value: "mandarin-oriental" },
-  { label: "The Ritz-Carlton", value: "ritz-carlton" },
-  { label: "Four Seasons Hotel", value: "four-seasons" },
-]
+import { getHotelsDropdown } from "@/api/apiHotels"
 
 export function HotelFilter({ onFilterChange }) {
   const [open, setOpen] = useState(false)
   const [selectedHotel, setSelectedHotel] = useState(null)
+  const [hotelOptions, setHotelOptions] = useState([]) 
+
+  useEffect(() => {
+    const fetchHotels = async () => {
+      try {
+        const response = await getHotelsDropdown()
+        const hotels = response.map((hotel) => ({
+          label: hotel.hotel_name,
+          value: hotel._id,
+        }))
+        setHotelOptions(hotels) 
+      } catch (error) {
+        console.error("Failed to fetch hotels:", error)
+      }
+    }
+
+    fetchHotels()
+  }, []) 
 
   const handleHotelChange = (value) => {
     setSelectedHotel(value)
