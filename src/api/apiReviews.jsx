@@ -1,14 +1,51 @@
 import useAxios from './index.jsx';
 
-export const getReviews = async (page = 1, search = '') => {
+export const getReviews = async ({
+  page = 1,
+  search = '',
+  sentiment,
+  minRating,
+  maxRating,
+  ota,
+  minDate,
+  maxDate,
+  hotelId,
+} = {}) => {
   try {
-    const response = await useAxios.get(`/reviews?page=${page}&search=${encodeURIComponent(search)}`, {
+    const params = { page };
+
+    if (search) {
+      params.search = encodeURIComponent(search);
+    }
+    if (sentiment) {
+      params.sentiment = sentiment;
+    }
+    if (minRating !== undefined) {
+      params.min_rating = minRating;
+    }
+    if (maxRating !== undefined) {
+      params.max_rating = maxRating;
+    }
+    if (ota) {
+      params.ota = ota;
+    }
+    if (minDate) {
+      params.min_date = minDate; 
+    }
+    if (maxDate) {
+      params.max_date = maxDate; 
+    }
+    if (hotelId) {
+      params.hotel_id = hotelId;
+    }
+
+    const response = await useAxios.get('/reviews', {
       headers: {
         'Content-Type': 'application/json',
       },
+      params,
     });
 
-    console.log('response', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching reviews data:', error);

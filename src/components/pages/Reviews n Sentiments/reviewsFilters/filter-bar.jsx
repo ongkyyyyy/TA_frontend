@@ -7,10 +7,10 @@ import { DateRangeFilter } from "./date-range-filter"
 import { HotelFilter } from "./hotel-filter"
 import { X } from "lucide-react"
 
-export function FilterBar({ onClearFilters, activeFilters = 0 }) {
+export function FilterBar({ onClearFilters, activeFilters = 0, onSentimentFilterChange}) {
   return (
     <div className="flex flex-wrap items-center gap-2 mb-6">
-      <SentimentFilter />
+      <SentimentFilter onFilterChange={onSentimentFilterChange}/>
       <RatingFilter />
       <OtaFilter />
       <DateRangeFilter />

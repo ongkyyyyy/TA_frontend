@@ -8,6 +8,7 @@ import { FilterBar } from "./reviewsFilters/filter-bar"
 
 export default function ReviewsWithFilters() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [sentimentFilter, setSentimentFilter] = useState("all");
   const [reviews, setReviews] = useState([])
   const [activeFilters, setActiveFilters] = useState(0)
   const [currentPage, setCurrentPage] = useState(1);
@@ -15,7 +16,8 @@ export default function ReviewsWithFilters() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const data = await getReviews(currentPage, searchTerm);
+        const sentimentParam = sentimentFilter !== "all" ? sentimentFilter : undefined;
+        const data = await getReviews(currentPage, searchTerm, sentimentParam);
         console.log("Fetched reviews:", data.reviews)
         setReviews(data.reviews || []);
       } catch (error) {
@@ -24,11 +26,11 @@ export default function ReviewsWithFilters() {
     };
   
     fetchReviews();
-  }, [currentPage, searchTerm]);  
+  }, [currentPage, searchTerm, sentimentFilter]);  
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);  
+  }, [searchTerm, sentimentFilter]);  
 
   const formatDate = (dateString) => {
     const [day, month, year] = dateString.split("-")
@@ -57,6 +59,10 @@ export default function ReviewsWithFilters() {
     setActiveFilters(0)
   }
 
+  const handleSentimentFilterChange = (newSentiment) => {
+    setSentimentFilter(newSentiment);
+  };
+
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-2">Customer Reviews and Sentiments</h1>
@@ -73,7 +79,11 @@ export default function ReviewsWithFilters() {
         />
       </div>
 
-      <FilterBar activeFilters={activeFilters} onClearFilters={handleClearFilters} />
+      <FilterBar activeFilters={activeFilters} 
+        onClearFilters={handleClearFilters}
+        onSentimentFilterChange={handleSentimentFilterChange} 
+
+        />
 
       {reviews.length > 0 ? (
         <>
