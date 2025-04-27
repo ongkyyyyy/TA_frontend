@@ -30,8 +30,8 @@ export default function ReviewsWithFilters() {
           minRating,
           maxRating,
           ota: otaFilter,
-          minDate,
-          maxDate,
+          minDate: formatToBackendDate(minDate),
+          maxDate: formatToBackendDate(maxDate),
           hotelId,
         });
         setReviews(data.reviews || []);
@@ -39,28 +39,12 @@ export default function ReviewsWithFilters() {
         console.error("Failed to load reviews:", error);
       }
     };    
-  
     fetchReviews();
-  }, [currentPage, 
-    searchTerm, 
-    sentimentFilter, 
-    minRating, 
-    maxRating, 
-    otaFilter, 
-    minDate, 
-    maxDate, 
-    hotelId]);  
+  }, [currentPage, searchTerm, sentimentFilter, minRating, maxRating, otaFilter, minDate, maxDate, hotelId]);  
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, 
-      sentimentFilter,
-      minRating, 
-      maxRating, 
-      otaFilter, 
-      minDate, 
-      maxDate, 
-      hotelId]);  
+  }, [searchTerm, sentimentFilter ,minRating, maxRating, otaFilter, minDate, maxDate, hotelId]);  
 
   const formatDate = (dateString) => {
     const [day, month, year] = dateString.split("-")
@@ -71,6 +55,14 @@ export default function ReviewsWithFilters() {
       year: "numeric",
     }).format(date)
   }
+
+  const formatToBackendDate = (date) => {
+    if (!date) return undefined;
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };  
 
   const getSentimentColor = (sentiment) => {
     switch (sentiment?.toLowerCase()) {
@@ -101,6 +93,16 @@ export default function ReviewsWithFilters() {
     setSentimentFilter(newSentiment);
   };
 
+  const handleRatingFilterChange = ({ min, max }) => {
+    setMinRating(min);
+    setMaxRating(max);
+  };
+  
+  const handleDateRangeFilterChange = (range) => {
+    setMinDate(range?.from);
+    setMaxDate(range?.to);
+  };  
+
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-2">Customer Reviews and Sentiments</h1>
@@ -121,14 +123,8 @@ export default function ReviewsWithFilters() {
         activeFilters={activeFilters}
         onClearFilters={handleClearFilters}
         onSentimentFilterChange={handleSentimentFilterChange}
-        onRatingFilterChange={({ min, max }) => {
-          setMinRating(min);
-          setMaxRating(max);
-        }}
-        onDateRangeFilterChange={({ min, max }) => {
-          setMinDate(min);
-          setMaxDate(max);
-        }}
+        onRatingFilterChange={handleRatingFilterChange}
+        onDateRangeFilterChange={handleDateRangeFilterChange}
         onHotelFilterChange={(id) => {
           setHotelId(id);
         }}

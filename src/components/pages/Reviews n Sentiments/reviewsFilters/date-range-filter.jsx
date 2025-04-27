@@ -1,31 +1,46 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react"
-import { Button } from "../../../ui/button"
-import { Calendar } from "../../../ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover"
-import { CalendarIcon } from "lucide-react"
-import { format } from "date-fns"
+import { useState } from "react";
+import { Button } from "../../../ui/button";
+import { Calendar } from "../../../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
 
 export function DateRangeFilter({ onFilterChange }) {
-  const [date, setDate] = useState()
+  const [tempDate, setTempDate] = useState();
+  const [appliedDate, setAppliedDate] = useState();
+  const [open, setOpen] = useState(false);
 
-  const handleDateChange = (range) => {
-    setDate(range)
+  const handleSelectDate = (range) => {
+    setTempDate(range);
+  };
+
+  const handleConfirm = () => {
+    setAppliedDate(tempDate);
     if (onFilterChange) {
-      onFilterChange(range)
+      onFilterChange(tempDate);
     }
-  }
+    setOpen(false);
+  };
+
+  const handleClear = () => {
+    setTempDate(undefined);
+    setAppliedDate(undefined);
+    if (onFilterChange) {
+      onFilterChange(undefined);
+    }
+  };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="h-9 border-dashed">
           <CalendarIcon className="mr-2 h-4 w-4" />
           Date Range
-          {date?.from && (
+          {appliedDate?.from && (
             <span className="ml-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-xs font-medium">
-              {format(date.from, "MMM d")}
-              {date.to ? ` - ${format(date.to, "MMM d")}` : ""}
+              {format(appliedDate.from, "MMM d")}
+              {appliedDate.to ? ` - ${format(appliedDate.to, "MMM d")}` : ""}
             </span>
           )}
         </Button>
@@ -34,13 +49,13 @@ export function DateRangeFilter({ onFilterChange }) {
         <Calendar
           initialFocus
           mode="range"
-          defaultMonth={date?.from}
-          selected={date}
-          onSelect={handleDateChange}
+          defaultMonth={tempDate?.from}
+          selected={tempDate}
+          onSelect={handleSelectDate}
           numberOfMonths={2}
         />
         <div className="flex items-center justify-between p-3 border-t">
-          <Button variant="outline" size="sm" onClick={() => handleDateChange(undefined)} className="text-xs">
+          <Button variant="outline" size="sm" onClick={handleClear} className="text-xs">
             Clear
           </Button>
           <div className="flex gap-2">
@@ -48,35 +63,21 @@ export function DateRangeFilter({ onFilterChange }) {
               variant="outline"
               size="sm"
               onClick={() => {
-                const today = new Date()
-                const thirtyDaysAgo = new Date()
-                thirtyDaysAgo.setDate(today.getDate() - 30)
-                handleDateChange({
-                  from: thirtyDaysAgo,
-                  to: today,
-                })
+                const today = new Date();
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(today.getDate() - 30);
+                setTempDate({ from: thirtyDaysAgo, to: today });
               }}
               className="text-xs"
             >
               Last 30 Days
             </Button>
-            <Button
-              size="sm"
-              onClick={() => {
-                if (date?.from) {
-                  handleDateChange({
-                    from: date.from,
-                    to: date.to,
-                  })
-                }
-              }}
-              className="text-xs"
-            >
-              Apply
+            <Button size="sm" onClick={handleConfirm} className="text-xs">
+              Confirm
             </Button>
           </div>
         </div>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

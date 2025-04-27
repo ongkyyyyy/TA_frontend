@@ -1,20 +1,32 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react"
-import { Slider } from "../../../ui/slider"
-import { Star } from "lucide-react"
-import { Button } from "../../../ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover"
+import { useState } from "react";
+import { Slider } from "../../../ui/slider";
+import { Star } from "lucide-react";
+import { Button } from "../../../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover";
 
 export function RatingFilter({ onFilterChange }) {
-  const [range, setRange] = useState([0, 10])
+  const [tempRange, setTempRange] = useState([0, 10]);
+  const [appliedRange, setAppliedRange] = useState([0, 10]);
 
-  const handleRangeChange = (value) => {
-    const newRange = [value[0], value[1]]
-    setRange(newRange)
+  const handleSliderChange = (value) => {
+    setTempRange([value[0], value[1]]);
+  };
+
+  const handleConfirm = () => {
+    setAppliedRange(tempRange);
     if (onFilterChange) {
-      onFilterChange(newRange[0], newRange[1])
+      onFilterChange(tempRange[0], tempRange[1]);
     }
-  }
+  };
+
+  const handleReset = () => {
+    setTempRange([0, 10]);
+    setAppliedRange([0, 10]);
+    if (onFilterChange) {
+      onFilterChange(0, 10);
+    }
+  };
 
   return (
     <Popover>
@@ -22,9 +34,9 @@ export function RatingFilter({ onFilterChange }) {
         <Button variant="outline" size="sm" className="h-9 border-dashed">
           <Star className="mr-2 h-4 w-4" />
           Rating
-          {(range[0] > 0 || range[1] < 10) && (
+          {(appliedRange[0] > 0 || appliedRange[1] < 10) && (
             <span className="ml-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-xs font-medium">
-              {range[0]}-{range[1]}
+              {appliedRange[0]}-{appliedRange[1]}
             </span>
           )}
         </Button>
@@ -34,15 +46,15 @@ export function RatingFilter({ onFilterChange }) {
           <h4 className="font-medium">Filter by Rating</h4>
           <div className="px-1">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Min: {range[0].toFixed(1)}</span>
-              <span className="text-sm text-muted-foreground">Max: {range[1].toFixed(1)}</span>
+              <span className="text-sm text-muted-foreground">Min: {tempRange[0].toFixed(1)}</span>
+              <span className="text-sm text-muted-foreground">Max: {tempRange[1].toFixed(1)}</span>
             </div>
             <Slider
               defaultValue={[0, 10]}
               max={10}
               step={0.1}
-              value={range}
-              onValueChange={handleRangeChange}
+              value={tempRange}
+              onValueChange={handleSliderChange}
               className="my-4"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
@@ -54,15 +66,15 @@ export function RatingFilter({ onFilterChange }) {
             </div>
           </div>
           <div className="flex justify-between">
-            <Button variant="outline" size="sm" onClick={() => handleRangeChange([0, 10])} className="text-xs">
+            <Button variant="outline" size="sm" onClick={handleReset} className="text-xs">
               Reset
             </Button>
-            <Button size="sm" onClick={() => handleRangeChange([7, 10])} className="text-xs">
-              High Ratings (7+)
+            <Button size="sm" onClick={handleConfirm} className="text-xs">
+              Confirm
             </Button>
           </div>
         </div>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
