@@ -10,7 +10,6 @@ export default function ReviewsWithFilters() {
   const [searchTerm, setSearchTerm] = useState("")
   const [sentimentFilter, setSentimentFilter] = useState("all");
   const [reviews, setReviews] = useState([])
-  const [activeFilters, setActiveFilters] = useState(0)
   const [currentPage, setCurrentPage] = useState(1);
   const [minRating, setMinRating] = useState();
   const [maxRating, setMaxRating] = useState();
@@ -86,7 +85,6 @@ export default function ReviewsWithFilters() {
     setMinDate(undefined);
     setMaxDate(undefined);
     setHotelId(undefined);
-    setActiveFilters(0);
   };  
 
   const handleSentimentFilterChange = (newSentiment) => {
@@ -120,7 +118,6 @@ export default function ReviewsWithFilters() {
       </div>
 
       <FilterBar 
-        activeFilters={activeFilters}
         onClearFilters={handleClearFilters}
         onSentimentFilterChange={handleSentimentFilterChange}
         onRatingFilterChange={handleRatingFilterChange}
@@ -131,6 +128,13 @@ export default function ReviewsWithFilters() {
         onOtaFilterChange={(ota) => {
           setOtaFilter(ota);
         }}
+        sentimentFilter={sentimentFilter}
+        minRating={minRating}
+        maxRating={maxRating}
+        minDate={minDate}
+        maxDate={maxDate}
+        hotelId={hotelId}
+        otaFilter={otaFilter}
       />
 
       {reviews.length > 0 ? (

@@ -8,7 +8,6 @@ import { HotelFilter } from "./hotel-filter"
 import { X } from "lucide-react"
 
 export function FilterBar({ onClearFilters, 
-  activeFilters = 0, 
   onSentimentFilterChange,
   onRatingFilterChange,
   onDateRangeFilterChange,
@@ -22,12 +21,10 @@ export function FilterBar({ onClearFilters,
       <DateRangeFilter onFilterChange={onDateRangeFilterChange} />
       <HotelFilter onFilterChange={onHotelFilterChange} />
 
-      {activeFilters > 0 && (
         <Button variant="ghost" size="sm" onClick={onClearFilters} className="h-9 px-3 text-xs">
           <X className="mr-1 h-4 w-4" />
-          Clear filters ({activeFilters})
+          Clear filters
         </Button>
-      )}
     </div>
   )
 }
