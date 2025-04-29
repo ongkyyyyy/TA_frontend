@@ -5,6 +5,7 @@ import { Calendar } from "../../../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
 
 export function DateRangeFilter({ onFilterChange, resetSignal }) {
   const [tempDate, setTempDate] = useState();
@@ -16,12 +17,18 @@ export function DateRangeFilter({ onFilterChange, resetSignal }) {
   };
 
   const handleConfirm = () => {
-    setAppliedDate(tempDate);
-    if (onFilterChange) {
-      onFilterChange(tempDate);
+    if (tempDate?.from && tempDate?.to) {
+      setAppliedDate(tempDate);
+      if (onFilterChange) {
+        onFilterChange(tempDate);
+      }
+      setOpen(false);
+    } else {
+      toast.warn("Please select both start and end dates.");
+      console.warn("Please select both start and end dates.");
     }
-    setOpen(false);
   };
+  
 
   const handleClear = () => {
     setTempDate(undefined);
@@ -32,16 +39,16 @@ export function DateRangeFilter({ onFilterChange, resetSignal }) {
   };
 
   useEffect(() => {
-    setTempDate(undefined)
-    setAppliedDate(undefined)
-  }, [resetSignal])
+    setTempDate(undefined);
+    setAppliedDate(undefined);
+  }, [resetSignal]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-9 border-dashed">
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          Date Range
+        <Button variant="outline" size="sm" className="h-9 border-dashed flex items-center gap-2">
+          <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+          <span>Date Range</span>
           {appliedDate?.from && (
             <span className="ml-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-xs font-medium">
               {format(appliedDate.from, "MMM d")}

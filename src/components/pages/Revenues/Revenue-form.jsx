@@ -1,5 +1,3 @@
-"use client"
-
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react"
 import { CalendarIcon } from "lucide-react"
@@ -80,12 +78,9 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
   const [formData, setFormData] = useState(defaultFormData)
   const [hotels, setHotels] = useState([])
 
-  // Initialize form data when component mounts or initialData changes
   useEffect(() => {
     if (initialData) {
-      console.log("Setting initial data:", initialData)
       const newData = structuredClone(initialData)
-      // Make sure hotel_id is properly extracted
       newData.hotel_id = getIdString(initialData.hotel_id)
       calculateTotals(newData)
       setFormData(newData)
@@ -131,26 +126,13 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
     }
   }
 
-  // Modify the getIdString function to be more robust
   const getIdString = (id) => {
     if (!id) return ""
-    // Handle different possible formats of the ID
     if (typeof id === "string") return id
     if (id.$oid) return id.$oid
-    // If it's an object with _id property
     if (id._id) return typeof id._id === "string" ? id._id : id._id.$oid || ""
-    // Last resort, try to stringify the object
     return String(id)
   }
-
-  // Add debugging to see what's happening with the hotel_id
-  useEffect(() => {
-    if (initialData) {
-      console.log("Initial hotel_id:", initialData.hotel_id)
-      console.log("Processed hotel_id:", getIdString(initialData.hotel_id))
-      console.log("Current formData.hotel_id:", formData.hotel_id)
-    }
-  }, [initialData, formData.hotel_id])
 
   const handleSubmit = async () => {
     if (!formData.hotel_id) {

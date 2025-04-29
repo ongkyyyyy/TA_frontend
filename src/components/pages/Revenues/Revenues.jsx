@@ -1,19 +1,14 @@
-"use client"
-
 import { useState, useEffect } from "react"
-import { CalendarIcon, Filter, Plus, Search, SlidersHorizontal } from "lucide-react"
+import { Plus,ChevronLeft, ChevronRight } from "lucide-react" 
 import { Button } from "../../ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../ui/card"
-import { Input } from "../../ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs"
 import { RevenueTable } from "./revenue-table"
 import { RevenueForm } from "./revenue-form"
-import { DatePickerWithRange } from "../../datepicker/datepicker"
-import { Label } from "../../ui/label"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../ui/dialog"
-
 import { getRevenues, deleteRevenue } from "../../../api/apiRevenues"
+import { getHotelsDropdown } from "@/api/apiHotels"
+import { RevenueFiltersBar } from "./Revenue-filter"
+import { RevenueAdvancedFiltersDialog } from "./Revenue-advanced-filters-dialog"
 
 const revenueTabs = [
   { label: "All Revenue", value: "all" },
@@ -22,28 +17,30 @@ const revenueTabs = [
   { label: "Other Revenue", value: "other" },
 ]
 
-const advancedFilterFields = [
-  { id: "min-revenue", label: "Min Revenue", type: "number", placeholder: "0" },
-  { id: "max-revenue", label: "Max Revenue", type: "number", placeholder: "10000000" },
-  { id: "min-occupancy", label: "Min Occupancy", type: "number", placeholder: "0" },
-  { id: "max-occupancy", label: "Max Occupancy", type: "number", placeholder: "100" },
-]
-
 export default function RevenuePage() {
   const [data, setData] = useState([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [dateRange, setDateRange] = useState({
-    from: undefined,
-    to: undefined,
-  })
   const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false)
   const [hotelTabs, setHotelTabs] = useState({})
+  const [hotelOptions, setHotelOptions] = useState([])
+  const [selectedHotel, setSelectedHotel] = useState("")
+  
+  const [page, setPage] = useState(1)
+  const [revenuesPage, setRevenuesPage] = useState({})
+  const perPageHotels = 5
+  const revenuesPerHotel = 10
+  const [sortBy, setSortBy] = useState("date")
+  const [sortOrder, setSortOrder] = useState(-1)
+  const [minDate, setMinDate] = useState();
+  const [maxDate, setMaxDate] = useState();
+
   const [minRevenue, setMinRevenue] = useState("")
   const [maxRevenue, setMaxRevenue] = useState("")
   const [minOccupancy, setMinOccupancy] = useState("")
   const [maxOccupancy, setMaxOccupancy] = useState("")
+
+  const [resetSignal, setResetSignal] = useState(false);
 
   const handleTabChange = (hotelName, tabValue) => {
     setHotelTabs((prev) => ({
@@ -52,38 +49,60 @@ export default function RevenuePage() {
     }))
   }
 
+  const formatToBackendDate = (date, isEnd = false) => {
+    if (!date) return undefined;
+    if (isEnd) {
+      date.setHours(23, 59, 59, 999);
+    }
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getRevenues()
+        const params = {
+          page,
+          per_page_hotels: perPageHotels,
+          revenues_per_hotel: revenuesPerHotel,
+          hotel_id: selectedHotel || undefined,
+          minRevenue: minRevenue || undefined,
+          maxRevenue: maxRevenue || undefined,
+          minOccupancy: minOccupancy || undefined,
+          maxOccupancy: maxOccupancy || undefined,
+          min_date:  formatToBackendDate(minDate),
+          max_date: formatToBackendDate(maxDate),
+          sort_by: sortBy,
+          sort_order: sortOrder,
+        }
+        const response = await getRevenues(params)
+        console.log(response.data)
         setData(response.data)
+
+        const dropdownResponse = await getHotelsDropdown()
+        setHotelOptions(dropdownResponse || [])
       } catch (error) {
         console.error("Failed to load revenue data", error)
       }
     }
     fetchData()
-  }, [])
+  }, [page, perPageHotels, revenuesPerHotel, selectedHotel, minRevenue, maxRevenue, minOccupancy, maxOccupancy, minDate, maxDate, sortBy, sortOrder])
 
   const handleCreate = async () => {
-    try {
-      const response = await getRevenues()
-      setData(response.data)
-    } catch (error) {
-      console.error("Failed to refresh revenue data after create", error)
-    } finally {
-      setIsFormOpen(false)
-    }
+    setIsFormOpen(false)
+    await refreshData()
   }
 
   const handleUpdate = async () => {
-    try {
-      const response = await getRevenues()
-      setData(response.data)
-    } catch (error) {
-      console.error("Failed to refresh revenue data after update", error)
-    } finally {
-      setEditingItem(null)
-    }
+    setEditingItem(null)
+    await refreshData()
+  }
+
+  const refreshData = async () => {
+    const response = await getRevenues()
+    setData(response.data)
   }
 
   const handleDelete = async (hotelName, revenueId) => {
@@ -92,7 +111,7 @@ export default function RevenuePage() {
       setData((prev) =>
         prev.map((hotel) =>
           hotel.name === hotelName ? { ...hotel, revenues: hotel.revenues.filter((r) => r._id !== revenueId) } : hotel,
-        ),
+        )
       )
     } catch (error) {
       console.error("Failed to delete revenue", error)
@@ -104,29 +123,42 @@ export default function RevenuePage() {
   }
 
   const handleApplyFilters = () => {
+    setPage(1)
     setAdvancedFiltersOpen(false)
   }
 
-  const filterRevenue = (revenue, searchTerm, dateRange) => {
-    const matchesSearch =
-      !searchTerm ||
-      revenue.date.includes(searchTerm) ||
-      revenue.nett_revenue.toString().includes(searchTerm) ||
-      revenue.gross_revenue.toString().includes(searchTerm)
-
-    const matchesDateRange =
-      !dateRange.from ||
-      !dateRange.to ||
-      (new Date(revenue.date) >= dateRange.from && new Date(revenue.date) <= dateRange.to)
-
-    const matchesAdvancedFilters =
-      (!minRevenue || revenue.nett_revenue >= Number(minRevenue)) &&
-      (!maxRevenue || revenue.nett_revenue <= Number(maxRevenue)) &&
-      (!minOccupancy || revenue.occupancy >= Number(minOccupancy)) &&
-      (!maxOccupancy || revenue.occupancy <= Number(maxOccupancy))
-
-    return matchesSearch && matchesDateRange && matchesAdvancedFilters
+  const handleSortChange = (value) => {
+    if (value === "date-asc") {
+      setSortBy("date")
+      setSortOrder(1)
+    } else if (value === "date-desc") {
+      setSortBy("date")
+      setSortOrder(-1)
+    } else if (value === "revenue-asc") {
+      setSortBy("revenue")
+      setSortOrder(1)
+    } else if (value === "revenue-desc") {
+      setSortBy("revenue")
+      setSortOrder(-1)
+    }
   }
+
+  const handleClearFilters = async () => {
+    setMinDate(undefined);
+    setMaxDate(undefined);
+    setMinRevenue("");
+    setMaxRevenue("");
+    setMinOccupancy("");
+    setMaxOccupancy("");
+    setSelectedHotel("");
+    setResetSignal(Date.now());
+    await refreshData();
+  };  
+
+  const handleDateRangeFilterChange = (range) => {
+    setMinDate(range?.from);
+    setMaxDate(range?.to);
+  };  
 
   return (
     <div className="container mx-auto py-6">
@@ -142,85 +174,76 @@ export default function RevenuePage() {
           <CardDescription>Filter and search revenue data</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center space-x-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by date or amount..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1"
-              />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-              <DatePickerWithRange dateRange={dateRange} setDateRange={setDateRange} />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="date-asc">Date (Ascending)</SelectItem>
-                  <SelectItem value="date-desc">Date (Descending)</SelectItem>
-                  <SelectItem value="revenue-asc">Revenue (Ascending)</SelectItem>
-                  <SelectItem value="revenue-desc">Revenue (Descending)</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline" size="icon" onClick={() => setAdvancedFiltersOpen(true)}>
-                <Filter className="h-4 w-4" />
-              </Button>
-            </div>
+          <div className="flex items-center justify-between">
+            <RevenueFiltersBar
+              selectedHotel={selectedHotel}
+              setSelectedHotel={setSelectedHotel}
+              hotelOptions={hotelOptions}
+              onDateRangeFilterChange={handleDateRangeFilterChange}
+              handleSortChange={handleSortChange}
+              setAdvancedFiltersOpen={setAdvancedFiltersOpen}
+              resetSignal={resetSignal}
+            />
+            <Button variant="outline" onClick={handleClearFilters}>
+              Refresh Filters
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {data.map((hotel, index) => {
-        const hotelName = hotel.name
-        const filteredRevenues = hotel.revenues.filter((item) => filterRevenue(item, searchTerm, dateRange))
-
-        return (
-          <div key={`hotel-${index}-${hotelName}`} className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">{hotelName}</h2>
-            <Tabs value={hotelTabs[hotelName] || "all"} onValueChange={(val) => handleTabChange(hotelName, val)}>
-              <div className="flex items-center justify-between mb-4">
-                <TabsList>
-                  {revenueTabs.map((tab) => (
-                    <TabsTrigger key={tab.value} value={tab.value}>
-                      {tab.label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </div>
-
+      {data.map((hotel, index) => (
+        <div key={`hotel-${index}-${hotel.name}`} className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">{hotel.name}</h2>
+          <Tabs value={hotelTabs[hotel.name] || "all"} onValueChange={(val) => handleTabChange(hotel.name, val)}>
+            <TabsList className="mb-4">
               {revenueTabs.map((tab) => (
-                <TabsContent key={tab.value} value={tab.value}>
-                  <RevenueTable
-                    data={filteredRevenues.map((r) => ({
-                      ...r,
-                      filteredCategoryRevenue:
-                        tab.value === "room"
-                          ? r.room_details
-                          : tab.value === "restaurant"
-                            ? r.restaurant
-                            : tab.value === "other"
-                              ? r.other_revenue
-                              : undefined,
-                    }))}
-                    view={tab.value}
-                    onEdit={(item) => handleEdit(item, item.hotel_id)}
-                    onDelete={(revenueId) => handleDelete(hotelName, revenueId)}
-                  />
-                </TabsContent>
+                <TabsTrigger key={tab.value} value={tab.value}>
+                  {tab.label}
+                </TabsTrigger>
               ))}
-            </Tabs>
+            </TabsList>
+
+            {revenueTabs.map((tab) => (
+              <TabsContent key={tab.value} value={tab.value}>
+                <RevenueTable
+                  data={hotel.revenues.map((r) => ({
+                    ...r,
+                    filteredCategoryRevenue:
+                      tab.value === "room"
+                        ? r.room_details
+                        : tab.value === "restaurant"
+                          ? r.restaurant
+                          : tab.value === "other"
+                            ? r.other_revenue
+                            : undefined,
+                  }))}
+                  view={tab.value}
+                  onEdit={(item) => handleEdit(item, hotel._id)}
+                  onDelete={(revenueId) => handleDelete(hotel.name, revenueId)}
+                />
+              </TabsContent>
+            ))}
+          </Tabs>
+
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button variant="outline" size="sm" onClick={() => setRevenuesPage((prev) => ({ ...prev, [hotel.name]: (prev[hotel.name] || 1) - 1 }))} disabled={(revenuesPage[hotel.name] || 1) === 1}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setRevenuesPage((prev) => ({ ...prev, [hotel.name]: (prev[hotel.name] || 1) + 1 }))}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
-        )
-      })}
+        </div>
+      ))}
+
+      <div className="flex justify-center space-x-4 mt-8">
+        <Button variant="outline" onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1}>
+          Prev Page
+        </Button>
+        <Button variant="outline" onClick={() => setPage((p) => p + 1)}>
+          Next Page
+        </Button>
+      </div>
 
       {(isFormOpen || editingItem) && (
         <RevenueForm
@@ -233,61 +256,19 @@ export default function RevenuePage() {
           initialData={editingItem || undefined}
         />
       )}
-
-      <Dialog open={advancedFiltersOpen} onOpenChange={setAdvancedFiltersOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Advanced Filters</DialogTitle>
-            <DialogDescription>Set additional filters to refine your revenue data.</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {advancedFilterFields.map((field) => (
-              <div key={field.id} className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor={field.id} className="text-right">
-                  {field.label}
-                </Label>
-                <Input
-                  id={field.id}
-                  type={field.type}
-                  placeholder={field.placeholder}
-                  className="col-span-3"
-                  value={
-                    field.id === "min-revenue"
-                      ? minRevenue
-                      : field.id === "max-revenue"
-                        ? maxRevenue
-                        : field.id === "min-occupancy"
-                          ? minOccupancy
-                          : field.id === "max-occupancy"
-                            ? maxOccupancy
-                            : ""
-                  }
-                  onChange={(e) => {
-                    const value = e.target.value
-                    if (field.id === "min-revenue") {
-                      setMinRevenue(value)
-                    } else if (field.id === "max-revenue") {
-                      setMaxRevenue(value)
-                    } else if (field.id === "min-occupancy") {
-                      setMinOccupancy(value)
-                    } else if (field.id === "max-occupancy") {
-                      setMaxOccupancy(value)
-                    }
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAdvancedFiltersOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="button" onClick={handleApplyFilters}>
-              Apply Filters
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <RevenueAdvancedFiltersDialog
+        open={advancedFiltersOpen}
+        onOpenChange={setAdvancedFiltersOpen}
+        minRevenue={minRevenue}
+        maxRevenue={maxRevenue}
+        minOccupancy={minOccupancy}
+        maxOccupancy={maxOccupancy}
+        setMinRevenue={setMinRevenue}
+        setMaxRevenue={setMaxRevenue}
+        setMinOccupancy={setMinOccupancy}
+        setMaxOccupancy={setMaxOccupancy}
+        onApplyFilters={handleApplyFilters}
+      />
     </div>
   )
 }
