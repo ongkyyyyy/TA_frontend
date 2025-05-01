@@ -5,20 +5,19 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Loader from "./components/loader/Loader"
 
 // Layout
-import DefaultLayout from "./components/layouts/DefaultLayout";
+import DefaultLayout from "./components/layouts/Default-layout";
 
 // Pages
 import Login from "./components/pages/Login"
 import NotFoundPage from "./NotFoundPage"
 // ./Dashboard/...
-import Analytics from "./components/pages/dashboard/Analytics";
+import HotelAnalyticsDashboard from "./components/pages/dashboard/Hotel-analytics";
 import Reporting from "./components/pages/dashboard/Reporting";
 // ./{Other Pages}..
 import Hotels from "./components/pages/Hotels/Hotels";
 import Revenues from "./components/pages/Revenues/Revenues";
 import Reviews from "./components/pages/Reviews n Sentiments/Reviews";
 import Scrapes from "./components/pages/Scraping/Scrapes";
-import Sentiments from "./components/pages/Sentiments";
 import Settings from "./components/pages/Settings";
 
 function App() {
@@ -44,14 +43,13 @@ function App() {
             }
           />
            <Route element={<DefaultLayout />}>
-            <Route  path="/" element={<Analytics/>} />
-            <Route path="/analytics" element={<Analytics />} />
+            <Route  path="/" element={<HotelAnalyticsDashboard/>} />
+            <Route path="/analytics" element={<HotelAnalyticsDashboard />} />
             <Route path="/reporting" element={<Reporting />} />
             <Route path="/hotels" element={<Hotels />} />
             <Route path="/revenues" element={<Revenues />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/scraping" element={<Scrapes />} />
-            <Route path="/sentiments" element={<Sentiments />} />
             <Route path="/settings" element={<Settings />} />
            </Route>
           <Route path="*" element={<NotFoundPage />} />

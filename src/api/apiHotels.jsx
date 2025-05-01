@@ -27,7 +27,6 @@ export const getHotelsDropdown = async () => {
   }
 };
 
-
 export const searchHotels = async (searchTerm, page = 1, limit = 15) => {
   try {
     const response = await useAxios.get('/hotels/search', {
