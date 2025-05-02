@@ -16,15 +16,15 @@ export function SentimentRatios({ data }) {
           config={{
             positive_ratio: {
               label: "Positive",
-              color: "hsl(143.8 61.2% 52.4%)", // Green
+              color: "hsl(143.8 61.2% 52.4%)", 
             },
             neutral_ratio: {
               label: "Neutral",
-              color: "hsl(217.2 91.2% 59.8%)", // Blue
+              color: "hsl(217.2 91.2% 59.8%)", 
             },
             negative_ratio: {
               label: "Negative",
-              color: "hsl(346.8 77.2% 49.8%)", // Red
+              color: "hsl(346.8 77.2% 49.8%)", 
             },
           }}
           className="h-[400px]"
@@ -36,7 +36,7 @@ export function SentimentRatios({ data }) {
               tickLine={false}
               axisLine={false}
               tickMargin={10}
-              interval={0} // Force display all ticks
+              interval={0} 
             />
             <YAxis
               tickFormatter={(value) => `${(value * 100).toFixed(0)}%`}
@@ -51,7 +51,7 @@ export function SentimentRatios({ data }) {
               type="monotone"
               dataKey="positive_ratio"
               stackId="1"
-              stroke="hsl(143.8 61.2% 52.4%)" // Green
+              stroke="hsl(143.8 61.2% 52.4%)" 
               fill="hsl(143.8 61.2% 52.4%)"
               fillOpacity={0.6}
             />
@@ -59,7 +59,7 @@ export function SentimentRatios({ data }) {
               type="monotone"
               dataKey="neutral_ratio"
               stackId="1"
-              stroke="hsl(217.2 91.2% 59.8%)" // Blue
+              stroke="hsl(217.2 91.2% 59.8%)" 
               fill="hsl(217.2 91.2% 59.8%)"
               fillOpacity={0.6}
             />
@@ -67,7 +67,7 @@ export function SentimentRatios({ data }) {
               type="monotone"
               dataKey="negative_ratio"
               stackId="1"
-              stroke="hsl(346.8 77.2% 49.8%)" // Red
+              stroke="hsl(346.8 77.2% 49.8%)" 
               fill="hsl(346.8 77.2% 49.8%)"
               fillOpacity={0.6}
             />

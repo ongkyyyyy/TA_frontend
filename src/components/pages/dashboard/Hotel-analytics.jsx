@@ -4,7 +4,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 import { getDiagram } from "@/api/apiDiagram"
 import { HotelAnalyticsHeader } from "./Hotel-analytics-header"
-import Loader from "@/components/loader/Loader"
+import { ChartLoading } from "./Charts/Chart-Loading"
 import { MonthlyRevenueTrends } from "./Charts/Monthly-revenue-trends"
 import { RevenueSentiment } from "./Charts/Revenue-vs-sentiment"
 import { ReviewVolumeRevenue } from "./Charts/Review-volume-vs-revenue"
@@ -13,8 +13,9 @@ import { SentimentRatios } from "./Charts/Sentiment-ratios"
 import { CSIRevenueCorrelation } from "./Charts/Csi-revenue-correlation"
 
 export default function HotelAnalyticsDashboard() {
-    const [year, setYear] = useState("2024")
-    const [hotelId, setHotelId] = useState("67fcca4e852775d38fc10853")
+    const currentYear = new Date().getFullYear().toString()
+    const [year, setYear] = useState(currentYear)
+    const [hotelId, setHotelId] = useState("All")
     const [loading, setLoading] = useState(true)
     const [data, setData] = useState(null)
     const [activeTab, setActiveTab] = useState("sentiment")
@@ -34,8 +35,7 @@ export default function HotelAnalyticsDashboard() {
   
       fetchData()
     }, [hotelId, year])
-  
-    // Transform data for charts
+
     const transformedData = useMemo(() => {
       if (!data) return []
   
@@ -56,7 +56,6 @@ export default function HotelAnalyticsDashboard() {
       }))
     }, [data])
   
-    // Transform data for scatter plot
     const scatterData = useMemo(() => {
       if (!data) return []
   
@@ -64,11 +63,10 @@ export default function HotelAnalyticsDashboard() {
         month,
         x: data.composite_sentiment_index[index] || 0,
         y: data.gross_revenue[index] || 0,
-        z: data.review_volume[index] || 0, // Using review volume for bubble size
+        z: data.review_volume[index] || 0, 
       }))
     }, [data])
   
-    // Check if all revenue values are zero
     const hasNoRevenueData = useMemo(() => {
       if (!data) return false
       return (
@@ -80,7 +78,7 @@ export default function HotelAnalyticsDashboard() {
     }, [data])
   
     if (loading) {
-      return <Loader />
+      return <ChartLoading/>
     }  
 
   return (

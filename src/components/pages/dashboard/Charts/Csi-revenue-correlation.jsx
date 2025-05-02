@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
 export function CSIRevenueCorrelation({ data }) {
-    // Check if all revenue values are zero
     const allRevenuesZero = data.every((item) => item.y === 0)
   
     return (
@@ -32,11 +31,11 @@ export function CSIRevenueCorrelation({ data }) {
               config={{
                 x: {
                   label: "Composite Sentiment Index",
-                  color: "hsl(222.2 47.4% 11.2%)", // Blue
+                  color: "hsl(222.2 47.4% 11.2%)", 
                 },
                 y: {
                   label: "Gross Revenue",
-                  color: "hsl(162 47.4% 50.2%)", // Teal
+                  color: "hsl(162 47.4% 50.2%)",
                 },
               }}
               className="h-[400px]"

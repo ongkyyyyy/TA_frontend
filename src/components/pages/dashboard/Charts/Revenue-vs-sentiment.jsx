@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
 export function RevenueSentiment({ data }) {
-  // Check if all revenue values are zero
   const allRevenuesZero = data.every((item) => item.gross_revenue === 0)
 
   return (
@@ -23,11 +22,11 @@ export function RevenueSentiment({ data }) {
           config={{
             gross_revenue: {
               label: "Gross Revenue",
-              color: "hsl(43.3 96.4% 56.3%)", // Amber
+              color: "hsl(43.3 96.4% 56.3%)", 
             },
             sentiment_score: {
               label: "Sentiment Score",
-              color: "hsl(162 47.4% 50.2%)", // Teal
+              color: "hsl(162 47.4% 50.2%)", 
             },
           }}
           className="h-[400px]"
@@ -39,7 +38,7 @@ export function RevenueSentiment({ data }) {
               tickLine={false}
               axisLine={false}
               tickMargin={10}
-              interval={0} // Force display all ticks
+              interval={0} 
             />
             <YAxis yAxisId="left" orientation="left" tickLine={false} axisLine={false} tickMargin={10} />
             <YAxis
@@ -55,14 +54,14 @@ export function RevenueSentiment({ data }) {
             <Bar
               yAxisId="left"
               dataKey="gross_revenue"
-              fill="hsl(43.3 96.4% 56.3%)" // Amber
+              fill="hsl(43.3 96.4% 56.3%)"
               radius={[4, 4, 0, 0]}
               barSize={20}
             />
             <Bar
               yAxisId="right"
               dataKey="sentiment_score"
-              fill="hsl(162 47.4% 50.2%)" // Teal
+              fill="hsl(162 47.4% 50.2%)" 
               radius={[4, 4, 0, 0]}
               barSize={20}
             />

@@ -16,11 +16,11 @@ export function CompositeSentimentIndex({ data }) {
             config={{
               composite_sentiment_index: {
                 label: "Composite Sentiment Index",
-                color: "hsl(222.2 47.4% 11.2%)", // Blue
+                color: "hsl(222.2 47.4% 11.2%)", 
               },
               sentiment_score: {
                 label: "Sentiment Score",
-                color: "hsl(162 47.4% 50.2%)", // Teal
+                color: "hsl(162 47.4% 50.2%)", 
               },
             }}
             className="h-[400px]"
@@ -32,7 +32,7 @@ export function CompositeSentimentIndex({ data }) {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={10}
-                interval={0} // Force display all ticks
+                interval={0} 
               />
               <YAxis
                 domain={[0, 100]}
@@ -45,7 +45,7 @@ export function CompositeSentimentIndex({ data }) {
               <Line
                 type="monotone"
                 dataKey="composite_sentiment_index"
-                stroke="hsl(222.2 47.4% 11.2%)" // Blue
+                stroke="hsl(222.2 47.4% 11.2%)"
                 strokeWidth={3}
                 dot={{ r: 5 }}
                 activeDot={{ r: 7 }}
@@ -53,7 +53,7 @@ export function CompositeSentimentIndex({ data }) {
               <Line
                 type="monotone"
                 dataKey="sentiment_score"
-                stroke="hsl(162 47.4% 50.2%)" // Teal
+                stroke="hsl(162 47.4% 50.2%)" 
                 strokeWidth={2}
                 strokeDasharray="5 5"
                 dot={{ r: 4 }}

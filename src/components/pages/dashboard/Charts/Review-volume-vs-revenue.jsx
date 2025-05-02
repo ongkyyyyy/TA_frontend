@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
 export function ReviewVolumeRevenue({ data }) {
-    // Check if all revenue values are zero
     const allRevenuesZero = data.every((item) => item.gross_revenue === 0)
   
     return (
@@ -23,11 +22,11 @@ export function ReviewVolumeRevenue({ data }) {
             config={{
               review_volume: {
                 label: "Review Volume",
-                color: "hsl(222.2 47.4% 11.2%)", // Blue
+                color: "hsl(222.2 47.4% 11.2%)", 
               },
               gross_revenue: {
                 label: "Gross Revenue",
-                color: "hsl(43.3 96.4% 56.3%)", // Amber
+                color: "hsl(43.3 96.4% 56.3%)",
               },
             }}
             className="h-[400px]"
@@ -39,7 +38,7 @@ export function ReviewVolumeRevenue({ data }) {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={10}
-                interval={0} // Force display all ticks
+                interval={0}
               />
               <YAxis yAxisId="left" orientation="left" tickLine={false} axisLine={false} tickMargin={10} />
               <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} tickMargin={10} />
@@ -47,14 +46,14 @@ export function ReviewVolumeRevenue({ data }) {
               <Bar
                 yAxisId="left"
                 dataKey="review_volume"
-                fill="hsl(222.2 47.4% 11.2%)" // Blue
+                fill="hsl(222.2 47.4% 11.2%)" 
                 radius={[4, 4, 0, 0]}
                 barSize={20}
               />
               <Bar
                 yAxisId="right"
                 dataKey="gross_revenue"
-                fill="hsl(43.3 96.4% 56.3%)" // Amber
+                fill="hsl(43.3 96.4% 56.3%)" 
                 radius={[4, 4, 0, 0]}
                 barSize={20}
               />
