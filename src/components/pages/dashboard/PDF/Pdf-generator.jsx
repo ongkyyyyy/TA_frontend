@@ -1,12 +1,27 @@
 import jsPDF from "jspdf"
 import html2canvas from "html2canvas"
+import { format } from "date-fns"
+import "jspdf/dist/polyfills.es.js"
 
-// Utility delay
+const COLORS = {
+  primary: { r: 41, g: 128, b: 185 }, 
+  secondary: { r: 44, g: 62, b: 80 }, 
+  accent: { r: 26, g: 188, b: 156 }, 
+  light: { r: 236, g: 240, b: 241 }, 
+  dark: { r: 52, g: 73, b: 94 }, 
+  white: { r: 255, g: 255, b: 255 }, 
+}
+
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export const generatePDF = async (hotelId, year, activeTab) => {
+/**
+ * @param {string} hotelName 
+ * @param {string|number} year 
+ * @param {string} activeTab 
+ * @returns {Promise<boolean>} 
+ */
+export const generatePDF = async (hotelName, year, activeTab) => {
   try {
-    // Create PDF with professional settings
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "mm",
@@ -14,28 +29,16 @@ export const generatePDF = async (hotelId, year, activeTab) => {
       compress: true,
     })
 
-    // Get hotel name from the dropdown
-    let hotelName = "All Hotels"
-    if (hotelId !== "All") {
-      const hotelSelect = document.querySelector("[data-hotel-select] .select-value")
-      if (hotelSelect && hotelSelect.textContent) {
-        hotelName = hotelSelect.textContent.trim()
-      }
-    }
-
-    // Set document properties
     pdf.setProperties({
       title: `Hotel Analytics Report - ${hotelName} - ${year}`,
-      subject: `Revenue and Sentiment Analysis for ${year}`,
+      subject: `Comprehensive Revenue and Sentiment Analysis for ${year}`,
       author: "Hotel Analytics Dashboard",
-      keywords: "hotel, analytics, revenue, sentiment",
+      keywords: "hotel, analytics, revenue, sentiment, performance, metrics",
       creator: "Hotel Analytics System",
     })
 
-    // Add cover page
-    addCoverPage(pdf, hotelName, year, activeTab)
+    await addCoverPage(pdf, hotelName, year, activeTab)
 
-    // Temporarily show all tabs to ensure charts are rendered
     const tabsContent = document.querySelectorAll('[role="tabpanel"]')
     const originalDisplay = []
 
@@ -44,7 +47,7 @@ export const generatePDF = async (hotelId, year, activeTab) => {
       el.style.display = "block"
     })
 
-    await wait(500) // Allow rendering time
+    await wait(800)
 
     const chartElements = document.querySelectorAll(".recharts-wrapper")
 
@@ -53,58 +56,68 @@ export const generatePDF = async (hotelId, year, activeTab) => {
       throw new Error("No charts found to export.")
     }
 
-    let yPosition = 30 // Start position after header
-    let pageCount = 2 // Start from page 2 (after cover)
+    addTableOfContents(pdf, chartElements.length, activeTab)
 
-    // Add first page header
+    let yPosition = 40
+    let pageCount = 3 
+
     pdf.addPage()
     addHeader(pdf, hotelName, year)
 
     for (let i = 0; i < chartElements.length; i++) {
       const dataUrl = await captureChart(chartElements[i])
       if (!dataUrl) {
-        console.warn(`Skipping chart ${i + 1}`)
+        console.warn(`Skipping chart ${i + 1} - capture failed`)
         continue
       }
 
       try {
         const imgProps = pdf.getImageProperties(dataUrl)
-        const pdfWidth = pdf.internal.pageSize.getWidth() - 40 // Margins
+        const pdfWidth = pdf.internal.pageSize.getWidth() - 40
         const imgHeight = (imgProps.height * pdfWidth) / imgProps.width
 
-        // Check if we need a new page
-        if (yPosition + imgHeight > pdf.internal.pageSize.getHeight() - 30) {
+        if (yPosition + imgHeight + 25 > pdf.internal.pageSize.getHeight() - 30) {
           pdf.addPage()
           pageCount++
           addHeader(pdf, hotelName, year)
-          yPosition = 30 // Reset position after header
+          yPosition = 40
         }
 
-        // Add chart title based on index
+        addSectionDivider(pdf, yPosition - 5)
+        yPosition += 5
+
         const chartTitle = getChartTitle(i, activeTab)
         pdf.setFont("helvetica", "bold")
-        pdf.setFontSize(12)
+        pdf.setFontSize(14)
+        pdf.setTextColor(COLORS.secondary.r, COLORS.secondary.g, COLORS.secondary.b)
         pdf.text(chartTitle, 20, yPosition)
-        yPosition += 8
+        yPosition += 10
 
-        // Add chart image
         pdf.addImage(dataUrl, "PNG", 20, yPosition, pdfWidth, imgHeight)
-        yPosition += imgHeight + 15 // Add space after chart
+        yPosition += imgHeight + 5
 
-        // Add footer with page number
+        const description = getChartDescription(i, activeTab)
+        pdf.setFont("helvetica", "normal")
+        pdf.setFontSize(10)
+        pdf.setTextColor(COLORS.dark.r, COLORS.dark.g, COLORS.dark.b)
+
+        const splitDescription = pdf.splitTextToSize(description, pdfWidth)
+        pdf.text(splitDescription, 20, yPosition)
+        yPosition += splitDescription.length * 5 + 15
+
         addFooter(pdf, pageCount)
       } catch (err) {
         console.error(`Failed to add chart ${i + 1}`, err)
       }
     }
 
-    // Restore original tab visibility
     tabsContent.forEach((el, i) => {
       el.style.display = originalDisplay[i]
     })
 
     try {
-      const fileName = `${hotelName.replace(/\s+/g, "_")}_Analytics_${year}.pdf`
+      const formattedDate = format(new Date(), "yyyy-MM-dd")
+      const fileName = `${hotelName.replace(/\s+/g, "_")}_Analytics_${year}_${formattedDate}.pdf`
       pdf.save(fileName)
       return true
     } catch (err) {
@@ -117,7 +130,10 @@ export const generatePDF = async (hotelId, year, activeTab) => {
   }
 }
 
-// Helper function to capture chart
+/**
+ * @param {Element} chartElement 
+ * @returns {Promise<string|null>} 
+ */
 const captureChart = async (chartElement) => {
   try {
     const rect = chartElement.getBoundingClientRect()
@@ -127,13 +143,15 @@ const captureChart = async (chartElement) => {
     }
 
     const canvas = await html2canvas(chartElement, {
-      scale: 2,
+      scale: 3, 
       useCORS: true,
       backgroundColor: "#ffffff",
       logging: false,
+      allowTaint: false,
+      imageTimeout: 15000, 
     })
 
-    const dataUrl = canvas.toDataURL("image/png")
+    const dataUrl = canvas.toDataURL("image/png", 0.95) 
 
     if (!dataUrl.startsWith("data:image/png")) {
       console.warn("Invalid PNG data generated.")
@@ -147,13 +165,32 @@ const captureChart = async (chartElement) => {
   }
 }
 
-// Add cover page
-const addCoverPage = (pdf, hotelName, year, activeTab) => {
-  // Set background color
-  pdf.setFillColor(240, 240, 245)
-  pdf.rect(0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight(), "F")
+/**
+ * @param {jsPDF} pdf
+ * @param {string} hotelName
+ * @param {string|number} year 
+ * @param {string} activeTab 
+ * @returns {Promise<void>}
+ */
+const addCoverPage = async (pdf, hotelName, year, activeTab) => {
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const pageHeight = pdf.internal.pageSize.getHeight()
 
-  // Add logo (placeholder - you should replace with actual logo)
+  for (let i = 0; i < pageHeight; i += 0.5) {
+    const ratio = i / pageHeight
+    const r = Math.floor(COLORS.light.r * (1 - ratio) + COLORS.white.r * ratio)
+    const g = Math.floor(COLORS.light.g * (1 - ratio) + COLORS.white.g * ratio)
+    const b = Math.floor(COLORS.light.b * (1 - ratio) + COLORS.white.b * ratio)
+
+    pdf.setDrawColor(r, g, b)
+    pdf.setLineWidth(0.5)
+    pdf.line(0, i, pageWidth, i)
+  }
+
+  pdf.setFillColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
+  pdf.roundedRect(15, 15, pageWidth - 30, 10, 3, 3, "F")
+  pdf.roundedRect(15, pageHeight - 25, pageWidth - 30, 10, 3, 3, "F")
+
   try {
     const logoImg = document.querySelector('img[src*="logo"]')
     if (logoImg) {
@@ -161,118 +198,224 @@ const addCoverPage = (pdf, hotelName, year, activeTab) => {
       logoCanvas.width = logoImg.width
       logoCanvas.height = logoImg.height
       const ctx = logoCanvas.getContext("2d")
-      ctx.drawImage(logoImg, 0, 0)
-      const logoDataUrl = logoCanvas.toDataURL("image/png")
+      if (ctx) {
+        ctx.drawImage(logoImg, 0, 0)
+        const logoDataUrl = logoCanvas.toDataURL("image/png")
 
-      pdf.addImage(logoDataUrl, "PNG", (pdf.internal.pageSize.getWidth() - 60) / 2, 40, 60, 60)
+        pdf.setFillColor(240, 240, 240)
+        pdf.roundedRect((pageWidth - 65) / 2, 39, 65, 65, 5, 5, "F")
+        pdf.addImage(logoDataUrl, "PNG", (pageWidth - 60) / 2, 40, 60, 60)
+      }
     }
   } catch (error) {
     console.warn("Could not add logo to PDF", error)
   }
 
-  // Add title
   pdf.setFont("helvetica", "bold")
-  pdf.setFontSize(24)
-  pdf.setTextColor(44, 62, 80)
-  const title = "Hotel Analytics Report"
-  const titleWidth = (pdf.getStringUnitWidth(title) * 24) / pdf.internal.scaleFactor
-  const titleX = (pdf.internal.pageSize.getWidth() - titleWidth) / 2
-  pdf.text(title, titleX, 120)
+  pdf.setFontSize(28)
+  pdf.setTextColor(COLORS.secondary.r, COLORS.secondary.g, COLORS.secondary.b)
+  const title = "HOTEL ANALYTICS REPORT"
+  const titleWidth = (pdf.getStringUnitWidth(title) * 28) / pdf.internal.scaleFactor
+  const titleX = (pageWidth - titleWidth) / 2
+  pdf.text(title, titleX, 130)
 
-  // Add subtitle
+  pdf.setDrawColor(COLORS.accent.r, COLORS.accent.g, COLORS.accent.b)
+  pdf.setLineWidth(1)
+  pdf.line(titleX, 135, titleX + titleWidth, 135)
+
   pdf.setFont("helvetica", "normal")
-  pdf.setFontSize(16)
-  pdf.setTextColor(52, 73, 94)
+  pdf.setFontSize(18)
+  pdf.setTextColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
   const subtitle = `${activeTab === "revenue" ? "Revenue" : "Sentiment"} Analysis`
-  const subtitleWidth = (pdf.getStringUnitWidth(subtitle) * 16) / pdf.internal.scaleFactor
-  const subtitleX = (pdf.internal.pageSize.getWidth() - subtitleWidth) / 2
-  pdf.text(subtitle, subtitleX, 130)
+  const subtitleWidth = (pdf.getStringUnitWidth(subtitle) * 18) / pdf.internal.scaleFactor
+  const subtitleX = (pageWidth - subtitleWidth) / 2
+  pdf.text(subtitle, subtitleX, 145)
 
-  // Add hotel and year
-  pdf.setFontSize(14)
-  pdf.setTextColor(52, 73, 94)
+  pdf.setFontSize(16)
+  pdf.setTextColor(COLORS.dark.r, COLORS.dark.g, COLORS.dark.b)
+
   const hotelText = `Hotel: ${hotelName}`
-  const hotelWidth = (pdf.getStringUnitWidth(hotelText) * 14) / pdf.internal.scaleFactor
-  const hotelX = (pdf.internal.pageSize.getWidth() - hotelWidth) / 2
-  pdf.text(hotelText, hotelX, 145)
+  const hotelWidth = (pdf.getStringUnitWidth(hotelText) * 16) / pdf.internal.scaleFactor
+  const hotelX = (pageWidth - hotelWidth) / 2
+  pdf.text(hotelText, hotelX, 165)
 
   const yearText = `Year: ${year}`
-  const yearWidth = (pdf.getStringUnitWidth(yearText) * 14) / pdf.internal.scaleFactor
-  const yearX = (pdf.internal.pageSize.getWidth() - yearWidth) / 2
-  pdf.text(yearText, yearX, 155)
+  const yearWidth = (pdf.getStringUnitWidth(yearText) * 16) / pdf.internal.scaleFactor
+  const yearX = (pageWidth - yearWidth) / 2
+  pdf.text(yearText, yearX, 175)
 
-  // Add date
   pdf.setFontSize(10)
   pdf.setTextColor(100, 100, 100)
   const today = new Date()
-  const dateText = `Generated on: ${today.toLocaleDateString()} at ${today.toLocaleTimeString()}`
+  const dateText = `Generated on: ${format(today, "MMMM d, yyyy 'at' h:mm a")}`
   const dateWidth = (pdf.getStringUnitWidth(dateText) * 10) / pdf.internal.scaleFactor
-  const dateX = (pdf.internal.pageSize.getWidth() - dateWidth) / 2
-  pdf.text(dateText, dateX, 170)
+  const dateX = (pageWidth - dateWidth) / 2
+  pdf.text(dateText, dateX, 190)
 
-  // Add decorative element
-  pdf.setDrawColor(52, 152, 219)
-  pdf.setLineWidth(0.5)
-  pdf.line(40, 180, pdf.internal.pageSize.getWidth() - 40, 180)
+  pdf.setFontSize(8)
+  pdf.setTextColor(120, 120, 120)
+  const confidentialText = "CONFIDENTIAL - FOR INTERNAL USE ONLY"
+  const confidentialWidth = (pdf.getStringUnitWidth(confidentialText) * 8) / pdf.internal.scaleFactor
+  const confidentialX = (pageWidth - confidentialWidth) / 2
+  pdf.text(confidentialText, confidentialX, pageHeight - 30)
 }
 
-// Add header to each page
-const addHeader = (pdf, hotelName, year) => {
-  // Add header background
-  pdf.setFillColor(245, 245, 250)
-  pdf.rect(0, 0, pdf.internal.pageSize.getWidth(), 20, "F")
+/**
+ * @param {jsPDF} pdf 
+ * @param {number} chartCount 
+ * @param {string} activeTab 
+ */
+const addTableOfContents = (pdf, chartCount, activeTab) => {
+  pdf.addPage()
 
-  // Add header text
+  const pageWidth = pdf.internal.pageSize.getWidth()
+
+  pdf.setFillColor(COLORS.light.r, COLORS.light.g, COLORS.light.b)
+  pdf.rect(0, 0, pageWidth, 20, "F")
+
+  pdf.setFont("helvetica", "bold")
+  pdf.setFontSize(16)
+  pdf.setTextColor(COLORS.secondary.r, COLORS.secondary.g, COLORS.secondary.b)
+  pdf.text("CHARTS LIST", 20, 15)
+
+  pdf.setDrawColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
+  pdf.setLineWidth(0.5)
+  pdf.line(20, 20, pageWidth - 20, 20)
+
+  pdf.setFont("helvetica", "normal")
+  pdf.setFontSize(12)
+  pdf.setTextColor(COLORS.dark.r, COLORS.dark.g, COLORS.dark.b)
+
+  let yPos = 40
+
+  pdf.setFont("helvetica", "bold")
+  pdf.text(`${activeTab === "revenue" ? "Revenue" : "Sentiment"} Analysis Charts`, 20, yPos)
+  yPos += 15
+
+  for (let i = 0; i < chartCount; i++) {
+    const chartTitle = getChartTitle(i, activeTab)
+    pdf.setFont("helvetica", "normal")
+    pdf.text(`${i + 1}. ${chartTitle}`, 30, yPos)
+    pdf.text(`${i + 3}`, 180, yPos, { align: "right" })
+    yPos += 10
+  }
+
+  addFooter(pdf, 2)
+}
+
+/**
+ * @param {jsPDF} pdf 
+ * @param {string} hotelName 
+ * @param {string|number} year 
+ */
+const addHeader = (pdf, hotelName, year) => {
+  const pageWidth = pdf.internal.pageSize.getWidth()
+
+  pdf.setFillColor(COLORS.light.r, COLORS.light.g, COLORS.light.b)
+  pdf.rect(0, 0, pageWidth, 20, "F")
+
   pdf.setFont("helvetica", "bold")
   pdf.setFontSize(10)
-  pdf.setTextColor(44, 62, 80)
+  pdf.setTextColor(COLORS.secondary.r, COLORS.secondary.g, COLORS.secondary.b)
   pdf.text(`Hotel Analytics Report - ${hotelName} - ${year}`, 20, 15)
 
-  // Add date on right
-  const today = new Date().toLocaleDateString()
+  const today = format(new Date(), "MMMM d, yyyy")
   pdf.setFont("helvetica", "normal")
   pdf.setFontSize(8)
-  pdf.setTextColor(100, 100, 100)
-  pdf.text(today, pdf.internal.pageSize.getWidth() - 40, 15, { align: "right" })
+  pdf.setTextColor(COLORS.dark.r, COLORS.dark.g, COLORS.dark.b)
+  pdf.text(today, pageWidth - 20, 15, { align: "right" })
 
-  // Add separator line
-  pdf.setDrawColor(220, 220, 220)
+  pdf.setDrawColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
   pdf.setLineWidth(0.2)
-  pdf.line(10, 20, pdf.internal.pageSize.getWidth() - 10, 20)
+  pdf.line(10, 20, pageWidth - 10, 20)
 }
 
-// Add footer with page number
+/**
+ * @param {jsPDF} pdf 
+ * @param {number} pageNumber 
+ */
 const addFooter = (pdf, pageNumber) => {
   const pageWidth = pdf.internal.pageSize.getWidth()
   const pageHeight = pdf.internal.pageSize.getHeight()
 
-  // Add footer background
-  pdf.setFillColor(245, 245, 250)
+  pdf.setFillColor(COLORS.light.r, COLORS.light.g, COLORS.light.b)
   pdf.rect(0, pageHeight - 15, pageWidth, 15, "F")
 
-  // Add separator line
-  pdf.setDrawColor(220, 220, 220)
+  pdf.setDrawColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
   pdf.setLineWidth(0.2)
   pdf.line(10, pageHeight - 15, pageWidth - 10, pageHeight - 15)
 
-  // Add page number
   pdf.setFont("helvetica", "normal")
   pdf.setFontSize(8)
-  pdf.setTextColor(100, 100, 100)
+  pdf.setTextColor(COLORS.dark.r, COLORS.dark.g, COLORS.dark.b)
   pdf.text(`Page ${pageNumber}`, pageWidth / 2, pageHeight - 10, { align: "center" })
 
-  // Add copyright
   pdf.setFontSize(7)
   pdf.text("© Hotel Analytics Dashboard", 20, pageHeight - 10)
+
+  pdf.text("Confidential", pageWidth - 20, pageHeight - 10, { align: "right" })
 }
 
-// Get chart title based on index and active tab
+/**
+ * @param {jsPDF} pdf 
+ * @param {number} yPosition
+ */
+const addSectionDivider = (pdf, yPosition) => {
+  pdf.setDrawColor(COLORS.accent.r, COLORS.accent.g, COLORS.accent.b)
+  pdf.setLineWidth(0.3)
+  pdf.line(20, yPosition, 60, yPosition)
+}
+
+/**
+ * @param {number} index 
+ * @param {string} activeTab 
+ * @returns {string}
+ */
 const getChartTitle = (index, activeTab) => {
   if (activeTab === "revenue") {
-    const revenueTitles = ["Monthly Revenue Trends", "Revenue vs Sentiment Analysis", "Review Volume vs Revenue"]
+    const revenueTitles = [
+      "Monthly Revenue Trends",
+      "Revenue vs Sentiment Analysis",
+      "Review Volume vs Revenue",
+      "Revenue by Channel",
+      "Year-over-Year Revenue Comparison",
+    ]
     return revenueTitles[index % revenueTitles.length]
   } else {
-    const sentimentTitles = ["Composite Sentiment Index", "Sentiment Ratios", "CSI Revenue Correlation"]
+    const sentimentTitles = [
+      "Composite Sentiment Index (CSI)",
+      "Sentiment Distribution Analysis",
+      "CSI Revenue Correlation",
+      "Sentiment Trends Over Time",
+      "Category-Specific Sentiment Analysis",
+    ]
     return sentimentTitles[index % sentimentTitles.length]
+  }
+}
+
+/**
+ * @param {number} index 
+ * @param {string} activeTab 
+ * @returns {string}
+ */
+const getChartDescription = (index, activeTab) => {
+  if (activeTab === "revenue") {
+    const revenueDescriptions = [
+      "This chart illustrates the monthly revenue trends throughout the year, highlighting seasonal patterns and identifying peak performance periods.",
+      "This analysis explores the relationship between customer sentiment metrics and revenue generation, demonstrating how improved customer satisfaction correlates with financial performance.",
+      "This visualization examines how the volume of customer reviews relates to revenue, showing the impact of customer engagement on business performance.",
+      "This breakdown shows revenue distribution across different booking channels, helping identify the most effective sales channels.",
+      "This comparison tracks revenue performance against previous years, providing context for current results and long-term trends.",
+    ]
+    return revenueDescriptions[index % revenueDescriptions.length]
+  } else {
+    const sentimentDescriptions = [
+      "The Composite Sentiment Index provides an aggregate measure of customer satisfaction across all review categories, serving as a key performance indicator.",
+      "This analysis breaks down sentiment into positive, neutral, and negative categories, showing the distribution of customer feedback.",
+      "This correlation study examines the relationship between sentiment scores and revenue performance, quantifying the business impact of customer satisfaction.",
+      "This timeline tracks sentiment changes throughout the year, identifying trends and potential factors affecting customer perception.",
+      "This detailed breakdown examines sentiment scores across specific service categories, highlighting strengths and areas for improvement.",
+    ]
+    return sentimentDescriptions[index % sentimentDescriptions.length]
   }
 }

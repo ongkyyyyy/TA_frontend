@@ -11,14 +11,7 @@ import {
   } from "react-icons/md";
   
   const menuItems = [
-    {
-      name: "Dashboard",
-      icon: LayoutDashboard,
-      subItems: [
-        { name: "Analytics", route: "/analytics" },
-        { name: "Reporting", route: "/reporting" },
-      ],
-    },
+    { name: "Analytics", icon: LayoutDashboard,route: "/analytics" },
     { name: "Hotels", icon: MdHotel, route: "/hotels" },
     { name: "Revenues", icon: MdMoney, route: "/revenues" },
     { name: "Reviews and Sentiments", icon: MdComment, route: "/reviews" },

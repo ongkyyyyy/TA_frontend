@@ -3,16 +3,13 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Loader
 import Loader from "./components/loader/Loader"
-
 // Layout
 import DefaultLayout from "./components/layouts/Default-layout";
-
 // Pages
 import Login from "./components/pages/Login"
 import NotFoundPage from "./NotFoundPage"
 // ./Dashboard/...
 import HotelAnalyticsDashboard from "./components/pages/dashboard/Hotel-analytics";
-import Reporting from "./components/pages/dashboard/Reporting";
 // ./{Other Pages}..
 import Hotels from "./components/pages/Hotels/Hotels";
 import Revenues from "./components/pages/Revenues/Revenues";
@@ -45,7 +42,6 @@ function App() {
            <Route element={<DefaultLayout />}>
             <Route  path="/" element={<HotelAnalyticsDashboard/>} />
             <Route path="/analytics" element={<HotelAnalyticsDashboard />} />
-            <Route path="/reporting" element={<Reporting />} />
             <Route path="/hotels" element={<Hotels />} />
             <Route path="/revenues" element={<Revenues />} />
             <Route path="/reviews" element={<Reviews />} />
