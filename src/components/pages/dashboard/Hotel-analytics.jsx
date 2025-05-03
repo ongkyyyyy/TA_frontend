@@ -11,79 +11,108 @@ import { ReviewVolumeRevenue } from "./Charts/Review-volume-vs-revenue"
 import { CompositeSentimentIndex } from "./Charts/Composite-sentiment-index"
 import { SentimentRatios } from "./Charts/Sentiment-ratios"
 import { CSIRevenueCorrelation } from "./Charts/Csi-revenue-correlation"
+import { generatePDF } from "./PDF/Pdf-generator"
 
 export default function HotelAnalyticsDashboard() {
-    const currentYear = new Date().getFullYear().toString()
-    const [year, setYear] = useState(currentYear)
-    const [hotelId, setHotelId] = useState("All")
-    const [loading, setLoading] = useState(true)
-    const [data, setData] = useState(null)
-    const [activeTab, setActiveTab] = useState("sentiment")
-  
-    useEffect(() => {
-      const fetchData = async () => {
+  const currentYear = new Date().getFullYear().toString()
+  const [year, setYear] = useState(currentYear)
+  const [hotelId, setHotelId] = useState("All")
+  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState(null)
+  const [activeTab, setActiveTab] = useState("sentiment")
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      try {
+        const response = await getDiagram(hotelId, year)
+        setData(response)
+      } catch (error) {
+        console.error("Error fetching diagram data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [hotelId, year])
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.downloadPDF = async () => {
         setLoading(true)
+
         try {
-          const response = await getDiagram(hotelId, year)
-          setData(response)
+          await generatePDF(hotelId, year, activeTab)
         } catch (error) {
-          console.error("Error fetching diagram data:", error)
+          console.error("Error generating PDF:", error)
         } finally {
           setLoading(false)
         }
       }
-  
-      fetchData()
-    }, [hotelId, year])
+    }
 
-    const transformedData = useMemo(() => {
-      if (!data) return []
-  
-      return data.months.map((month, index) => ({
-        month,
-        room_revenue: data.room_revenue[index] || 0,
-        restaurant_revenue: data.restaurant_revenue[index] || 0,
-        other_revenue: data.other_revenue[index] || 0,
-        nett_revenue: data.nett_revenue[index] || 0,
-        gross_revenue: data.gross_revenue[index] || 0,
-        grand_total_revenue: data.grand_total_revenue[index] || 0,
-        sentiment_score: data.sentiment_score[index] || 0,
-        composite_sentiment_index: data.composite_sentiment_index[index] || 0,
-        review_volume: data.review_volume[index] || 0,
-        positive_ratio: data.positive_ratio[index] || 0,
-        negative_ratio: data.negative_ratio[index] || 0,
-        neutral_ratio: data.neutral_ratio[index] || 0,
-      }))
-    }, [data])
-  
-    const scatterData = useMemo(() => {
-      if (!data) return []
-  
-      return data.months.map((month, index) => ({
-        month,
-        x: data.composite_sentiment_index[index] || 0,
-        y: data.gross_revenue[index] || 0,
-        z: data.review_volume[index] || 0, 
-      }))
-    }, [data])
-  
-    const hasNoRevenueData = useMemo(() => {
-      if (!data) return false
-      return (
-        data.room_revenue.every((val) => val === 0) &&
-        data.restaurant_revenue.every((val) => val === 0) &&
-        data.other_revenue.every((val) => val === 0) &&
-        data.gross_revenue.every((val) => val === 0)
-      )
-    }, [data])
-  
-    if (loading) {
-      return <ChartLoading/>
-    }  
+    return () => {
+      if (typeof window !== "undefined") {
+        delete window.downloadPDF
+      }
+    }
+  }, [hotelId, year, activeTab])
+
+  const transformedData = useMemo(() => {
+    if (!data) return []
+
+    return data.months.map((month, index) => ({
+      month,
+      room_revenue: data.room_revenue[index] || 0,
+      restaurant_revenue: data.restaurant_revenue[index] || 0,
+      other_revenue: data.other_revenue[index] || 0,
+      nett_revenue: data.nett_revenue[index] || 0,
+      gross_revenue: data.gross_revenue[index] || 0,
+      grand_total_revenue: data.grand_total_revenue[index] || 0,
+      sentiment_score: data.sentiment_score[index] || 0,
+      composite_sentiment_index: data.composite_sentiment_index[index] || 0,
+      review_volume: data.review_volume[index] || 0,
+      positive_ratio: data.positive_ratio[index] || 0,
+      negative_ratio: data.negative_ratio[index] || 0,
+      neutral_ratio: data.neutral_ratio[index] || 0,
+    }))
+  }, [data])
+
+  const scatterData = useMemo(() => {
+    if (!data) return []
+
+    return data.months.map((month, index) => ({
+      month,
+      x: data.composite_sentiment_index[index] || 0,
+      y: data.gross_revenue[index] || 0,
+      z: data.review_volume[index] || 0,
+    }))
+  }, [data])
+
+  const hasNoRevenueData = useMemo(() => {
+    if (!data) return false
+    return (
+      data.room_revenue.every((val) => val === 0) &&
+      data.restaurant_revenue.every((val) => val === 0) &&
+      data.other_revenue.every((val) => val === 0) &&
+      data.gross_revenue.every((val) => val === 0)
+    )
+  }, [data])
+
+  if (loading) {
+    return <ChartLoading />
+  }
 
   return (
     <div className="container mx-auto p-6">
-      <HotelAnalyticsHeader hotelId={hotelId} year={year} onHotelChange={setHotelId} onYearChange={setYear} />
+      <HotelAnalyticsHeader
+        hotelId={hotelId}
+        year={year}
+        onHotelChange={setHotelId}
+        onYearChange={setYear}
+        activeTab={activeTab}
+      />
 
       {hasNoRevenueData && (
         <Alert className="mb-6">
@@ -101,13 +130,13 @@ export default function HotelAnalyticsDashboard() {
           <TabsTrigger value="sentiment">Sentiment Analysis</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="revenue" className="space-y-6">
+        <TabsContent value="revenue" id="revenue" className="space-y-6">
           <MonthlyRevenueTrends data={transformedData} />
           <RevenueSentiment data={transformedData} />
           <ReviewVolumeRevenue data={transformedData} />
         </TabsContent>
 
-        <TabsContent value="sentiment" className="space-y-6">
+        <TabsContent value="sentiment" id="sentiment" className="space-y-6">
           <CompositeSentimentIndex data={transformedData} />
           <SentimentRatios data={transformedData} />
           <CSIRevenueCorrelation data={scatterData} />

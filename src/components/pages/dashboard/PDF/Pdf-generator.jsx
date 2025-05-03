@@ -1,89 +1,95 @@
-import { jsPDF } from "jspdf"
-import html2canvas from "html2canvas"
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
-const getSelectedHotelName = (hotelId, hotels) => {
-  if (hotelId === "All") return "All Hotels"
-  const hotel = hotels.find((h) => h._id === hotelId)
-  return hotel ? hotel.hotel_name : "Unknown Hotel"
-}
+// Utility delay
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const captureChart = async (chartElement) => {
-  if (!chartElement) return null
+export const generatePDF = async () => {
+  const pdf = new jsPDF("p", "mm", "a4");
 
-  const canvas = await html2canvas(chartElement, {
-    scale: 2, 
-    useCORS: true,
-    logging: false,
-    backgroundColor: "#ffffff",
-  })
+  // Temporarily show all tabs to ensure charts are rendered
+  const tabsContent = document.querySelectorAll('[role="tabpanel"]');
+  const originalDisplay = [];
 
-  return canvas.toDataURL("image/png")
-}
+  tabsContent.forEach((el, i) => {
+    originalDisplay[i] = el.style.display;
+    el.style.display = "block";
+  });
 
-export const generatePDF = async (hotelId, year, hotels, activeTab) => {
-  const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4",
-  })
+  await wait(300); // Allow rendering time
 
-  const pageWidth = doc.internal.pageSize.getWidth()
-  const pageHeight = doc.internal.pageSize.getHeight()
-  const margin = 15
-  const contentWidth = pageWidth - margin * 2
+  const chartElements = document.querySelectorAll(".recharts-wrapper");
 
-  doc.setFontSize(20)
-  doc.setFont("helvetica", "bold")
-  doc.text("Hotel Revenue & Sentiment Analytics", pageWidth / 2, margin, { align: "center" })
-
-  const hotelName = getSelectedHotelName(hotelId, hotels)
-  doc.setFontSize(12)
-  doc.setFont("helvetica", "normal")
-  doc.text(`Hotel: ${hotelName}`, margin, margin + 10)
-  doc.text(`Year: ${year}`, margin, margin + 16)
-  doc.text(`Generated on: ${new Date().toLocaleDateString()}`, margin, margin + 22)
-
-  doc.setDrawColor(200, 200, 200)
-  doc.line(margin, margin + 25, pageWidth - margin, margin + 25)
-
-  const chartElements = document.querySelectorAll(".recharts-wrapper")
-  let currentY = margin + 30
-
-  for (let i = 0; i < chartElements.length; i++) {
-    const chartCard = chartElements[i].closest(".card")
-    const chartTitle = chartCard ? chartCard.querySelector(".card-title")?.textContent : `Chart ${i + 1}`
-
-    const chartImage = await captureChart(chartElements[i])
-    if (!chartImage) continue
-
-    if (currentY > pageHeight - 60) {
-      doc.addPage()
-      currentY = margin
-    }
-
-    doc.setFontSize(14)
-    doc.setFont("helvetica", "bold")
-    doc.text(chartTitle || `Chart ${i + 1}`, margin, currentY)
-    currentY += 8
-
-    const imgWidth = contentWidth
-    const imgHeight = (chartElements[i].offsetHeight * imgWidth) / chartElements[i].offsetWidth
-
-    doc.addImage(chartImage, "PNG", margin, currentY, imgWidth, imgHeight)
-    currentY += imgHeight + 15
+  if (chartElements.length === 0) {
+    console.error("No charts found to export.");
+    throw new Error("No charts found to export.");
   }
 
-  doc.save(`Hotel_Analytics_${hotelName.replace(/\s+/g, "_")}_${year}.pdf`)
-}
+  let yPosition = 10;
 
-window.downloadPDF = () => {
-  const hotelId = document.querySelector('[placeholder="Select Hotel"]')?.closest("button")?.value || "All"
-  const year =
-    document.querySelector('[placeholder="Select Year"]')?.closest("button")?.value ||
-    new Date().getFullYear().toString()
-  const activeTab = document.querySelector('[role="tablist"] [data-state="active"]')?.value || "sentiment"
+  const captureChart = async (chartElement) => {
+    try {
+      const rect = chartElement.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) {
+        console.warn("Chart has zero dimensions, skipping.");
+        return null;
+      }
 
-  const hotelsData = window.hotelsData || []
+      const canvas = await html2canvas(chartElement, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      });
 
-  generatePDF(hotelId, year, hotelsData, activeTab)
-}
+      const dataUrl = canvas.toDataURL("image/png");
+
+      if (!dataUrl.startsWith("data:image/png")) {
+        console.warn("Invalid PNG data generated.");
+        return null;
+      }
+
+      return dataUrl;
+    } catch (error) {
+      console.error("html2canvas failed:", error);
+      return null;
+    }
+  };
+
+  for (let i = 0; i < chartElements.length; i++) {
+    const dataUrl = await captureChart(chartElements[i]);
+    if (!dataUrl) {
+      console.warn(`Skipping chart ${i + 1}`);
+      continue;
+    }
+
+    try {
+      const imgProps = pdf.getImageProperties(dataUrl);
+      const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
+      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      if (yPosition + imgHeight > pdf.internal.pageSize.getHeight() - 10) {
+        pdf.addPage();
+        yPosition = 10;
+      }
+
+      pdf.addImage(dataUrl, "PNG", 10, yPosition, pdfWidth, imgHeight);
+      yPosition += imgHeight + 10;
+    } catch (err) {
+      console.error(`Failed to add chart ${i + 1}`, err);
+    }
+  }
+
+  // Restore original tab visibility
+  tabsContent.forEach((el, i) => {
+    el.style.display = originalDisplay[i];
+  });
+
+  try {
+    pdf.save("charts.pdf");
+    return true;
+  } catch (err) {
+    console.error("PDF save failed:", err);
+    throw new Error("Failed to generate PDF");
+  }
+};

@@ -1,8 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { Download } from 'lucide-react'
+import { PDFButton } from "./PDF/PDF-button"
 import { getHotelsDropdown } from "@/api/apiHotels"
 
 export function HotelAnalyticsHeader({ hotelId, year, onHotelChange, onYearChange }) {
@@ -60,17 +59,7 @@ export function HotelAnalyticsHeader({ hotelId, year, onHotelChange, onYearChang
             ))}
           </SelectContent>
         </Select>
-        <Button
-          onClick={() => {
-            if (typeof window !== "undefined" && window.downloadPDF) {
-              window.downloadPDF()
-            }
-          }}
-          className="gap-2"
-        >
-          <Download className="h-4 w-4" />
-          Download PDF
-        </Button>
+        <PDFButton hotelId={hotelId} year={year} activeTab="sentiment" />
       </div>
     </div>
   )
