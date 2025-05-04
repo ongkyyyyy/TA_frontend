@@ -50,6 +50,7 @@ function MobileSidebar({ mobileSidebar, toggleMobileSidebar }) {
                 ) : (
                   <Link
                     to={route || "#"}
+                    onClick={toggleMobileSidebar}
                     className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition rounded-lg"
                   >
                     <Icon className="h-5 w-5 text-primary" />
