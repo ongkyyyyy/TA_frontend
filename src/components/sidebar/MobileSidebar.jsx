@@ -1,13 +1,14 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import { CgClose } from "react-icons/cg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
-
 import menuItems from "./menuItems";
+import { logoutUser } from "@/api/apiUser";
 
 function MobileSidebar({ mobileSidebar, toggleMobileSidebar }) {
   const [openMenus, setOpenMenus] = useState({});
+  const navigate = useNavigate();
 
   const toggleMenu = (name) => {
     setOpenMenus((prev) => ({ ...prev, [name]: !prev[name] }));
@@ -31,18 +32,31 @@ function MobileSidebar({ mobileSidebar, toggleMobileSidebar }) {
           {menuItems.map(({ name, icon: Icon, route, subItems }) => (
             <li key={name}>
               <div
-                className="flex items-center justify-between w-full px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 transition"
+                className="flex items-center justify-between w-full rounded-lg cursor-pointer transition"
                 onClick={() => subItems && toggleMenu(name)}
               >
-                <div className="flex items-center gap-3">
-                  <Icon className="h-5 w-5 text-primary" />
+                {name === "Log Out" ? (
+                  <button
+                    onClick={() => {
+                      logoutUser();
+                      toggleMobileSidebar();
+                      navigate("/login");
+                    }}
+                    className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition rounded-lg"
+                  >
+                    <Icon className="h-5 w-5 text-primary" />
+                    <span>{name}</span>
+                  </button>
+                ) : (
                   <Link
                     to={route || "#"}
-                    className="text-sm font-medium text-gray-700"
+                    className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition rounded-lg"
                   >
-                    {name}
+                    <Icon className="h-5 w-5 text-primary" />
+                    <span>{name}</span>
                   </Link>
-                </div>
+                )}
+
                 {subItems && (
                   <ChevronDown
                     className={`h-4 w-4 text-gray-500 transition-transform ${

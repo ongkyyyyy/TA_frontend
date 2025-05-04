@@ -2,9 +2,14 @@ import useAxios from './index.jsx';
 
 export const getHotels = async (page = 1, limit = 15) => {
   try {
+    const token = localStorage.getItem("token"); 
+
     const response = await useAxios.get('/hotels', {
       params: { page, limit },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, 
+       },
     });
 
     return response.data;
@@ -16,8 +21,13 @@ export const getHotels = async (page = 1, limit = 15) => {
 
 export const getHotelsDropdown = async () => {
   try {
+    const token = localStorage.getItem("token"); 
+
     const response = await useAxios.get('/hotels/dropdown', {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, 
+       },
     });
 
     return response.data;
@@ -29,9 +39,14 @@ export const getHotelsDropdown = async () => {
 
 export const searchHotels = async (searchTerm, page = 1, limit = 15) => {
   try {
+    const token = localStorage.getItem("token"); 
+
     const response = await useAxios.get('/hotels/search', {
       params: { q: searchTerm, page, limit },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, 
+       },
     });
     return response.data;
   } catch (error) {
@@ -42,9 +57,13 @@ export const searchHotels = async (searchTerm, page = 1, limit = 15) => {
 
 export const inputHotels = async (data) => {
   try {
+    const token = localStorage.getItem("token"); 
+
     const response = await useAxios.post('/hotels', data, {
       headers: {
+        
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
     });
 
@@ -57,9 +76,13 @@ export const inputHotels = async (data) => {
 
 export const updateHotel = async (id, data) => {
   try {
+    const token = localStorage.getItem("token"); 
+
     const response = await useAxios.put(`/hotels/${id}`, data, {
       headers: {
+        
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
     });
 
@@ -72,9 +95,13 @@ export const updateHotel = async (id, data) => {
 
 export const deleteHotel = async (id) => {
   try {
+    const token = localStorage.getItem("token"); 
+
     const response = await useAxios.delete(`/hotels/${id}`, {
       headers: {
+        
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
     });
 
@@ -87,9 +114,12 @@ export const deleteHotel = async (id) => {
 
 export const getHotelById = async (id) => {
   try {
+    const token = localStorage.getItem("token"); 
+
     const response = await useAxios.get(`/hotels/${id}`, {
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
     });
 

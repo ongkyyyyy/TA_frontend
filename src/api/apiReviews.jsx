@@ -38,10 +38,12 @@ export const getReviews = async ({
     if (hotelId) {
       params.hotel_id = hotelId;
     }
+    const token = localStorage.getItem("token"); 
 
     const response = await useAxios.get('/reviews', {
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, 
       },
       params,
     });

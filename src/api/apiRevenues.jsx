@@ -30,12 +30,13 @@ export const getRevenues = async ({
     if (maxRevenue) params.max_revenue = maxRevenue;
     if (minOccupancy) params.min_occupancy = minOccupancy;
     if (maxOccupancy) params.max_occupancy = maxOccupancy;
-    console.log("Sending params:", params);
+    const token = localStorage.getItem("token"); 
 
     const response = await useAxios.get('/revenues/hotels-with-revenues', {
       params,
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, 
       },
     });
     return response.data;
@@ -47,9 +48,11 @@ export const getRevenues = async ({
 
 export const inputRevenue = async (data) => {
   try {
+    const token = localStorage.getItem("token"); 
     const response = await useAxios.post('/revenues', data, {
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, 
       },
     });
 
@@ -62,9 +65,11 @@ export const inputRevenue = async (data) => {
 
 export const updateRevenue = async (id, data) => {
   try {
+    const token = localStorage.getItem("token"); 
     const response = await useAxios.put(`/revenues/${id}`, data, {
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, 
       },
     });
     return response.data;
@@ -76,9 +81,11 @@ export const updateRevenue = async (id, data) => {
 
 export const deleteRevenue = async (id) => {
   try {
+    const token = localStorage.getItem("token"); 
     const response = await useAxios.delete(`/revenues/${id}`, {
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, 
       },
     });
 
