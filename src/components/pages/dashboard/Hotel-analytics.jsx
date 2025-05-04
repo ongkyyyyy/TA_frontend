@@ -105,7 +105,7 @@ export default function HotelAnalyticsDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto space-y-6 py-6">
       <HotelAnalyticsHeader
         hotelId={hotelId}
         year={year}
