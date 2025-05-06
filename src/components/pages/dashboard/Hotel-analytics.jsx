@@ -19,7 +19,7 @@ export default function HotelAnalyticsDashboard() {
   const [hotelId, setHotelId] = useState("All")
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState(null)
-  const [activeTab, setActiveTab] = useState("sentiment")
+  const [activeTab, setActiveTab] = useState("single")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -125,22 +125,22 @@ export default function HotelAnalyticsDashboard() {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-          <TabsTrigger value="revenue">Revenue Analysis</TabsTrigger>
-          <TabsTrigger value="sentiment">Sentiment Analysis</TabsTrigger>
-        </TabsList>
+      <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+        <TabsTrigger value="single">Single Analysis</TabsTrigger>
+        <TabsTrigger value="hybrid">Hybrid Analysis</TabsTrigger>
+      </TabsList>
 
-        <TabsContent value="revenue" id="revenue" className="space-y-6">
-          <MonthlyRevenueTrends data={transformedData} />
-          <RevenueSentiment data={transformedData} />
-          <ReviewVolumeRevenue data={transformedData} />
-        </TabsContent>
+      <TabsContent value="single" id="single" className="space-y-6">
+        <MonthlyRevenueTrends data={transformedData} />
+        <CompositeSentimentIndex data={transformedData} />
+        <SentimentRatios data={transformedData} />
+      </TabsContent>
 
-        <TabsContent value="sentiment" id="sentiment" className="space-y-6">
-          <CompositeSentimentIndex data={transformedData} />
-          <SentimentRatios data={transformedData} />
-          <CSIRevenueCorrelation data={scatterData} />
-        </TabsContent>
+      <TabsContent value="hybrid" id="hybrid" className="space-y-6">
+        <RevenueSentiment data={transformedData} />
+        <ReviewVolumeRevenue data={transformedData} />
+        <CSIRevenueCorrelation data={scatterData} />
+      </TabsContent>
       </Tabs>
     </div>
   )

@@ -226,7 +226,7 @@ const addCoverPage = async (pdf, hotelName, year, activeTab) => {
   pdf.setFont("helvetica", "normal")
   pdf.setFontSize(18)
   pdf.setTextColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
-  const subtitle = `${activeTab === "revenue" ? "Revenue" : "Sentiment"} Analysis`
+  const subtitle = `${activeTab === "single" ? "Single" : "Hybrid"} Analysis`
   const subtitleWidth = (pdf.getStringUnitWidth(subtitle) * 18) / pdf.internal.scaleFactor
   const subtitleX = (pageWidth - subtitleWidth) / 2
   pdf.text(subtitle, subtitleX, 145)
@@ -399,23 +399,20 @@ const getChartTitle = (index, activeTab) => {
  * @returns {string}
  */
 const getChartDescription = (index, activeTab) => {
-  if (activeTab === "revenue") {
-    const revenueDescriptions = [
-      "This chart illustrates the monthly revenue trends throughout the year, highlighting seasonal patterns and identifying peak performance periods.",
-      "This analysis explores the relationship between customer sentiment metrics and revenue generation, demonstrating how improved customer satisfaction correlates with financial performance.",
-      "This visualization examines how the volume of customer reviews relates to revenue, showing the impact of customer engagement on business performance.",
-      "This breakdown shows revenue distribution across different booking channels, helping identify the most effective sales channels.",
-      "This comparison tracks revenue performance against previous years, providing context for current results and long-term trends.",
+  if (activeTab === "single") {
+    const singleAnalysisDescriptions = [
+      "This chart illustrates the monthly revenue trends, highlighting seasonal fluctuations and peak financial periods.",
+      "The Composite Sentiment Index aggregates customer satisfaction levels, offering a high-level view of overall sentiment throughout the year.",
+      "This chart categorizes sentiment into positive, neutral, and negative segments, helping visualize customer feedback distribution."
     ]
-    return revenueDescriptions[index % revenueDescriptions.length]
+    return singleAnalysisDescriptions[index % singleAnalysisDescriptions.length]
   } else {
-    const sentimentDescriptions = [
-      "The Composite Sentiment Index provides an aggregate measure of customer satisfaction across all review categories, serving as a key performance indicator.",
-      "This analysis breaks down sentiment into positive, neutral, and negative categories, showing the distribution of customer feedback.",
-      "This correlation study examines the relationship between sentiment scores and revenue performance, quantifying the business impact of customer satisfaction.",
-      "This timeline tracks sentiment changes throughout the year, identifying trends and potential factors affecting customer perception.",
-      "This detailed breakdown examines sentiment scores across specific service categories, highlighting strengths and areas for improvement.",
+    const hybridAnalysisDescriptions = [
+      "This analysis explores how sentiment metrics correlate with revenue performance, revealing how customer satisfaction impacts financial outcomes.",
+      "This chart shows the relationship between the number of reviews and revenue, highlighting the business effect of customer engagement.",
+      "This scatter plot visualizes the correlation between composite sentiment, revenue, and review volume to assess their combined impact."
     ]
-    return sentimentDescriptions[index % sentimentDescriptions.length]
+    return hybridAnalysisDescriptions[index % hybridAnalysisDescriptions.length]
   }
 }
+
