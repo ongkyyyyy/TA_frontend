@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 // Loader
 import Loader from "./components/loader/Loader";
 // Layout
@@ -33,11 +33,8 @@ function App() {
       ) : (
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route element={<DefaultLayout />}>
-            <Route
-              path="/"
-              element={<PrivateRoute element={<HotelAnalyticsDashboard />} />}
-            />
             <Route
               path="/analytics"
               element={<PrivateRoute element={<HotelAnalyticsDashboard />} />}

@@ -24,7 +24,7 @@ export default function LoginPage() {
 
     try {
       await loginUser(username, password)
-      navigate("/") 
+      navigate("/analytics") 
     } catch (err) {
       console.error("Login error:", err)
       setError("Invalid username or password")

@@ -31,7 +31,7 @@ function Sidebar() {
         toggleMobileSidebar={toggleMobileSidebar}
       />
       <div className="hidden md:flex flex-col w-64 bg-white h-full shadow-lg border-r border-gray-200 px-4 py-6">
-        <Link to="/" className="mb-8 flex items-center gap-2">
+        <Link to="/analytics" className="mb-8 flex items-center gap-2">
           <img src={Logo} alt="Logo" className="h-20" />
           <span className="text-xl font-bold text-primary">Hotel Analytics</span>
         </Link>
