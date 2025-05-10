@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react"
 import { getReviews } from "../../../api/apiReviews"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../ui/card"
@@ -17,7 +19,7 @@ export default function ReviewsWithFilters() {
   const [otaFilter, setOtaFilter] = useState()
   const [minDate, setMinDate] = useState()
   const [maxDate, setMaxDate] = useState()
-  const [hotelId, setHotelId] = useState()
+  const [hotelId, setHotelId] = useState([])
   const [resetSignal, setResetSignal] = useState(false)
 
   useEffect(() => {
@@ -86,7 +88,7 @@ export default function ReviewsWithFilters() {
     setOtaFilter(undefined)
     setMinDate(undefined)
     setMaxDate(undefined)
-    setHotelId(undefined)
+    setHotelId([])
     setResetSignal(Date.now())
   }
 
@@ -108,7 +110,7 @@ export default function ReviewsWithFilters() {
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-2">Customer Reviews and Sentiments</h1>
       <p className="text-muted-foreground mb-4">Browse and search through guest feedback</p>
-  
+
       <div className="mb-8">
         <ScrapePage />
       </div>

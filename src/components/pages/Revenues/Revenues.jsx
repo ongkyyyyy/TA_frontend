@@ -24,7 +24,7 @@ export default function RevenuePage() {
   const [hotelOptions, setHotelOptions] = useState([])
   const [selectedHotel, setSelectedHotel] = useState("")
   const [page, setPage] = useState(1)
-  const [revenuesPage, setRevenuesPage] = useState({})
+  const [totalPages, setTotalPages] = useState(1)
   const revenuesPerHotel = 10
   const [sortBy, setSortBy] = useState("date")
   const [sortOrder, setSortOrder] = useState(-1)
@@ -64,12 +64,8 @@ export default function RevenuePage() {
         }
         const response = await getRevenues2(params)
         setData(response.data?.data?.data || [])
-        setRevenuesPage({
-          page: response.data?.data?.page,
-          per_page: response.data?.data?.per_page,
-          total: response.data?.data?.total,
-          total_pages: response.data?.data?.total_pages,
-        })
+        setTotalPages(response.data?.data?.total_pages || 1)
+
         const dropdownResponse = await getHotelsDropdown()
         setHotelOptions(dropdownResponse || [])
       } catch (error) {
@@ -106,6 +102,7 @@ export default function RevenuePage() {
     }
     const response = await getRevenues2(params)
     setData(response.data?.data?.data || [])
+    setTotalPages(response.data?.data?.total_pages || 1)
   }
 
   const handleCreate = async () => {
@@ -230,24 +227,24 @@ export default function RevenuePage() {
       </Tabs>
 
       <div className="flex justify-center items-center space-x-4 mt-8">
-      <Button
-        variant="outline"
-        onClick={() => setPage((p) => Math.max(p - 1, 1))}
-        disabled={page === 1}
-      >
-        Prev Page
-      </Button>
+        <Button
+          variant="outline"
+          onClick={() => setPage((p) => Math.max(p - 1, 1))}
+          disabled={page === 1}
+        >
+          Prev Page
+        </Button>
 
-      <span className="text-lg font-semibold">{`Page ${page}`}</span>
+        <span className="text-lg font-semibold">{`Page ${page}`}</span>
 
-      <Button
-        variant="outline"
-        onClick={() => setPage((p) => p + 1)}
-        disabled={page === revenuesPage.total_pages} 
-      >
-        Next Page
-      </Button>
-    </div>
+        <Button
+          variant="outline"
+          onClick={() => setPage((p) => p + 1)}
+          disabled={page === totalPages}
+        >
+          Next Page
+        </Button>
+      </div>
 
       {(isFormOpen || editingItem) && (
         <RevenueForm

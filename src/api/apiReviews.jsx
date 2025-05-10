@@ -9,7 +9,7 @@ export const getReviews = async ({
   ota,
   minDate,
   maxDate,
-  hotelId,
+  hotelId, 
 } = {}) => {
   try {
     const params = { page };
@@ -30,20 +30,25 @@ export const getReviews = async ({
       params.ota = ota;
     }
     if (minDate) {
-      params.min_date = minDate; 
+      params.min_date = minDate;
     }
     if (maxDate) {
-      params.max_date = maxDate; 
+      params.max_date = maxDate;
     }
     if (hotelId) {
-      params.hotel_id = hotelId;
+      if (Array.isArray(hotelId)) {
+        params.hotel_id = hotelId.join(','); 
+      } else {
+        params.hotel_id = hotelId;
+      }
     }
-    const token = localStorage.getItem("token"); 
+
+    const token = localStorage.getItem("token");
 
     const response = await useAxios.get('/reviews', {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`, 
+        'Authorization': `Bearer ${token}`,
       },
       params,
     });
