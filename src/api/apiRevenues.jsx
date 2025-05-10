@@ -46,6 +46,71 @@ export const getRevenues = async ({
   }
 };
 
+export const getRevenues2 = async ({
+  page = 1,
+  perPage = 10,
+  hotelIds = [], 
+  minDate,
+  maxDate,
+  sortBy,
+  sortOrder = 1,
+  minRevenue,
+  maxRevenue,
+  minOccupancy,
+  maxOccupancy,
+} = {}) => {
+  try {
+    const params = {
+      page,
+      per_page: perPage,
+    };
+
+    if (hotelIds.length > 0) {
+      params.hotel_ids = hotelIds.join(',');
+    }
+    if (minDate) {
+      params.min_date = minDate;
+    }
+    if (maxDate) {
+      params.max_date = maxDate;
+    }
+    if (sortBy) {
+      params.sort_by = sortBy;
+    }
+    if (sortOrder !== undefined) {
+      params.sort_order = sortOrder;
+    }
+    if (minRevenue !== undefined) {
+      params.minRevenue = minRevenue;
+    }
+    if (maxRevenue !== undefined) {
+      params.maxRevenue = maxRevenue;
+    }
+    if (minOccupancy !== undefined) {
+      params.minOccupancy = minOccupancy;
+    }
+    if (maxOccupancy !== undefined) {
+      params.maxOccupancy = maxOccupancy;
+    }
+
+    const token = localStorage.getItem("token");
+
+    const response = await useAxios.get('/revenues', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      params,
+    });
+    console.log('Response data:', response);
+    return response;
+  } catch (error) {
+    console.error('Error fetching revenues data:', error);
+    throw error;
+  }
+};
+
+
 export const inputRevenue = async (data) => {
   try {
     const token = localStorage.getItem("token"); 

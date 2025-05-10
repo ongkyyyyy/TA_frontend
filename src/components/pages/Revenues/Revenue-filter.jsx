@@ -14,6 +14,7 @@ export function RevenueFiltersBar({
   resetSignal
 }) {
   return (
+    
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Select value={selectedHotel} onValueChange={setSelectedHotel}>
         <SelectTrigger>

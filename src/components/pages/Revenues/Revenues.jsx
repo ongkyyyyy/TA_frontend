@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react"
-import { Plus,ChevronLeft, ChevronRight } from "lucide-react" 
+import { Plus } from "lucide-react"
 import { Button } from "../../ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs"
 import { RevenueTable } from "./revenue-table"
 import { RevenueForm } from "./revenue-form"
-import { getRevenues, deleteRevenue } from "../../../api/apiRevenues"
+import { getRevenues2, deleteRevenue } from "../../../api/apiRevenues"
 import { getHotelsDropdown } from "@/api/apiHotels"
 import { RevenueFiltersBar } from "./Revenue-filter"
 import { RevenueAdvancedFiltersDialog } from "./Revenue-advanced-filters-dialog"
@@ -22,65 +21,55 @@ export default function RevenuePage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false)
-  const [hotelTabs, setHotelTabs] = useState({})
   const [hotelOptions, setHotelOptions] = useState([])
   const [selectedHotel, setSelectedHotel] = useState("")
-  
   const [page, setPage] = useState(1)
   const [revenuesPage, setRevenuesPage] = useState({})
-  const perPageHotels = 5
   const revenuesPerHotel = 10
   const [sortBy, setSortBy] = useState("date")
   const [sortOrder, setSortOrder] = useState(-1)
-  const [minDate, setMinDate] = useState();
-  const [maxDate, setMaxDate] = useState();
-
+  const [minDate, setMinDate] = useState()
+  const [maxDate, setMaxDate] = useState()
   const [minRevenue, setMinRevenue] = useState("")
   const [maxRevenue, setMaxRevenue] = useState("")
   const [minOccupancy, setMinOccupancy] = useState("")
   const [maxOccupancy, setMaxOccupancy] = useState("")
-
-  const [resetSignal, setResetSignal] = useState(false);
-
-  const handleTabChange = (hotelName, tabValue) => {
-    setHotelTabs((prev) => ({
-      ...prev,
-      [hotelName]: tabValue,
-    }))
-  }
+  const [resetSignal, setResetSignal] = useState(false)
+  const [activeTab, setActiveTab] = useState("all")
 
   const formatToBackendDate = (date, isEnd = false) => {
-    if (!date) return undefined;
-    if (isEnd) {
-      date.setHours(23, 59, 59, 999);
-    }
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-  };  
+    if (!date) return undefined
+    if (isEnd) date.setHours(23, 59, 59, 999)
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const params = {
           page,
-          per_page_hotels: perPageHotels,
           revenues_per_hotel: revenuesPerHotel,
-          hotel_id: selectedHotel || undefined,
+          hotel_id: selectedHotel !== "" ? selectedHotel : undefined,
           minRevenue: minRevenue || undefined,
           maxRevenue: maxRevenue || undefined,
           minOccupancy: minOccupancy || undefined,
           maxOccupancy: maxOccupancy || undefined,
-          min_date:  formatToBackendDate(minDate),
-          max_date: formatToBackendDate(maxDate),
+          min_date: formatToBackendDate(minDate),
+          max_date: formatToBackendDate(maxDate, true),
           sort_by: sortBy,
           sort_order: sortOrder,
         }
-        const response = await getRevenues(params)
-        console.log(response.data)
-        setData(response.data)
-
+        const response = await getRevenues2(params)
+        setData(response.data?.data?.data || [])
+        setRevenuesPage({
+          page: response.data?.data?.page,
+          per_page: response.data?.data?.per_page,
+          total: response.data?.data?.total,
+          total_pages: response.data?.data?.total_pages,
+        })
         const dropdownResponse = await getHotelsDropdown()
         setHotelOptions(dropdownResponse || [])
       } catch (error) {
@@ -88,7 +77,36 @@ export default function RevenuePage() {
       }
     }
     fetchData()
-  }, [page, perPageHotels, revenuesPerHotel, selectedHotel, minRevenue, maxRevenue, minOccupancy, maxOccupancy, minDate, maxDate, sortBy, sortOrder])
+  }, [
+    page,
+    selectedHotel,
+    minRevenue,
+    maxRevenue,
+    minOccupancy,
+    maxOccupancy,
+    minDate,
+    maxDate,
+    sortBy,
+    sortOrder,
+  ])
+
+  const refreshData = async () => {
+    const params = {
+      page,
+      revenues_per_hotel: revenuesPerHotel,
+      hotel_id: selectedHotel !== "" ? selectedHotel : undefined,
+      minRevenue: minRevenue || undefined,
+      maxRevenue: maxRevenue || undefined,
+      minOccupancy: minOccupancy || undefined,
+      maxOccupancy: maxOccupancy || undefined,
+      min_date: formatToBackendDate(minDate),
+      max_date: formatToBackendDate(maxDate, true),
+      sort_by: sortBy,
+      sort_order: sortOrder,
+    }
+    const response = await getRevenues2(params)
+    setData(response.data?.data?.data || [])
+  }
 
   const handleCreate = async () => {
     setIsFormOpen(false)
@@ -100,19 +118,10 @@ export default function RevenuePage() {
     await refreshData()
   }
 
-  const refreshData = async () => {
-    const response = await getRevenues()
-    setData(response.data)
-  }
-
-  const handleDelete = async (hotelName, revenueId) => {
+  const handleDelete = async (_hotelName, revenueId) => {
     try {
       await deleteRevenue(revenueId)
-      setData((prev) =>
-        prev.map((hotel) =>
-          hotel.name === hotelName ? { ...hotel, revenues: hotel.revenues.filter((r) => r._id !== revenueId) } : hotel,
-        )
-      )
+      setData((prev) => prev.filter((r) => r._id !== revenueId))
     } catch (error) {
       console.error("Failed to delete revenue", error)
     }
@@ -128,37 +137,35 @@ export default function RevenuePage() {
   }
 
   const handleSortChange = (value) => {
-    if (value === "date-asc") {
-      setSortBy("date")
-      setSortOrder(1)
-    } else if (value === "date-desc") {
-      setSortBy("date")
-      setSortOrder(-1)
-    } else if (value === "revenue-asc") {
-      setSortBy("revenue")
-      setSortOrder(1)
-    } else if (value === "revenue-desc") {
-      setSortBy("revenue")
-      setSortOrder(-1)
+    const sortMapping = {
+      "date-asc": { key: "date", order: 1 },
+      "date-desc": { key: "date", order: -1 },
+      "revenue-asc": { key: "revenue", order: 1 },
+      "revenue-desc": { key: "revenue", order: -1 },
+    }
+    const selected = sortMapping[value]
+    if (selected) {
+      setSortBy(selected.key)
+      setSortOrder(selected.order)
     }
   }
 
   const handleClearFilters = async () => {
-    setMinDate(undefined);
-    setMaxDate(undefined);
-    setMinRevenue("");
-    setMaxRevenue("");
-    setMinOccupancy("");
-    setMaxOccupancy("");
-    setSelectedHotel("");
-    setResetSignal(Date.now());
-    await refreshData();
-  };  
+    setMinDate(undefined)
+    setMaxDate(undefined)
+    setMinRevenue("")
+    setMaxRevenue("")
+    setMinOccupancy("")
+    setMaxOccupancy("")
+    setSelectedHotel("")
+    setResetSignal(Date.now())
+    await refreshData()
+  }
 
   const handleDateRangeFilterChange = (range) => {
-    setMinDate(range?.from);
-    setMaxDate(range?.to);
-  };  
+    setMinDate(range?.from)
+    setMaxDate(range?.to)
+  }
 
   return (
     <div className="container mx-auto py-6">
@@ -168,82 +175,79 @@ export default function RevenuePage() {
           <Plus className="mr-2 h-4 w-4" /> Add New Revenue
         </Button>
       </div>
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Revenue Filters</CardTitle>
-          <CardDescription>Filter and search revenue data</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <RevenueFiltersBar
-              selectedHotel={selectedHotel}
-              setSelectedHotel={setSelectedHotel}
-              hotelOptions={hotelOptions}
-              onDateRangeFilterChange={handleDateRangeFilterChange}
-              handleSortChange={handleSortChange}
-              setAdvancedFiltersOpen={setAdvancedFiltersOpen}
-              resetSignal={resetSignal}
-            />
-            <Button variant="outline" onClick={handleClearFilters}>
-              Refresh Filters
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
-      {data.map((hotel, index) => (
-        <div key={`hotel-${index}-${hotel.name}`} className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">{hotel.name}</h2>
-          <Tabs value={hotelTabs[hotel.name] || "all"} onValueChange={(val) => handleTabChange(hotel.name, val)}>
-            <TabsList className="mb-4">
-              {revenueTabs.map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value}>
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            {revenueTabs.map((tab) => (
-              <TabsContent key={tab.value} value={tab.value}>
-                <RevenueTable
-                  data={hotel.revenues.map((r) => ({
-                    ...r,
-                    filteredCategoryRevenue:
-                      tab.value === "room"
-                        ? r.room_details
-                        : tab.value === "restaurant"
-                          ? r.restaurant
-                          : tab.value === "other"
-                            ? r.other_revenue
-                            : undefined,
-                  }))}
-                  view={tab.value}
-                  onEdit={(item) => handleEdit(item, hotel._id)}
-                  onDelete={(revenueId) => handleDelete(hotel.name, revenueId)}
-                />
-              </TabsContent>
-            ))}
-          </Tabs>
-
-          <div className="flex justify-end space-x-2 mt-4">
-            <Button variant="outline" size="sm" onClick={() => setRevenuesPage((prev) => ({ ...prev, [hotel.name]: (prev[hotel.name] || 1) - 1 }))} disabled={(revenuesPage[hotel.name] || 1) === 1}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setRevenuesPage((prev) => ({ ...prev, [hotel.name]: (prev[hotel.name] || 1) + 1 }))}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      ))}
-
-      <div className="flex justify-center space-x-4 mt-8">
-        <Button variant="outline" onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1}>
-          Prev Page
-        </Button>
-        <Button variant="outline" onClick={() => setPage((p) => p + 1)}>
-          Next Page
+      <div className="flex items-center justify-between">
+        <RevenueFiltersBar
+          selectedHotel={selectedHotel}
+          setSelectedHotel={setSelectedHotel}
+          hotelOptions={hotelOptions}
+          onDateRangeFilterChange={handleDateRangeFilterChange}
+          handleSortChange={handleSortChange}
+          setAdvancedFiltersOpen={setAdvancedFiltersOpen}
+          resetSignal={resetSignal}
+        />
+        <Button variant="outline" onClick={handleClearFilters}>
+          Refresh Filters
         </Button>
       </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+        <TabsList className="mb-4">
+          {revenueTabs.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value}>
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        {revenueTabs.map((tab) => (
+          <TabsContent key={tab.value} value={tab.value}>
+            <RevenueTable
+              data={data
+                .filter((r) => {
+                  if (tab.value === "room") return !!r.room_details
+                  if (tab.value === "restaurant") return !!r.restaurant
+                  if (tab.value === "other") return !!r.other_revenue
+                  return true
+                })
+                .map((r) => ({
+                  ...r,
+                  filteredCategoryRevenue:
+                    tab.value === "room"
+                      ? r.room_details
+                      : tab.value === "restaurant"
+                        ? r.restaurant
+                        : tab.value === "other"
+                          ? r.other_revenue
+                          : undefined,
+                }))}
+              view={tab.value}
+              onEdit={(item) => handleEdit(item, item.hotel_id)}
+              onDelete={(revenueId) => handleDelete("flat", revenueId)}
+            />
+          </TabsContent>
+        ))}
+      </Tabs>
+
+      <div className="flex justify-center items-center space-x-4 mt-8">
+      <Button
+        variant="outline"
+        onClick={() => setPage((p) => Math.max(p - 1, 1))}
+        disabled={page === 1}
+      >
+        Prev Page
+      </Button>
+
+      <span className="text-lg font-semibold">{`Page ${page}`}</span>
+
+      <Button
+        variant="outline"
+        onClick={() => setPage((p) => p + 1)}
+        disabled={page === revenuesPage.total_pages} 
+      >
+        Next Page
+      </Button>
+    </div>
 
       {(isFormOpen || editingItem) && (
         <RevenueForm
@@ -256,6 +260,7 @@ export default function RevenuePage() {
           initialData={editingItem || undefined}
         />
       )}
+
       <RevenueAdvancedFiltersDialog
         open={advancedFiltersOpen}
         onOpenChange={setAdvancedFiltersOpen}
