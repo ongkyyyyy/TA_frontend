@@ -44,21 +44,23 @@ export function RevenueAdvancedFiltersDialog({
                 className="col-span-3"
                 value={
                   field.id === "min-revenue"
-                    ? minRevenue
+                    ? minRevenue ?? ""
                     : field.id === "max-revenue"
-                    ? maxRevenue
+                    ? maxRevenue ?? ""
                     : field.id === "min-occupancy"
-                    ? minOccupancy
+                    ? minOccupancy ?? ""
                     : field.id === "max-occupancy"
-                    ? maxOccupancy
+                    ? maxOccupancy ?? ""
                     : ""
                 }
                 onChange={(e) => {
                   const value = e.target.value
-                  if (field.id === "min-revenue") setMinRevenue(value)
-                  else if (field.id === "max-revenue") setMaxRevenue(value)
-                  else if (field.id === "min-occupancy") setMinOccupancy(value)
-                  else if (field.id === "max-occupancy") setMaxOccupancy(value)
+                  const parsed = value === "" ? null : Number(value)
+
+                  if (field.id === "min-revenue") setMinRevenue(parsed)
+                  else if (field.id === "max-revenue") setMaxRevenue(parsed)
+                  else if (field.id === "min-occupancy") setMinOccupancy(parsed)
+                  else if (field.id === "max-occupancy") setMaxOccupancy(parsed)
                 }}
               />
             </div>

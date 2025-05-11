@@ -4,8 +4,7 @@ import { Button } from "../../ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs"
 import { RevenueTable } from "./revenue-table"
 import { RevenueForm } from "./revenue-form"
-import { getRevenues2, deleteRevenue } from "../../../api/apiRevenues"
-import { getHotelsDropdown } from "@/api/apiHotels"
+import { getRevenues, deleteRevenue } from "../../../api/apiRevenues"
 import { RevenueFiltersBar } from "./Revenue-filter"
 import { RevenueAdvancedFiltersDialog } from "./Revenue-advanced-filters-dialog"
 
@@ -20,89 +19,79 @@ export default function RevenuePage() {
   const [data, setData] = useState([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
-  const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false)
-  const [hotelOptions, setHotelOptions] = useState([])
-  const [selectedHotel, setSelectedHotel] = useState("")
+  const [selectedHotel, setSelectedHotel] = useState([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const revenuesPerHotel = 10
   const [sortBy, setSortBy] = useState("date")
   const [sortOrder, setSortOrder] = useState(-1)
+  const [activeTab, setActiveTab] = useState("all")
+  const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false)
   const [minDate, setMinDate] = useState()
   const [maxDate, setMaxDate] = useState()
-  const [minRevenue, setMinRevenue] = useState("")
-  const [maxRevenue, setMaxRevenue] = useState("")
-  const [minOccupancy, setMinOccupancy] = useState("")
-  const [maxOccupancy, setMaxOccupancy] = useState("")
+  const [minRevenue, setMinRevenue] = useState(null)
+  const [maxRevenue, setMaxRevenue] = useState(null)
+  const [minOccupancy, setMinOccupancy] = useState(null)
+  const [maxOccupancy, setMaxOccupancy] = useState(null)
   const [resetSignal, setResetSignal] = useState(false)
-  const [activeTab, setActiveTab] = useState("all")
-
-  const formatToBackendDate = (date, isEnd = false) => {
-    if (!date) return undefined
-    if (isEnd) date.setHours(23, 59, 59, 999)
-    const day = String(date.getDate()).padStart(2, '0')
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}-${month}-${year}`
-  }
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const params = {
           page,
-          revenues_per_hotel: revenuesPerHotel,
-          hotel_id: selectedHotel !== "" ? selectedHotel : undefined,
-          minRevenue: minRevenue || undefined,
-          maxRevenue: maxRevenue || undefined,
-          minOccupancy: minOccupancy || undefined,
-          maxOccupancy: maxOccupancy || undefined,
-          min_date: formatToBackendDate(minDate),
-          max_date: formatToBackendDate(maxDate, true),
+          per_page: revenuesPerHotel,
+          hotelId: selectedHotel.length > 0 ? selectedHotel : undefined,
+          minDate: formatToBackendDate(minDate),
+          maxDate: formatToBackendDate(maxDate),
           sort_by: sortBy,
           sort_order: sortOrder,
+          minRevenue: minRevenue ?? undefined,
+          maxRevenue: maxRevenue ?? undefined,
+          minOccupancy: minOccupancy ?? undefined,
+          maxOccupancy: maxOccupancy ?? undefined,
         }
-        const response = await getRevenues2(params)
-        setData(response.data?.data?.data || [])
-        setTotalPages(response.data?.data?.total_pages || 1)
 
-        const dropdownResponse = await getHotelsDropdown()
-        setHotelOptions(dropdownResponse || [])
+        const response = await getRevenues(params)
+        setData(response.data?.data || [])
+        setTotalPages(response.data.total_pages || 1)
       } catch (error) {
         console.error("Failed to load revenue data", error)
       }
     }
     fetchData()
-  }, [
-    page,
-    selectedHotel,
-    minRevenue,
-    maxRevenue,
-    minOccupancy,
-    maxOccupancy,
-    minDate,
-    maxDate,
-    sortBy,
-    sortOrder,
-  ])
+  }, [page, selectedHotel, sortBy, sortOrder, minRevenue, maxRevenue, minOccupancy, maxOccupancy, minDate, maxDate])
+
+  const formatToBackendDate = (date) => {
+    if (!date) return undefined
+    const day = String(date.getDate()).padStart(2, "0")
+    const month = String(date.getMonth() + 1).padStart(2, "0")
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
 
   const refreshData = async () => {
-    const params = {
-      page,
-      revenues_per_hotel: revenuesPerHotel,
-      hotel_id: selectedHotel !== "" ? selectedHotel : undefined,
-      minRevenue: minRevenue || undefined,
-      maxRevenue: maxRevenue || undefined,
-      minOccupancy: minOccupancy || undefined,
-      maxOccupancy: maxOccupancy || undefined,
-      min_date: formatToBackendDate(minDate),
-      max_date: formatToBackendDate(maxDate, true),
-      sort_by: sortBy,
-      sort_order: sortOrder,
+    try {
+      const params = {
+        page,
+        revenues_per_hotel: revenuesPerHotel,
+        hotelId: selectedHotel.length > 0 ? selectedHotel : undefined,
+        minDate: formatToBackendDate(minDate),
+        maxDate: formatToBackendDate(maxDate),
+        sort_by: sortBy,
+        sort_order: sortOrder,
+        minRevenue: minRevenue ?? undefined,
+        maxRevenue: maxRevenue ?? undefined,
+        minOccupancy: minOccupancy ?? undefined,
+        maxOccupancy: maxOccupancy ?? undefined,
+      }
+
+      const response = await getRevenues(params)
+      setData(response.data?.data || [])
+      setTotalPages(response.data.total_pages || 1)
+    } catch (error) {
+      console.error("Failed to load revenue data", error)
     }
-    const response = await getRevenues2(params)
-    setData(response.data?.data?.data || [])
-    setTotalPages(response.data?.data?.total_pages || 1)
   }
 
   const handleCreate = async () => {
@@ -128,11 +117,6 @@ export default function RevenuePage() {
     setEditingItem({ ...item, hotel_id: hotelId })
   }
 
-  const handleApplyFilters = () => {
-    setPage(1)
-    setAdvancedFiltersOpen(false)
-  }
-
   const handleSortChange = (value) => {
     const sortMapping = {
       "date-asc": { key: "date", order: 1 },
@@ -144,24 +128,31 @@ export default function RevenuePage() {
     if (selected) {
       setSortBy(selected.key)
       setSortOrder(selected.order)
+      refreshData()
     }
   }
 
-  const handleClearFilters = async () => {
+  const handleClearFilters = () => {
+    setSelectedHotel([])
     setMinDate(undefined)
     setMaxDate(undefined)
-    setMinRevenue("")
-    setMaxRevenue("")
-    setMinOccupancy("")
-    setMaxOccupancy("")
-    setSelectedHotel("")
+    setMinRevenue(null)
+    setMaxRevenue(null)
+    setMinOccupancy(null)
+    setMaxOccupancy(null)
     setResetSignal(Date.now())
-    await refreshData()
+    setPage(1)
+    refreshData()
   }
 
   const handleDateRangeFilterChange = (range) => {
     setMinDate(range?.from)
     setMaxDate(range?.to)
+  }
+
+  const handleApplyFilters = async () => {
+    await refreshData()
+    setAdvancedFiltersOpen(false)
   }
 
   return (
@@ -175,17 +166,15 @@ export default function RevenuePage() {
 
       <div className="flex items-center justify-between">
         <RevenueFiltersBar
-          selectedHotel={selectedHotel}
-          setSelectedHotel={setSelectedHotel}
-          hotelOptions={hotelOptions}
+          onHotelFilterChange={(id) => {
+            setSelectedHotel(id)
+          }}
           onDateRangeFilterChange={handleDateRangeFilterChange}
           handleSortChange={handleSortChange}
+          onClearFilters={handleClearFilters}
           setAdvancedFiltersOpen={setAdvancedFiltersOpen}
           resetSignal={resetSignal}
         />
-        <Button variant="outline" onClick={handleClearFilters}>
-          Refresh Filters
-        </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
@@ -227,21 +216,11 @@ export default function RevenuePage() {
       </Tabs>
 
       <div className="flex justify-center items-center space-x-4 mt-8">
-        <Button
-          variant="outline"
-          onClick={() => setPage((p) => Math.max(p - 1, 1))}
-          disabled={page === 1}
-        >
+        <Button variant="outline" onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1}>
           Prev Page
         </Button>
-
         <span className="text-lg font-semibold">{`Page ${page}`}</span>
-
-        <Button
-          variant="outline"
-          onClick={() => setPage((p) => p + 1)}
-          disabled={page === totalPages}
-        >
+        <Button variant="outline" onClick={() => setPage((p) => p + 1)} disabled={page === totalPages}>
           Next Page
         </Button>
       </div>

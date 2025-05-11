@@ -1,43 +1,27 @@
 /* eslint-disable react/prop-types */
-import { CalendarIcon, Filter, SlidersHorizontal } from "lucide-react"
+import { Filter, SlidersHorizontal } from "lucide-react"
 import { Button } from "../../ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select"
 import { DateRangeFilter } from "../Reviews n Sentiments/reviewsFilters/date-range-filter"
+import { HotelFilter } from "../Reviews n Sentiments/reviewsFilters/hotel-filter"
+import { X } from "lucide-react"
 
 export function RevenueFiltersBar({
-  selectedHotel,
-  setSelectedHotel,
-  hotelOptions,
+  onHotelFilterChange,
   onDateRangeFilterChange,
+  onClearFilters,
   handleSortChange,
   setAdvancedFiltersOpen,
-  resetSignal
+  resetSignal,
 }) {
   return (
-    
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Select value={selectedHotel} onValueChange={setSelectedHotel}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select a hotel" />
-        </SelectTrigger>
-        <SelectContent>
-          {hotelOptions.map((hotel) => (
-            <SelectItem key={hotel._id} value={hotel._id}>
-              {hotel.hotel_name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <div className="flex items-center space-x-2">
-        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-        <DateRangeFilter onFilterChange={onDateRangeFilterChange} resetSignal={resetSignal}/>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+    <div className="flex flex-wrap items-center gap-2 mb-6">
+      <HotelFilter onFilterChange={onHotelFilterChange} resetSignal={resetSignal}/>
+      <DateRangeFilter onFilterChange={onDateRangeFilterChange} resetSignal={resetSignal} />
+      <div className="flex items-center">
         <Select onValueChange={handleSortChange}>
-          <SelectTrigger>
+          <SelectTrigger className="h-9 border-dashed">
+            <SlidersHorizontal className="mr-2 h-4 w-4" />
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
@@ -47,10 +31,17 @@ export function RevenueFiltersBar({
             <SelectItem value="revenue-desc">Revenue (Descending)</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" size="icon" onClick={() => setAdvancedFiltersOpen(true)}>
-          <Filter className="h-4 w-4" />
-        </Button>
       </div>
+
+      <Button variant="outline" size="sm" onClick={() => setAdvancedFiltersOpen(true)} className="h-9 border-dashed">
+        <Filter className="mr-2 h-4 w-4" />
+        Advanced Filters
+      </Button>
+
+      <Button variant="ghost" size="sm" onClick={onClearFilters} className="h-9 px-3 text-xs">
+          <X className="mr-1 h-4 w-4" />
+          Clear filters
+        </Button>
     </div>
   )
 }

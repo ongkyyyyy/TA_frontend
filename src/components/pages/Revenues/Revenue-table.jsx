@@ -1,4 +1,3 @@
-
 /* eslint-disable react/prop-types */
 import { useState } from "react"
 import { ArrowUpDown, Edit, Eye, MoreHorizontal, Trash } from "lucide-react"
@@ -33,17 +32,19 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
   }
 
   const getSafeRevenue = (item, viewKey, fallbackKey) => {
-    if (view === viewKey) {
-      return item.filteredCategoryRevenue?.[fallbackKey] ?? 0
+    if (view === viewKey && item.filteredCategoryRevenue) {
+      return item.filteredCategoryRevenue[fallbackKey] ?? 0
     }
-    const source =
-      viewKey === "room"
-        ? item.room_details
-        : viewKey === "restaurant"
-          ? item.restaurant
-          : viewKey === "other"
-            ? item.other_revenue
-            : null
+
+    let source = null
+    if (viewKey === "room") {
+      source = item.room_details
+    } else if (viewKey === "restaurant") {
+      source = item.restaurant
+    } else if (viewKey === "other") {
+      source = item.other_revenue
+    }
+
     return source?.[fallbackKey] ?? 0
   }
 
@@ -200,7 +201,9 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all" }) {
               </TableRow>
             ) : (
               sortedData.map((item) => (
-                <TableRow key={item._id?.$oid || item._id}>
+                <TableRow key={item._id}>
+                  {/* Add this temporarily for debugging */}
+                  {/* {console.log("Row item:", item)} */}
                   <TableCell className="font-medium">
                     {item.date && !isNaN(parse(item.date, "dd-MM-yyyy", new Date()))
                       ? format(parse(item.date, "dd-MM-yyyy", new Date()), "dd MMM yyyy")
