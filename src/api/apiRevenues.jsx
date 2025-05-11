@@ -35,8 +35,6 @@ export const getRevenues = async ({
     if (minOccupancy !== undefined) params.minOccupancy = minOccupancy;
     if (maxOccupancy !== undefined) params.maxOccupancy = maxOccupancy;
 
-    console.log("Sending params:", params);
-
     const token = localStorage.getItem("token");
 
     const response = await useAxios.get('/revenues', {

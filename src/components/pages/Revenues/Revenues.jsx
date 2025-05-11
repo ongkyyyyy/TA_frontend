@@ -114,6 +114,7 @@ export default function RevenuePage() {
   }
 
   const handleEdit = (item, hotelId) => {
+     console.log("Editing item:", item)
     setEditingItem({ ...item, hotel_id: hotelId })
   }
 

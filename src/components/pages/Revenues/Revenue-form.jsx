@@ -140,15 +140,29 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
       return
     }
 
-    const flatPayload = flattenRevenueData(formData)
+    const payload = {
+      hotel_id: formData.hotel_id,
+      date: formData.date,
+      room_details: formData.room_details,
+      restaurant: formData.restaurant,
+      other_revenue: formData.other_revenue,
+      room_stats: formData.room_stats,
+      nett_revenue: formData.nett_revenue,
+      service_charge: formData.service_charge,
+      government_tax: formData.government_tax,
+      gross_revenue: formData.gross_revenue,
+      ap_restaurant: formData.ap_restaurant,
+      tips: formData.tips,
+      grand_total_revenue: formData.grand_total_revenue,
+    }
 
     try {
       let result
       if (initialData?._id) {
-        result = await updateRevenue(getIdString(initialData._id), flatPayload)
+       result = await updateRevenue(getIdString(initialData._id), payload)
         toast.success("Revenue data updated successfully.")
       } else {
-        result = await inputRevenue(flatPayload)
+        result = await inputRevenue(payload)
         toast.success("Revenue data created successfully.")
       }
 
@@ -320,28 +334,6 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
       </DialogContent>
     </Dialog>
   )
-}
-
-function flattenRevenueData(data, isNested = false) {
-  const flat = {}
-
-  if (!isNested && data.hotel_id) {
-    flat.hotel_id = data.hotel_id
-  }
-
-  for (const key in data) {
-    if (key === "hotel_id") continue
-    const value = data[key]
-    if (typeof value === "object" && value !== null && value.$oid) {
-      flat[key] = value.$oid
-    } else if (typeof value === "object" && value !== null) {
-      Object.assign(flat, flattenRevenueData(value, true))
-    } else {
-      flat[key] = value
-    }
-  }
-
-  return flat
 }
 
 function calculateTotals(data) {
