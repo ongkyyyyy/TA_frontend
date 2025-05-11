@@ -34,6 +34,7 @@ export default function RevenuePage() {
   const [minOccupancy, setMinOccupancy] = useState(null)
   const [maxOccupancy, setMaxOccupancy] = useState(null)
   const [resetSignal, setResetSignal] = useState(false)
+  const [sortSelectValue, setSortSelectValue] = useState("")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -129,6 +130,7 @@ export default function RevenuePage() {
     if (selected) {
       setSortBy(selected.key)
       setSortOrder(selected.order)
+      setSortSelectValue(value)
     }
   }
 
@@ -140,6 +142,9 @@ export default function RevenuePage() {
     setMaxRevenue(null)
     setMinOccupancy(null)
     setMaxOccupancy(null)
+    setSortBy("date")
+    setSortOrder(-1)
+    setSortSelectValue("")
     setResetSignal(Date.now())
     setPage(1)
     refreshData()
@@ -174,6 +179,7 @@ export default function RevenuePage() {
           onClearFilters={handleClearFilters}
           setAdvancedFiltersOpen={setAdvancedFiltersOpen}
           resetSignal={resetSignal}
+          sortValue={sortSelectValue}
         />
       </div>
 

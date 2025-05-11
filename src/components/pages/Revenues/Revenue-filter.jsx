@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
-import { Filter, SlidersHorizontal } from "lucide-react"
+import { Filter} from "lucide-react"
 import { Button } from "../../ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select"
 import { DateRangeFilter } from "../Reviews n Sentiments/reviewsFilters/date-range-filter"
 import { HotelFilter } from "../Reviews n Sentiments/reviewsFilters/hotel-filter"
+import { SortSelect } from "./Sort-select"
 import { X } from "lucide-react"
 
 export function RevenueFiltersBar({
@@ -13,25 +13,13 @@ export function RevenueFiltersBar({
   handleSortChange,
   setAdvancedFiltersOpen,
   resetSignal,
+  sortValue,
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-2 mb-6">
+    <div className="flex flex-wrap items-center gap-2">
+      <SortSelect onSortChange={handleSortChange} resetSignal={resetSignal} defaultValue={sortValue} />
       <HotelFilter onFilterChange={onHotelFilterChange} resetSignal={resetSignal}/>
       <DateRangeFilter onFilterChange={onDateRangeFilterChange} resetSignal={resetSignal} />
-      <div className="flex items-center">
-        <Select onValueChange={handleSortChange}>
-          <SelectTrigger className="h-9 border-dashed">
-            <SlidersHorizontal className="mr-2 h-4 w-4" />
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="date-asc">Date (Ascending)</SelectItem>
-            <SelectItem value="date-desc">Date (Descending)</SelectItem>
-            <SelectItem value="revenue-asc">Revenue (Ascending)</SelectItem>
-            <SelectItem value="revenue-desc">Revenue (Descending)</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
 
       <Button variant="outline" size="sm" onClick={() => setAdvancedFiltersOpen(true)} className="h-9 border-dashed">
         <Filter className="mr-2 h-4 w-4" />
