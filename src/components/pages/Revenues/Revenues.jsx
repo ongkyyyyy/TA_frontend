@@ -74,7 +74,7 @@ export default function RevenuePage() {
     try {
       const params = {
         page,
-        revenues_per_hotel: revenuesPerHotel,
+        per_page: revenuesPerHotel,
         hotelId: selectedHotel.length > 0 ? selectedHotel : undefined,
         minDate: formatToBackendDate(minDate),
         maxDate: formatToBackendDate(maxDate),
@@ -128,7 +128,6 @@ export default function RevenuePage() {
     if (selected) {
       setSortBy(selected.key)
       setSortOrder(selected.order)
-      refreshData()
     }
   }
 

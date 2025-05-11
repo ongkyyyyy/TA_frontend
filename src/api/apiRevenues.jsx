@@ -2,12 +2,12 @@ import useAxios from './index.jsx';
 
 export const getRevenues = async ({
   page,
-  perPage,
+  per_page,
   hotelId,
   minDate,
   maxDate,
-  sortBy,
-  sortOrder,
+  sort_by,
+  sort_order,
   minRevenue,
   maxRevenue,
   minOccupancy,
@@ -16,9 +16,9 @@ export const getRevenues = async ({
   try {
     const params = {
       page,
-      per_page: perPage,
-      sort_by: sortBy,
-      sort_order: sortOrder,
+      per_page,
+      sort_by,
+      sort_order,
     };
 
     if (hotelId) {
