@@ -105,7 +105,7 @@ export default function ReviewsWithFilters() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-2">Customer Reviews and Sentiments</h1>
       <p className="text-muted-foreground mb-4">Browse and search through guest feedback</p>
 

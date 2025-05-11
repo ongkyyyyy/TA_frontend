@@ -41,7 +41,7 @@ export function RevenueDetails({ data, isOpen, onClose }) {
 
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Hotel Name</p>
-                <p className="text-lg">{data.hotel_id}</p>
+                <p className="text-lg">{data.hotel_name}</p>
               </div>
             </div>
 
