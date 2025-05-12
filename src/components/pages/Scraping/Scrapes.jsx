@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
 import { useState, useEffect } from "react"
 import { scrapeData } from "@/api/apiScrapes"
 import { getHotelsDropdown } from "@/api/apiHotels"
@@ -11,7 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import ScrapeSources from "./ScrapeSources"
 import ScrapeLogsModal from "./Scrape-logs-modal"
 
-export default function ScrapePage() {
+export default function ScrapePage({ onScrapeComplete }) {
   const [hotelId, setHotelId] = useState("")
   const [hotels, setHotels] = useState([])
   const [source, setSource] = useState("traveloka")
@@ -27,6 +29,7 @@ export default function ScrapePage() {
       try {
         const res = await getHotelsDropdown()
         setHotels(res)
+        onScrapeComplete?.()
       } catch (error) {
         console.error("Failed to fetch hotels:", error)
       } finally {

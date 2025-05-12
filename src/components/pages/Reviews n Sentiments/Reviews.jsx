@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { getReviews } from "../../../api/apiReviews"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../ui/card"
 import { Input } from "../../ui/input"
@@ -104,16 +104,27 @@ export default function ReviewsWithFilters() {
     setMaxDate(range?.to)
   }
 
+  const topRef = useRef(null) 
+
+  useEffect(() => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: "smooth" }) 
+    }
+  }, [currentPage])
+
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-6 ">
       <h1 className="text-3xl font-bold mb-2">Customer Reviews and Sentiments</h1>
       <p className="text-muted-foreground mb-4">Browse and search through guest feedback</p>
 
-      <div className="mb-8">
-        <ScrapePage />
+      <div className="mb-8" >
+        <ScrapePage onScrapeComplete={() => {
+          setCurrentPage(1)
+          setResetSignal(Date.now())
+        }} />
       </div>
 
-      <div className="relative mb-6">
+      <div className="relative mb-6" ref={topRef}>
         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
