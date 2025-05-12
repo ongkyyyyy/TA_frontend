@@ -20,7 +20,7 @@ export function HotelAnalyticsHeader({
   useEffect(() => {
     const currentYear = new Date().getFullYear()
     const range = Array.from({ length: 11 }, (_, i) => (currentYear - 5 + i).toString())
-    setYears(["Lifetime", ...range]) // 👈 prepend Lifetime option
+    setYears(["Lifetime", ...range]) 
   }, [])
 
   const hotelName =

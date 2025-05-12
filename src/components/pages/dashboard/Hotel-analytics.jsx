@@ -14,6 +14,10 @@ import { CompositeSentimentIndex } from "./Charts/Composite-sentiment-index"
 import { SentimentRatios } from "./Charts/Sentiment-ratios"
 import { CSIRevenueCorrelation } from "./Charts/Csi-revenue-correlation"
 import { generatePDF } from "./PDF/Pdf-generator"
+import { AverageDailySales } from "./Summaries/Average-daily-sales"
+import { MetricCards } from "./Summaries/Metric-cards"
+import { SalesOverview } from "./Summaries/Sales-overview"
+import { WebsiteAnalytics } from "./Summaries/Website-analytics"
 
 export default function HotelAnalyticsDashboard() {
   const currentYear = new Date().getFullYear().toString()
@@ -22,15 +26,19 @@ export default function HotelAnalyticsDashboard() {
   const [data, setData] = useState(null)
   const [activeTab, setActiveTab] = useState("single")
   const [resetFilters, setResetFilters] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true)
       try {
         const hotelParam = selectedHotels.length > 0 ? selectedHotels : "All"
         const response = await getDiagram(hotelParam, year)
         setData(response)
       } catch (error) {
         console.error("Error fetching diagram data:", error)
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -106,10 +114,10 @@ export default function HotelAnalyticsDashboard() {
     )
   }, [data])
 
-  const showPlaceholder = !data
+  const showPlaceholder = !data || isLoading
 
   return (
-    <div className="container mx-auto space-y-6 py-6">
+    <div className="container mx-auto space-y-8 py-8 px-4 md:px-6 bg-gradient-to-b from-white to-gray-50 min-h-screen">
       <HotelAnalyticsHeader
         selectedHotels={selectedHotels}
         year={year}
@@ -120,23 +128,43 @@ export default function HotelAnalyticsDashboard() {
         onResetFilters={resetAllFilters}
       />
 
+      <div className="transition-all duration-500 ease-in-out">
+        <MetricCards data={data} isLoading={isLoading} />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 transition-all duration-500 ease-in-out">
+        <WebsiteAnalytics data={data} isLoading={isLoading} />
+        <AverageDailySales data={data} isLoading={isLoading} />
+        <SalesOverview data={data} isLoading={isLoading} />
+      </div>
+
       {hasNoRevenueData && !showPlaceholder && (
-        <Alert className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>No Revenue Data Available</AlertTitle>
-          <AlertDescription>
+        <Alert className="mb-6 border-amber-200 bg-amber-50">
+          <AlertCircle className="h-4 w-4 text-amber-500" />
+          <AlertTitle className="text-amber-700">No Revenue Data Available</AlertTitle>
+          <AlertDescription className="text-amber-600">
             Revenue data is not available for the selected period. Sentiment analysis is still available.
           </AlertDescription>
         </Alert>
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-          <TabsTrigger value="single">Single Analysis</TabsTrigger>
-          <TabsTrigger value="hybrid">Hybrid Analysis</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 lg:w-[400px] bg-gray-100 p-1 rounded-lg">
+          <TabsTrigger
+            value="single"
+            className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-300"
+          >
+            Single Analysis
+          </TabsTrigger>
+          <TabsTrigger
+            value="hybrid"
+            className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-300"
+          >
+            Hybrid Analysis
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="single" id="single" className="space-y-6">
+        <TabsContent value="single" id="single" className="space-y-8 transition-all duration-500 ease-in-out">
           {showPlaceholder ? (
             <ChartLoading />
           ) : (
@@ -148,7 +176,7 @@ export default function HotelAnalyticsDashboard() {
           )}
         </TabsContent>
 
-        <TabsContent value="hybrid" id="hybrid" className="space-y-6">
+        <TabsContent value="hybrid" id="hybrid" className="space-y-8 transition-all duration-500 ease-in-out">
           {showPlaceholder ? (
             <ChartLoading />
           ) : (

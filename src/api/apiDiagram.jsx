@@ -20,7 +20,7 @@ export const getDiagram = async (hotelIds, year) => {
         Authorization: `Bearer ${token}`,
       },
     })
-
+    console.log("Diagram data response:", response.data)
     return response.data
   } catch (error) {
     console.error("Error fetching diagram data:", error)
