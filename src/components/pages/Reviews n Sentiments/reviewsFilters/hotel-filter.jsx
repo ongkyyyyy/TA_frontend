@@ -34,15 +34,11 @@ export function HotelFilter({ onFilterChange, resetSignal }) {
     let newSelectedHotels
 
     if (value === "") {
-      // If "All Hotels" is selected, clear the selection
       newSelectedHotels = []
     } else {
-      // Check if the hotel is already selected
       if (selectedHotels.includes(value)) {
-        // If already selected, remove it
         newSelectedHotels = selectedHotels.filter((id) => id !== value)
       } else {
-        // If not selected, add it
         newSelectedHotels = [...selectedHotels, value]
       }
     }

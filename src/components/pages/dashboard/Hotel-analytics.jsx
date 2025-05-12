@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect, useMemo } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -16,38 +18,32 @@ import { generatePDF } from "./PDF/Pdf-generator"
 export default function HotelAnalyticsDashboard() {
   const currentYear = new Date().getFullYear().toString()
   const [year, setYear] = useState(currentYear)
-  const [hotelId, setHotelId] = useState("All")
-  const [loading, setLoading] = useState(true)
+  const [selectedHotels, setSelectedHotels] = useState([])
   const [data, setData] = useState(null)
   const [activeTab, setActiveTab] = useState("single")
+  const [resetFilters, setResetFilters] = useState(0)
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true)
       try {
-        const response = await getDiagram(hotelId, year)
+        const hotelParam = selectedHotels.length > 0 ? selectedHotels : "All"
+        const response = await getDiagram(hotelParam, year)
         setData(response)
       } catch (error) {
         console.error("Error fetching diagram data:", error)
-      } finally {
-        setLoading(false)
       }
     }
 
     fetchData()
-  }, [hotelId, year])
+  }, [selectedHotels, year])
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       window.downloadPDF = async () => {
-        setLoading(true)
-
         try {
-          await generatePDF(hotelId, year, activeTab)
+          await generatePDF(selectedHotels.length > 0 ? selectedHotels : "All", year, activeTab)
         } catch (error) {
           console.error("Error generating PDF:", error)
-        } finally {
-          setLoading(false)
         }
       }
     }
@@ -57,7 +53,17 @@ export default function HotelAnalyticsDashboard() {
         delete window.downloadPDF
       }
     }
-  }, [hotelId, year, activeTab])
+  }, [selectedHotels, year, activeTab])
+
+  const handleHotelFilterChange = (hotels) => {
+    setSelectedHotels(hotels)
+  }
+
+  const resetAllFilters = () => {
+    setSelectedHotels([])
+    setYear(currentYear)
+    setResetFilters((prev) => prev + 1)
+  }
 
   const transformedData = useMemo(() => {
     if (!data) return []
@@ -100,21 +106,21 @@ export default function HotelAnalyticsDashboard() {
     )
   }, [data])
 
-  if (loading) {
-    return <ChartLoading />
-  }
+  const showPlaceholder = !data
 
   return (
     <div className="container mx-auto space-y-6 py-6">
       <HotelAnalyticsHeader
-        hotelId={hotelId}
+        selectedHotels={selectedHotels}
         year={year}
-        onHotelChange={setHotelId}
+        onHotelChange={handleHotelFilterChange}
         onYearChange={setYear}
         activeTab={activeTab}
+        resetSignal={resetFilters}
+        onResetFilters={resetAllFilters}
       />
 
-      {hasNoRevenueData && (
+      {hasNoRevenueData && !showPlaceholder && (
         <Alert className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>No Revenue Data Available</AlertTitle>
@@ -125,22 +131,34 @@ export default function HotelAnalyticsDashboard() {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-      <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-        <TabsTrigger value="single">Single Analysis</TabsTrigger>
-        <TabsTrigger value="hybrid">Hybrid Analysis</TabsTrigger>
-      </TabsList>
+        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+          <TabsTrigger value="single">Single Analysis</TabsTrigger>
+          <TabsTrigger value="hybrid">Hybrid Analysis</TabsTrigger>
+        </TabsList>
 
-      <TabsContent value="single" id="single" className="space-y-6">
-        <MonthlyRevenueTrends data={transformedData} />
-        <CompositeSentimentIndex data={transformedData} />
-        <SentimentRatios data={transformedData} />
-      </TabsContent>
+        <TabsContent value="single" id="single" className="space-y-6">
+          {showPlaceholder ? (
+            <ChartLoading />
+          ) : (
+            <>
+              <MonthlyRevenueTrends data={transformedData} />
+              <CompositeSentimentIndex data={transformedData} />
+              <SentimentRatios data={transformedData} />
+            </>
+          )}
+        </TabsContent>
 
-      <TabsContent value="hybrid" id="hybrid" className="space-y-6">
-        <RevenueSentiment data={transformedData} />
-        <ReviewVolumeRevenue data={transformedData} />
-        <CSIRevenueCorrelation data={scatterData} />
-      </TabsContent>
+        <TabsContent value="hybrid" id="hybrid" className="space-y-6">
+          {showPlaceholder ? (
+            <ChartLoading />
+          ) : (
+            <>
+              <RevenueSentiment data={transformedData} />
+              <ReviewVolumeRevenue data={transformedData} />
+              <CSIRevenueCorrelation data={scatterData} />
+            </>
+          )}
+        </TabsContent>
       </Tabs>
     </div>
   )
