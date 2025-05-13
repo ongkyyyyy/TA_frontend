@@ -130,9 +130,11 @@ export default function HotelAnalyticsDashboard() {
         <SummaryOverview data={data} isLoading={isLoading} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="col-span-1 md:col-span-2">
+            <MonthlyHighlights data={data} isLoading={isLoading} />
+          </div>
           <GrowthMetrics data={data} isLoading={isLoading} />
           <SentimentDistribution data={data} isLoading={isLoading} />
-          <MonthlyHighlights data={data} isLoading={isLoading} />
         </div>
       </div>
 
