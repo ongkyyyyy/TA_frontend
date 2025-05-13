@@ -106,7 +106,7 @@ export function SalesOverview({ data, isLoading = false }) {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    <span>12.5%</span>
+                    <span>{growth.reviews_growth_pct}%</span>
                   </div>
                 </div>
               </div>

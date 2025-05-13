@@ -33,7 +33,7 @@ export function HotelAnalyticsHeader({
   return (
     <div className="mb-6 flex flex-col gap-4">
       <div>
-        <h1 className="text-3xl font-bold">Hotel Revenue & Sentiment Analytics</h1>
+        <h1 className="text-3xl font-bold">Hotel Revenue & Sentiment Dashboard</h1>
         <p className="text-muted-foreground">Visualizing the relationship between revenue and customer sentiment</p>
       </div>
       <div className="flex flex-wrap justify-between items-center gap-4">

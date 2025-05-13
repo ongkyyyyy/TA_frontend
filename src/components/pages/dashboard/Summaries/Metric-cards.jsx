@@ -2,10 +2,9 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card"
-import { ArrowDownIcon, ArrowUpIcon, DollarSign, ShoppingCart, TrendingUp, BarChart3, LineChart } from 'lucide-react'
+import { ArrowDownIcon, ArrowUpIcon, DollarSign, ShoppingCart, TrendingUp, BarChart3, LineChart } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
-import { motion } from "framer-motion"
 
 function formatCurrency(value, showSymbol = false) {
   if (typeof value !== "number") return "-"
@@ -39,6 +38,17 @@ export function MetricCards({ data, isLoading = false }) {
       gradientTo: "to-emerald-100",
       iconBg: "bg-emerald-100",
       iconColor: "text-emerald-600",
+    },
+    {
+      title: "Best Month Revenue",
+      subtitle: summary.best_month?.month || "-",
+      value: bestMonthRevenue,
+      icon: TrendingUp,
+      color: "rose",
+      gradientFrom: "from-rose-50",
+      gradientTo: "to-rose-100",
+      iconBg: "bg-rose-100",
+      iconColor: "text-rose-600",
     },
     {
       title: "Monthly Revenue",
@@ -76,33 +86,17 @@ export function MetricCards({ data, isLoading = false }) {
       iconBg: "bg-amber-100",
       iconColor: "text-amber-600",
     },
-    {
-      title: "Best Month Revenue",
-      subtitle: summary.best_month?.month || "-",
-      value: bestMonthRevenue,
-      icon: TrendingUp,
-      color: "rose",
-      gradientFrom: "from-rose-50",
-      gradientTo: "to-rose-100",
-      iconBg: "bg-rose-100",
-      iconColor: "text-rose-600",
-    },
   ]
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
       {cards.map((card, index) => (
-        <motion.div
-          key={index}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: index * 0.1 }}
-        >
+        <div key={index}>
           <Card
             className={cn(
-              "overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out",
+              "overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out h-[230px]",
               `bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo}`,
-              "relative"
+              "relative",
             )}
           >
             <div className="absolute top-0 right-0 h-24 w-24 opacity-10">
@@ -127,33 +121,33 @@ export function MetricCards({ data, isLoading = false }) {
               ) : (
                 <>
                   <div className="mt-2">
-                    <CardTitle className="text-2xl font-bold tracking-tight tabular-nums">
-                      {card.value}
-                    </CardTitle>
+                    <CardTitle className="text-2xl font-bold tracking-tight tabular-nums">{card.value}</CardTitle>
                   </div>
-                  <div className="mt-4 flex items-center">
-                    <div
-                      className={cn(
-                        "flex items-center text-xs font-medium px-2.5 py-1 rounded-full",
-                        card.growth < 0
-                          ? "text-red-700 bg-red-100"
-                          : `text-green-700 bg-green-100`
-                      )}
-                    >
-                      {card.growth < 0 ? (
-                        <ArrowDownIcon className="h-3 w-3 mr-1" />
-                      ) : (
-                        <ArrowUpIcon className="h-3 w-3 mr-1" />
-                      )}
-                      {Math.abs(card.growth)}%
-                    </div>
+                  <div className="mt-4 flex items-center min-h-[28px]">
+                    {card.growth !== undefined ? (
+                      <div
+                        className={cn(
+                          "flex items-center text-xs font-medium px-2.5 py-1 rounded-full",
+                          card.growth < 0 ? "text-red-700 bg-red-100" : "text-green-700 bg-green-100"
+                        )}
+                      >
+                        {card.growth < 0 ? (
+                          <ArrowDownIcon className="h-3 w-3 mr-1" />
+                        ) : (
+                          <ArrowUpIcon className="h-3 w-3 mr-1" />
+                        )}
+                        {Math.abs(card.growth)}%
+                      </div>
+                    ) : (
+                      <div className="invisible px-2.5 py-1 text-xs font-medium rounded-full">0%</div>
+                    )}
                     <span className="text-xs text-gray-500 ml-2">vs previous period</span>
                   </div>
                 </>
               )}
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       ))}
     </div>
   )

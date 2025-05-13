@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect, useMemo } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -14,10 +12,10 @@ import { CompositeSentimentIndex } from "./Charts/Composite-sentiment-index"
 import { SentimentRatios } from "./Charts/Sentiment-ratios"
 import { CSIRevenueCorrelation } from "./Charts/Csi-revenue-correlation"
 import { generatePDF } from "./PDF/Pdf-generator"
-import { AverageDailySales } from "./Summaries/Average-daily-sales"
-import { MetricCards } from "./Summaries/Metric-cards"
-import { SalesOverview } from "./Summaries/Sales-overview"
-import { WebsiteAnalytics } from "./Summaries/Website-analytics"
+import { SummaryOverview } from "./Summaries/Summary-overview"
+import { MonthlyHighlights } from "./Summaries/Monthly-highlights"
+import { GrowthMetrics } from "./Summaries/Growth-metrics"
+import { SentimentDistribution } from "./Summaries/Sentiment-distribution"
 
 export default function HotelAnalyticsDashboard() {
   const currentYear = new Date().getFullYear().toString()
@@ -117,7 +115,7 @@ export default function HotelAnalyticsDashboard() {
   const showPlaceholder = !data || isLoading
 
   return (
-    <div className="container mx-auto space-y-8 py-8 px-4 md:px-6 bg-gradient-to-b from-white to-gray-50 min-h-screen">
+    <div className="space-y-6 py-6 container bg-white min-h-screen">
       <HotelAnalyticsHeader
         selectedHotels={selectedHotels}
         year={year}
@@ -128,14 +126,14 @@ export default function HotelAnalyticsDashboard() {
         onResetFilters={resetAllFilters}
       />
 
-      <div className="transition-all duration-500 ease-in-out">
-        <MetricCards data={data} isLoading={isLoading} />
-      </div>
+      <div className="space-y-6">
+        <SummaryOverview data={data} isLoading={isLoading} />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 transition-all duration-500 ease-in-out">
-        <WebsiteAnalytics data={data} isLoading={isLoading} />
-        <AverageDailySales data={data} isLoading={isLoading} />
-        <SalesOverview data={data} isLoading={isLoading} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <GrowthMetrics data={data} isLoading={isLoading} />
+          <SentimentDistribution data={data} isLoading={isLoading} />
+          <MonthlyHighlights data={data} isLoading={isLoading} />
+        </div>
       </div>
 
       {hasNoRevenueData && !showPlaceholder && (
@@ -148,7 +146,7 @@ export default function HotelAnalyticsDashboard() {
         </Alert>
       )}
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-2 lg:w-[400px] bg-gray-100 p-1 rounded-lg">
           <TabsTrigger
             value="single"
@@ -164,27 +162,39 @@ export default function HotelAnalyticsDashboard() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="single" id="single" className="space-y-8 transition-all duration-500 ease-in-out">
+        <TabsContent value="single" id="single" className="transition-all duration-300 ease-in-out">
           {showPlaceholder ? (
             <ChartLoading />
           ) : (
-            <>
-              <MonthlyRevenueTrends data={transformedData} />
-              <CompositeSentimentIndex data={transformedData} />
-              <SentimentRatios data={transformedData} />
-            </>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div>
+                <MonthlyRevenueTrends data={transformedData} />
+              </div>
+              <div>
+                <CompositeSentimentIndex data={transformedData} />
+              </div>
+              <div>
+                <SentimentRatios data={transformedData} />
+              </div>
+            </div>
           )}
         </TabsContent>
 
-        <TabsContent value="hybrid" id="hybrid" className="space-y-8 transition-all duration-500 ease-in-out">
+        <TabsContent value="hybrid" id="hybrid" className="transition-all duration-300 ease-in-out">
           {showPlaceholder ? (
             <ChartLoading />
           ) : (
-            <>
-              <RevenueSentiment data={transformedData} />
-              <ReviewVolumeRevenue data={transformedData} />
-              <CSIRevenueCorrelation data={scatterData} />
-            </>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div>
+                <RevenueSentiment data={transformedData} />
+              </div>
+              <div>
+                <ReviewVolumeRevenue data={transformedData} />
+              </div>
+              <div>
+                <CSIRevenueCorrelation data={scatterData} />
+              </div>
+            </div>
           )}
         </TabsContent>
       </Tabs>

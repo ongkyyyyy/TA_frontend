@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Plus } from "lucide-react"
+import { PlusCircle } from "lucide-react"
 import { Button } from "../../ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs"
 import { RevenueTable } from "./revenue-table"
@@ -165,7 +165,7 @@ export default function RevenuePage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Hotel Revenues Management</h1>
         <Button onClick={() => setIsFormOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Add New Revenue
+          <PlusCircle className="h-4 w-4" /> Add New Revenue
         </Button>
       </div>
 

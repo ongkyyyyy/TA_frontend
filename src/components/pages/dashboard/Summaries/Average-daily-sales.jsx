@@ -49,7 +49,7 @@ export function AverageDailySales({ data, isLoading = false }) {
               <p className="text-2xl font-bold tabular-nums">{monthlyRevenue}</p>
               <div className="mt-1 flex items-center text-xs text-primary">
                 <span className="inline-block mr-1">↑</span>
-                <span>8.2% from previous month</span>
+                <span>{data.growth.sentiment_growth_pct}% from previous month</span>
               </div>
             </div>
 
@@ -77,9 +77,7 @@ export function AverageDailySales({ data, isLoading = false }) {
 
             <div className="mt-4 bg-gray-50 p-3 rounded-md">
               <p className="text-xs text-muted-foreground">
-                Monthly average calculated from{" "}
-                {summary?.total_revenue ? (summary.total_revenue / summary.avg_monthly_revenue).toFixed(1) : "-"} months
-                of sales data
+                Monthly average calculated from {summary?.active_revenue_months || "-"} months of sales data
               </p>
             </div>
           </>

@@ -110,7 +110,7 @@ function Sidebar() {
                     )
                   )}
 
-                  {name === "Scraping" && (
+                  {name === "Reviews and Sentiments" && (
                     <div className="my-3 border-t border-gray-200"></div>
                   )}
                 </li>

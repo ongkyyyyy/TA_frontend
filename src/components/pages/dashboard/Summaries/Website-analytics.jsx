@@ -86,7 +86,9 @@ export function WebsiteAnalytics({ data, isLoading = false }) {
                     <TrendingUp className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-lg font-bold group-hover:text-white transition-colors duration-300">12</p>
+                    <p className="text-lg font-bold group-hover:text-white transition-colors duration-300">
+                      {summary.active_revenue_months}
+                    </p>
                     <p className="text-xs text-primary-foreground/70">Months</p>
                   </div>
                 </div>
