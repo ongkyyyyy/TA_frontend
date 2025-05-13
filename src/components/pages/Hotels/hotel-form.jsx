@@ -52,11 +52,11 @@ export default function HotelForm({ hotel, onClose }) {
       if (isEditing && hotel) {
         await updateHotel(hotel._id, formData)
         toast.success("Hotel updated successfully")
-        onClose(formData, true) // 👈 pass true to refetch
+        onClose(formData, true) 
       } else {
         await inputHotels(formData)
         toast.success("Hotel added successfully")
-        onClose(formData, true) // 👈 pass true to refetch
+        onClose(formData, true) 
       }
     } catch (error) {
       console.log(error)

@@ -13,7 +13,7 @@ export default function ScrapeLogsModal({ open, onOpenChange }) {
   const [logsLoading, setLogsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMoreLogs, setHasMoreLogs] = useState(true)
-  const pageSize = 15 // Number of logs per page
+  const pageSize = 15
 
   const fetchScrapeLog = useCallback(
     async (page = currentPage) => {
@@ -26,8 +26,6 @@ export default function ScrapeLogsModal({ open, onOpenChange }) {
 
         const fetchedLogs = logData?.data || []
         setLogs(fetchedLogs)
-
-        // Check if we have more logs to load
         setHasMoreLogs(fetchedLogs.length === pageSize)
       } catch (error) {
         console.error("Failed to fetch scrape logs:", error)
@@ -44,7 +42,6 @@ export default function ScrapeLogsModal({ open, onOpenChange }) {
     }
   }, [open, fetchScrapeLog])
 
-  // When page changes, fetch new logs
   useEffect(() => {
     if (open) {
       fetchScrapeLog(currentPage)

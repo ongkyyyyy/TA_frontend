@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react"
-import { PlusCircle } from "lucide-react"
-import { Button } from "../../ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs"
+import { PlusCircle} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RevenueTable } from "./revenue-table"
 import { RevenueForm } from "./revenue-form"
-import { getRevenues, deleteRevenue } from "../../../api/apiRevenues"
-import { RevenueFiltersBar } from "./Revenue-filter"
-import { RevenueAdvancedFiltersDialog } from "./Revenue-advanced-filters-dialog"
+import { getRevenues, deleteRevenue } from "@/api/apiRevenues"
+import { RevenueFiltersBar } from "./revenue-filter"
+import { RevenueAdvancedFiltersDialog } from "./revenue-advanced-filters-dialog"
+import { CardTitle, CardDescription } from "@/components/ui/card"
+import { motion, AnimatePresence } from "framer-motion"
 
 const revenueTabs = [
-  { label: "All Revenue", value: "all" },
-  { label: "Room Revenue", value: "room" },
-  { label: "Restaurant", value: "restaurant" },
-  { label: "Other Revenue", value: "other" },
+  { label: "All Revenue", value: "all", color: "bg-primary" },
+  { label: "Room Revenue", value: "room", color: "bg-emerald-500" },
+  { label: "Restaurant", value: "restaurant", color: "bg-amber-500" },
+  { label: "Other Revenue", value: "other", color: "bg-violet-500" },
 ]
 
 export default function RevenuePage() {
@@ -22,6 +24,7 @@ export default function RevenuePage() {
   const [selectedHotel, setSelectedHotel] = useState([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
   const revenuesPerHotel = 10
   const [sortBy, setSortBy] = useState("date")
   const [sortOrder, setSortOrder] = useState(-1)
@@ -39,6 +42,7 @@ export default function RevenuePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true)
         const params = {
           page,
           per_page: revenuesPerHotel,
@@ -58,6 +62,8 @@ export default function RevenuePage() {
         setTotalPages(response.data.total_pages || 1)
       } catch (error) {
         console.error("Failed to load revenue data", error)
+      } finally {
+        setIsLoading(false)
       }
     }
     fetchData()
@@ -73,6 +79,7 @@ export default function RevenuePage() {
 
   const refreshData = async () => {
     try {
+      setIsLoading(true)
       const params = {
         page,
         per_page: revenuesPerHotel,
@@ -92,6 +99,8 @@ export default function RevenuePage() {
       setTotalPages(response.data.total_pages || 1)
     } catch (error) {
       console.error("Failed to load revenue data", error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -115,7 +124,6 @@ export default function RevenuePage() {
   }
 
   const handleEdit = (item, hotelId) => {
-     console.log("Editing item:", item)
     setEditingItem({ ...item, hotel_id: hotelId })
   }
 
@@ -161,87 +169,155 @@ export default function RevenuePage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Hotel Revenues Management</h1>
-        <Button onClick={() => setIsFormOpen(true)}>
-          <PlusCircle className="h-4 w-4" /> Add New Revenue
-        </Button>
-      </div>
+    <div className="space-y-6 py-6">
+        <div>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-3xl font-bold">Hotel Revenues Management</CardTitle>
+              <CardDescription className="mt-2">
+                Manage and analyze revenue data across all hotel properties
+              </CardDescription>
+            </div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button onClick={() => setIsFormOpen(true)} size="lg" className="gap-2">
+                <PlusCircle className="h-5 w-5" /> Add New Revenue
+              </Button>
+            </motion.div>
+          </div>
+        </div>
+        <div>
 
-      <div className="flex items-center justify-between">
-        <RevenueFiltersBar
-          onHotelFilterChange={(id) => {
-            setSelectedHotel(id)
-          }}
-          onDateRangeFilterChange={handleDateRangeFilterChange}
-          handleSortChange={handleSortChange}
-          onClearFilters={handleClearFilters}
-          setAdvancedFiltersOpen={setAdvancedFiltersOpen}
-          resetSignal={resetSignal}
-          sortValue={sortSelectValue}
-        />
-      </div>
+          <RevenueFiltersBar
+            onHotelFilterChange={(id) => {
+              setSelectedHotel(id)
+            }}
+            onDateRangeFilterChange={handleDateRangeFilterChange}
+            handleSortChange={handleSortChange}
+            onClearFilters={handleClearFilters}
+            setAdvancedFiltersOpen={setAdvancedFiltersOpen}
+            resetSignal={resetSignal}
+            sortValue={sortSelectValue}
+          />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-        <TabsList className="mb-4">
-          {revenueTabs.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value}>
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+            <TabsList className="mb-4 grid grid-cols-4 gap-2">
+              {revenueTabs.map((tab) => (
+                <TabsTrigger key={tab.value} value={tab.value} className="relative overflow-hidden">
+                  {tab.label}
+                  {activeTab === tab.value && (
+                    <motion.div
+                      className={`absolute bottom-0 left-0 h-1 w-full ${tab.color}`}
+                      layoutId="activeTabIndicator"
+                    />
+                  )}
+                </TabsTrigger>
+              ))}
+            </TabsList>
 
-        {revenueTabs.map((tab) => (
-          <TabsContent key={tab.value} value={tab.value}>
-            <RevenueTable
-              data={data
-                .filter((r) => {
-                  if (tab.value === "room") return !!r.room_details
-                  if (tab.value === "restaurant") return !!r.restaurant
-                  if (tab.value === "other") return !!r.other_revenue
-                  return true
-                })
-                .map((r) => ({
-                  ...r,
-                  filteredCategoryRevenue:
-                    tab.value === "room"
-                      ? r.room_details
-                      : tab.value === "restaurant"
-                        ? r.restaurant
-                        : tab.value === "other"
-                          ? r.other_revenue
-                          : undefined,
-                }))}
-              view={tab.value}
-              onEdit={(item) => handleEdit(item, item.hotel_id)}
-              onDelete={(revenueId) => handleDelete("flat", revenueId)}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                {revenueTabs.map((tab) => (
+                  <TabsContent key={tab.value} value={tab.value}>
+                    <RevenueTable
+                      data={data
+                        .filter((r) => {
+                          if (tab.value === "room") return !!r.room_details
+                          if (tab.value === "restaurant") return !!r.restaurant
+                          if (tab.value === "other") return !!r.other_revenue
+                          return true
+                        })
+                        .map((r) => ({
+                          ...r,
+                          filteredCategoryRevenue:
+                            tab.value === "room"
+                              ? r.room_details
+                              : tab.value === "restaurant"
+                                ? r.restaurant
+                                : tab.value === "other"
+                                  ? r.other_revenue
+                                  : undefined,
+                        }))}
+                      view={tab.value}
+                      onEdit={(item) => handleEdit(item, item.hotel_id)}
+                      onDelete={(revenueId) => handleDelete("flat", revenueId)}
+                      isLoading={isLoading}
+                    />
+                  </TabsContent>
+                ))}
+              </motion.div>
+            </AnimatePresence>
+          </Tabs>
+
+          <div className="flex justify-center items-center space-x-4 mt-8">
+            <Button
+              variant="outline"
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+              disabled={page === 1 || isLoading}
+            >
+              Previous
+            </Button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                const pageNum = i + 1
+                return (
+                  <Button
+                    key={i}
+                    variant={pageNum === page ? "default" : "outline"}
+                    size="sm"
+                    className="w-9 h-9"
+                    onClick={() => setPage(pageNum)}
+                    disabled={isLoading}
+                  >
+                    {pageNum}
+                  </Button>
+                )
+              })}
+              {totalPages > 5 && (
+                <>
+                  <span className="mx-1">...</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-9 h-9"
+                    onClick={() => setPage(totalPages)}
+                    disabled={isLoading}
+                  >
+                    {totalPages}
+                  </Button>
+                </>
+              )}
+            </div>
+            <Button variant="outline" onClick={() => setPage((p) => p + 1)} disabled={page === totalPages || isLoading}>
+              Next
+            </Button>
+          </div>
+        </div>
+      <AnimatePresence>
+        {(isFormOpen || editingItem) && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+          >
+            <RevenueForm
+              isOpen={isFormOpen || !!editingItem}
+              onClose={() => {
+                setIsFormOpen(false)
+                setEditingItem(null)
+              }}
+              onSubmit={editingItem ? handleUpdate : handleCreate}
+              initialData={editingItem || undefined}
             />
-          </TabsContent>
-        ))}
-      </Tabs>
-
-      <div className="flex justify-center items-center space-x-4 mt-8">
-        <Button variant="outline" onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1}>
-          Prev Page
-        </Button>
-        <span className="text-lg font-semibold">{`Page ${page}`}</span>
-        <Button variant="outline" onClick={() => setPage((p) => p + 1)} disabled={page === totalPages}>
-          Next Page
-        </Button>
-      </div>
-
-      {(isFormOpen || editingItem) && (
-        <RevenueForm
-          isOpen={isFormOpen || !!editingItem}
-          onClose={() => {
-            setIsFormOpen(false)
-            setEditingItem(null)
-          }}
-          onSubmit={editingItem ? handleUpdate : handleCreate}
-          initialData={editingItem || undefined}
-        />
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <RevenueAdvancedFiltersDialog
         open={advancedFiltersOpen}

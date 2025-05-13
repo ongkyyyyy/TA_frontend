@@ -105,11 +105,13 @@ export default function ReviewsWithFilters() {
   }
 
   const topRef = useRef(null) 
+  const prevPageRef = useRef(currentPage)
 
   useEffect(() => {
-    if (topRef.current) {
-      topRef.current.scrollIntoView({ behavior: "smooth" }) 
+    if (prevPageRef.current !== currentPage && topRef.current) {
+      topRef.current.scrollIntoView({ behavior: "smooth" })
     }
+    prevPageRef.current = currentPage
   }, [currentPage])
 
   return (
