@@ -1,15 +1,32 @@
 /* eslint-disable react/prop-types */
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
 
 export function SentimentRatios({ data }) {
+  const labelMap = {
+    positive_ratio: "Positive",
+    neutral_ratio: "Neutral",
+    negative_ratio: "Negative",
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Sentiment Ratios</CardTitle>
-        <CardDescription>Distribution of positive, neutral, and negative sentiment over time</CardDescription>
+        <CardDescription>
+          Distribution of positive, neutral, and negative sentiment over time
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer
@@ -38,7 +55,13 @@ export function SentimentRatios({ data }) {
             responsive={true}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={10} interval={0} />
+            <XAxis
+              dataKey="month"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={10}
+              interval={0}
+            />
             <YAxis
               tickFormatter={(value) => `${(value * 100).toFixed(0)}%`}
               tickLine={false}
@@ -46,7 +69,14 @@ export function SentimentRatios({ data }) {
               tickMargin={10}
             />
             <ChartTooltip
-              content={<ChartTooltipContent formatter={(value) => `${(Number(value) * 100).toFixed(0)}%`} />}
+              content={
+                <ChartTooltipContent
+                  formatter={(value, name) => [
+                    `${(Number(value) * 100).toFixed(0)}% `,
+                    labelMap[name] || name,
+                  ]}
+                />
+              }
             />
             <Area
               type="monotone"
