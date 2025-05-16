@@ -9,6 +9,7 @@ import { RevenueFiltersBar } from "./revenue-filter"
 import { RevenueAdvancedFiltersDialog } from "./revenue-advanced-filters-dialog"
 import { CardTitle, CardDescription } from "@/components/ui/card"
 import { motion, AnimatePresence } from "framer-motion"
+import { Separator } from "@/components/ui/separator"
 
 const revenueTabs = [
   { label: "All Revenue", value: "all", color: "bg-primary" },
@@ -170,23 +171,17 @@ export default function RevenuePage() {
 
   return (
     <div className="space-y-6 py-6">
-        <div>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-3xl font-bold">Hotel Revenues Management</CardTitle>
-              <CardDescription className="mt-2">
-                Manage and analyze revenue data across all hotel properties
-              </CardDescription>
-            </div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button onClick={() => setIsFormOpen(true)} size="lg" className="gap-2">
-                <PlusCircle className="h-5 w-5" /> Add New Revenue
-              </Button>
-            </motion.div>
-          </div>
+      <div>
+        <div className="mb-6">
+          <CardTitle className="text-3xl font-bold">Hotel Revenues Management</CardTitle>
+          <CardDescription className="mt-2">
+            Manage and analyze revenue data across all hotel properties
+          </CardDescription>
         </div>
-        <div>
 
+        <Separator className="mb-4" />
+
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
           <RevenueFiltersBar
             onHotelFilterChange={(id) => {
               setSelectedHotel(id)
@@ -198,6 +193,14 @@ export default function RevenuePage() {
             resetSignal={resetSignal}
             sortValue={sortSelectValue}
           />
+
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button onClick={() => setIsFormOpen(true)} size="lg" className="gap-2 whitespace-nowrap">
+              <PlusCircle className="h-5 w-5" /> Add New Revenue
+            </Button>
+          </motion.div>
+        </div>
+      </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
             <TabsList className="mb-4 grid grid-cols-4 gap-2">
@@ -296,7 +299,6 @@ export default function RevenuePage() {
             <Button variant="outline" onClick={() => setPage((p) => p + 1)} disabled={page === totalPages || isLoading}>
               Next
             </Button>
-          </div>
         </div>
       <AnimatePresence>
         {(isFormOpen || editingItem) && (

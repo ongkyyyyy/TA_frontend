@@ -10,6 +10,8 @@ import { PlusCircle, RefreshCw } from "lucide-react"
 import DeleteConfirmation from "./hotel-delete-confirmation"
 import { debounce } from "lodash"
 import { toast } from "react-toastify"
+import { Separator } from "@/components/ui/separator"
+import { CardTitle, CardDescription } from "@/components/ui/card"
 
 export default function Hotels() {
   const [filteredHotels, setFilteredHotels] = useState([])
@@ -141,7 +143,14 @@ export default function Hotels() {
 
   return (
     <div className="space-y-6 py-6">
-      <h1 className="text-3xl font-bold">Hotels Management</h1>
+      <div>
+        <CardTitle className="text-3xl font-bold">Hotel Revenues Management</CardTitle>
+        <CardDescription className="mt-2">
+          Manage hotel names, locations, and OTA links efficiently in one place.
+        </CardDescription>
+      </div>
+
+      <Separator />
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <SearchBar setSearchTerm={setSearchTerm} searchTerm={searchTerm} onClear={handleClearSearch} />
         <div className="flex gap-2">
