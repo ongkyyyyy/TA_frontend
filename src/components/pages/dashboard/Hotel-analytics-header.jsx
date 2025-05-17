@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PDFButton } from "./PDF/PDF-button"
-import { HotelFilter } from "../Reviews n Sentiments/reviewsFilters/hotel-filter"
+import { HotelFilter } from "./dashboard-hotel-filter"
 import { Button } from "@/components/ui/button"
 import { ChevronDown, Filter, RefreshCw } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
@@ -14,7 +14,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
 import { getHotelsDropdown } from "@/api/apiHotels"
 
 export function HotelAnalyticsHeader({
@@ -23,18 +22,11 @@ export function HotelAnalyticsHeader({
   onHotelChange,
   onYearChange,
   activeTab,
-  resetSignal,
   onResetFilters,
 }) {
   const [years, setYears] = useState([])
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [hotelOptions, setHotelOptions] = useState([])
-
-  useEffect(() => {
-    const currentYear = new Date().getFullYear()
-    const range = Array.from({ length: 11 }, (_, i) => (currentYear - 5 + i).toString())
-    setYears(["Lifetime", ...range])
-  }, [])
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -51,13 +43,16 @@ export function HotelAnalyticsHeader({
     }
 
     fetchHotels()
+
+    const currentYear = new Date().getFullYear()
+    const range = Array.from({ length: 11 }, (_, i) => (currentYear - 5 + i).toString())
+    setYears(["Lifetime", ...range])
   }, [])
 
   const selectedHotelNames = hotelOptions
     .filter((hotel) => selectedHotels.includes(hotel.value))
     .map((hotel) => hotel.label)
 
-  // Truncate long names for display
   let hotelName = "All Hotels"
   if (selectedHotels.length === 1) {
     hotelName = selectedHotelNames[0] || "Selected Hotel"
@@ -104,7 +99,11 @@ export function HotelAnalyticsHeader({
               <DropdownMenuSeparator />
               <DropdownMenuGroup className="p-2">
                 <div className="mb-3">
-                  <HotelFilter onFilterChange={onHotelChange} resetSignal={resetSignal} />
+                  <HotelFilter
+                    selectedHotels={selectedHotels}
+                    onFilterChange={onHotelChange}
+                    hotelOptions={hotelOptions}
+                  />
                 </div>
                 <div className="mb-3">
                   <Select value={year} onValueChange={onYearChange} data-year-select>
