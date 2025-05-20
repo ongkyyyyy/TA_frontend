@@ -6,7 +6,7 @@ import HotelsList from "./hotels-list"
 import HotelForm from "./hotel-form"
 import SearchBar from "./hotel-search"
 import { Button } from "../../ui/button"
-import { PlusCircle, RefreshCw } from "lucide-react"
+import { PlusCircle} from "lucide-react"
 import DeleteConfirmation from "./hotel-delete-confirmation"
 import { debounce } from "lodash"
 import { toast } from "react-toastify"
@@ -25,7 +25,6 @@ export default function Hotels() {
 
   const [currentPage, setCurrentPage] = useState(1)
   const [totalHotels, setTotalHotels] = useState(0)
-  const [isRefetching, setIsRefetching] = useState(false)
   const HOTELS_PER_PAGE = 15
 
   const fetchHotels = useCallback(async (page = 1, silent = false) => {
@@ -35,9 +34,7 @@ export default function Hotels() {
     }
 
     if (!silent) {
-      setIsLoading(true) 
-    } else {
-      setIsRefetching(true) 
+      setIsLoading(true)
     }
 
     setError(null)
@@ -53,8 +50,6 @@ export default function Hotels() {
     } finally {
       if (!silent) {
         setIsLoading(false)
-      } else {
-        setIsRefetching(false)
       }
     }
   }, [])
@@ -157,18 +152,6 @@ export default function Hotels() {
           <Button onClick={handleAddHotel} className="flex items-center gap-2">
             <PlusCircle className="h-4 w-4" />
             Add Hotel
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              handleClearSearch() 
-              fetchHotels(1)
-            }}
-            disabled={isLoading || isRefetching}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading || isRefetching ? "animate-spin" : ""}`} />
-            {isRefetching ? "Refreshing..." : "Refresh"}
           </Button>
         </div>
       </div>
