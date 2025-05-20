@@ -133,7 +133,7 @@ export default function LoginPage() {
             <span className="hover:text-[#4bb3ba] cursor-pointer transition-colors">Help</span>
           </div>
           <div className="mt-4 text-xs text-[#18446a]/70">
-            © {new Date().getFullYear()} Your Company. All rights reserved.
+            © {new Date().getFullYear()} Ongky Corp. All rights reserved.
           </div>
         </div>
       </div>

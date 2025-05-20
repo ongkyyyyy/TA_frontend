@@ -65,11 +65,11 @@ export function HotelAnalyticsHeader({
   const displayYear = year || "Lifetime"
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Revenue & Sentiment Dashboard</h1>
-          <h2 className="text-sm text-muted-foreground">
+          <h1 className="text-3xl font-bold">Revenue & Sentiment Dashboard</h1>
+          <h2 className="text-sm text-muted-foreground mt-2">
             Showing data for:{" "}
             <span className="font-medium">
               {hotelName} ({displayYear})

@@ -140,10 +140,10 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all", isLoading =
   return (
     <>
       <div className="rounded-md border shadow-sm overflow-hidden">
-        <Table>
+        <Table className="mx-2">
           <TableHeader>
-            <TableRow>
-              <TableHead className="w-[120px]">
+            <TableRow className="mx-4">
+              <TableHead className="w-[120px] ">
                 <Button
                   variant="ghost"
                   onClick={() => requestSort("date")}

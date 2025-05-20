@@ -6,6 +6,7 @@ import { Badge } from "../../ui/badge"
 import { Search, ThumbsUp, ThumbsDown, Calendar, Building, ExternalLink } from "lucide-react"
 import { FilterBar } from "./reviewsFilters/filter-bar"
 import ScrapePage from "../Scraping/Scrapes.jsx"
+import { Separator } from "@/components/ui/separator"
 
 export default function ReviewsWithFilters() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -117,8 +118,8 @@ export default function ReviewsWithFilters() {
   return (
     <div className="container mx-auto py-6 ">
       <h1 className="text-3xl font-bold mb-2">Customer Reviews and Sentiments</h1>
-      <p className="text-muted-foreground mb-4">Browse and search through guest feedback</p>
-
+       <h2 className="text-sm text-muted-foreground mt-2">Browse and search through guest feedback</h2>
+       <Separator className="my-6"/>
       <div className="mb-8" >
         <ScrapePage onScrapeComplete={() => {
           setCurrentPage(1)
