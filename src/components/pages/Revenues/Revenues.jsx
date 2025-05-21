@@ -12,10 +12,10 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Separator } from "@/components/ui/separator"
 
 const revenueTabs = [
-  { label: "All Revenue", value: "all", color: "bg-primary" },
-  { label: "Room Revenue", value: "room", color: "bg-emerald-500" },
+  { label: "All", value: "all", color: "bg-primary" },
+  { label: "Room", value: "room", color: "bg-emerald-500" },
   { label: "Restaurant", value: "restaurant", color: "bg-amber-500" },
-  { label: "Other Revenue", value: "other", color: "bg-violet-500" },
+  { label: "Other", value: "other", color: "bg-violet-500" },
 ]
 
 export default function RevenuePage() {

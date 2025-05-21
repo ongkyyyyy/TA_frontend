@@ -4,7 +4,6 @@ import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
-import { Dialog, DialogContent,DialogDescription,DialogFooter,DialogHeader,DialogTitle} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -13,6 +12,7 @@ import { toast } from "react-toastify"
 import { inputRevenue, updateRevenue } from "@/api/apiRevenues"
 import { getHotelsDropdown } from "@/api/apiHotels"
 import { parse } from "date-fns"
+import { X } from "lucide-react"
 
 const FormField = ({ label, value, onChange, readOnly = false, type = "number", hint }) => (
   <div className="space-y-1">
@@ -190,17 +190,29 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
     </div>
   )
 
-  return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto top-[7%] translate-y-0">
-        <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Revenue Data" : "Add New Revenue Data"}</DialogTitle>
-          <DialogDescription>
-            {initialData ? "Update the revenue information." : "Fill in the revenue record details."}
-          </DialogDescription>
-        </DialogHeader>
+  return isOpen ? (
+  <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center overflow-y-auto">
+    <div className="relative bg-background text-foreground w-full max-w-3xl max-h-[90vh] mt-10 p-6 rounded-xl shadow-lg overflow-y-auto">
 
-        <Tabs defaultValue="basic">
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 text-gray-500 hover:text-black text-2xl font-bold"
+        aria-label="Close"
+      >
+        <X />
+      </button>
+
+      <div className="space-y-2">
+        <h2 className="text-xl font-semibold">
+          {initialData ? "Edit Revenue Data" : "Add New Revenue Data"}
+        </h2>
+        <p className="text-muted-foreground">
+          {initialData
+            ? "Update the revenue information."
+            : "Fill in the revenue record details."}
+        </p>
+      </div>
+        <Tabs defaultValue="basic" className="mt-4">
           <TabsList className="grid grid-cols-4 mb-4">
             {["basic", "room", "restaurant", "other"].map((tab) => (
               <TabsTrigger key={tab} value={tab} className="capitalize">
@@ -208,7 +220,6 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
               </TabsTrigger>
             ))}
           </TabsList>
-
           <TabsContent value="basic" className="space-y-4">
             <div className="space-y-1">
               <Label>Hotel</Label>
@@ -231,7 +242,6 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-start text-left">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-
                     {formData.date && parse(formData.date, "dd-MM-yyyy", new Date()).toString() !== "Invalid Date"
                       ? format(parse(formData.date, "dd-MM-yyyy", new Date()), "PPP")
                       : "Select date"}
@@ -254,81 +264,71 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
               { label: "Government Tax (11%)", key: "government_tax", readOnly: true },
               { label: "Grand Total Revenue", key: "grand_total_revenue", readOnly: true },
             ])}
-
             <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
               <FormField
                 label="AP Restaurant"
                 value={formData.ap_restaurant}
                 onChange={(val) => updateFormData("ap_restaurant", val)}
               />
-              <FormField label="Tips" value={formData.tips} onChange={(val) => updateFormData("tips", val)} />
+              <FormField
+                label="Tips"
+                value={formData.tips}
+                onChange={(val) => updateFormData("tips", val)}
+              />
             </div>
           </TabsContent>
+
           <TabsContent value="room" className="space-y-4">
-            {renderFields(
-              [
-                { label: "Room Lodging", key: "room_lodging" },
-                { label: "Rebate/Discount", key: "rebate_discount" },
-                { label: "Total Room Revenue", key: "total_room_revenue", readOnly: true },
-              ],
-              "room_details",
-            )}
+            {renderFields([
+              { label: "Room Lodging", key: "room_lodging" },
+              { label: "Rebate/Discount", key: "rebate_discount" },
+              { label: "Total Room Revenue", key: "total_room_revenue", readOnly: true },
+            ], "room_details")}
+
             <h4 className="pt-4 font-medium">Room Statistics</h4>
-            {renderFields(
-              [
-                { label: "Active Rooms", key: "active_rooms" },
-                { label: "Room Available", key: "room_available" },
-                { label: "House Use", key: "house_use" },
-                { label: "Complimentary", key: "complimentary" },
-                { label: "Rooms Sold", key: "rooms_sold" },
-                { label: "Guests In House", key: "guests_in_house" },
-                { label: "Rooms Occupied", key: "rooms_occupied", readOnly: true },
-                { label: "Vacant Rooms", key: "vacant_rooms", readOnly: true },
-                { label: "Occupancy (%)", key: "occupancy", readOnly: true },
-                { label: "Average Room Rate", key: "average_room_rate", readOnly: true },
-              ],
-              "room_stats",
-            )}
+            {renderFields([
+              { label: "Active Rooms", key: "active_rooms" },
+              { label: "Room Available", key: "room_available" },
+              { label: "House Use", key: "house_use" },
+              { label: "Complimentary", key: "complimentary" },
+              { label: "Rooms Sold", key: "rooms_sold" },
+              { label: "Guests In House", key: "guests_in_house" },
+              { label: "Rooms Occupied", key: "rooms_occupied", readOnly: true },
+              { label: "Vacant Rooms", key: "vacant_rooms", readOnly: true },
+              { label: "Occupancy (%)", key: "occupancy", readOnly: true },
+              { label: "Average Room Rate", key: "average_room_rate", readOnly: true },
+            ], "room_stats")}
           </TabsContent>
 
           <TabsContent value="restaurant" className="space-y-4">
-            {renderFields(
-              [
-                { label: "Breakfast", key: "breakfast" },
-                { label: "Restaurant Food", key: "restaurant_food" },
-                { label: "Restaurant Beverage", key: "restaurant_beverage" },
-                { label: "Total Restaurant Revenue", key: "total_restaurant_revenue", readOnly: true },
-              ],
-              "restaurant",
-            )}
+            {renderFields([
+              { label: "Breakfast", key: "breakfast" },
+              { label: "Restaurant Food", key: "restaurant_food" },
+              { label: "Restaurant Beverage", key: "restaurant_beverage" },
+              { label: "Total Restaurant Revenue", key: "total_restaurant_revenue", readOnly: true },
+            ], "restaurant")}
           </TabsContent>
-
           <TabsContent value="other" className="space-y-4">
-            {renderFields(
-              [
-                { label: "Other Room Revenue", key: "other_room_revenue" },
-                { label: "Telephone", key: "telephone" },
-                { label: "Business Center", key: "business_center" },
-                { label: "Other Income", key: "other_income" },
-                { label: "Spa Therapy", key: "spa_therapy" },
-                { label: "Miscellaneous", key: "misc" },
-                { label: "Allowance Other", key: "allowance_other" },
-                { label: "Total Other Revenue", key: "total_other_revenue", readOnly: true },
-              ],
-              "other_revenue",
-            )}
+            {renderFields([
+              { label: "Other Room Revenue", key: "other_room_revenue" },
+              { label: "Telephone", key: "telephone" },
+              { label: "Business Center", key: "business_center" },
+              { label: "Other Income", key: "other_income" },
+              { label: "Spa Therapy", key: "spa_therapy" },
+              { label: "Miscellaneous", key: "misc" },
+              { label: "Allowance Other", key: "allowance_other" },
+              { label: "Total Other Revenue", key: "total_other_revenue", readOnly: true },
+            ], "other_revenue")}
           </TabsContent>
         </Tabs>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
+        <div className="flex justify-end gap-2 mt-6">
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
           <Button onClick={handleSubmit}>{initialData ? "Update" : "Create"}</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
+        </div>
+      </div>
+    </div>
+  ) : null
 }
 
 function calculateTotals(data) {

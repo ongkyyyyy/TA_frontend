@@ -12,18 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { RevenueDetails } from "./revenue-details"
 import { Skeleton } from "@/components/ui/skeleton"
 import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
+import { X } from "lucide-react"
 
 const categoryColors = {
   room: "bg-emerald-100 text-emerald-800 border-emerald-200",
@@ -170,7 +163,7 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all", isLoading =
                             ? "Restaurant"
                             : view === "other"
                             ? "Other"
-                            : "All Revenue"}
+                            : "All"}
                         </Badge>
                       </div>
                     </TableCell>
@@ -259,24 +252,39 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all", isLoading =
         </Table>
       </div>
 
-      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this revenue record? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {deleteConfirmOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+          <div className="relative bg-background text-foreground w-full max-w-md p-6 rounded-xl shadow-lg">
+            
+            {/* Close Button */}
+            <button
+              onClick={() => setDeleteConfirmOpen(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-black text-2xl font-bold"
+              aria-label="Close"
+            >
+              <X />
+            </button>
+
+            {/* Header */}
+            <div className="space-y-2 mb-4">
+              <h2 className="text-xl font-semibold">Confirm Deletion</h2>
+              <p className="text-muted-foreground">
+                Are you sure you want to delete this revenue record? This action cannot be undone.
+              </p>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-2 mt-6">
+              <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteConfirm}>
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {viewingItem && <RevenueDetails data={viewingItem} isOpen={!!viewingItem} onClose={() => setViewingItem(null)} />}
     </>
