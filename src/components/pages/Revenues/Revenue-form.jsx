@@ -192,7 +192,7 @@ export function RevenueForm({ isOpen, onClose, onSubmit, initialData }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto top-[7%] translate-y-0">
         <DialogHeader>
           <DialogTitle>{initialData ? "Edit Revenue Data" : "Add New Revenue Data"}</DialogTitle>
           <DialogDescription>

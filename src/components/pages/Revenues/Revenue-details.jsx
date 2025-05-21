@@ -16,7 +16,7 @@ export function RevenueDetails({ data, isOpen, onClose }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto top-[7%] translate-y-0">
         <DialogHeader>
           <DialogTitle>Revenue Details</DialogTitle>
           <DialogDescription>Revenue data for {format(parse(data.date, "dd-MM-yyyy", new Date()), "PPP")

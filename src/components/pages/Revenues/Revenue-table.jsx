@@ -1,8 +1,6 @@
 /* eslint-disable react/prop-types */
-"use client"
-
 import { useState } from "react"
-import { Edit, Eye, MoreHorizontal, Trash, ArrowUpDown, ChevronDown } from "lucide-react"
+import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react"
 import { format, parse } from "date-fns"
 import { Button } from "@/components/ui/button"
 import {
@@ -38,7 +36,6 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all", isLoading =
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState(null)
   const [viewingItem, setViewingItem] = useState(null)
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" })
 
   const getSafeRevenue = (item, viewKey, fallbackKey) => {
     if (view === viewKey && item.filteredCategoryRevenue) {
@@ -78,146 +75,25 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all", isLoading =
     }
   }
 
-  const requestSort = (key) => {
-    let direction = "asc"
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc"
-    }
-    setSortConfig({ key, direction })
-  }
-
-  const sortedData = [...data].sort((a, b) => {
-    if (!sortConfig.key) return 0
-
-    let aValue, bValue
-
-    if (sortConfig.key === "date") {
-      aValue = a.date ? parse(a.date, "dd-MM-yyyy", new Date()).getTime() : 0
-      bValue = b.date ? parse(b.date, "dd-MM-yyyy", new Date()).getTime() : 0
-    } else if (sortConfig.key === "room_revenue") {
-      aValue = getSafeRevenue(a, "room", "total_room_revenue")
-      bValue = getSafeRevenue(b, "room", "total_room_revenue")
-    } else if (sortConfig.key === "restaurant_revenue") {
-      aValue = getSafeRevenue(a, "restaurant", "total_restaurant_revenue")
-      bValue = getSafeRevenue(b, "restaurant", "total_restaurant_revenue")
-    } else if (sortConfig.key === "other_revenue") {
-      aValue = getSafeRevenue(a, "other", "total_other_revenue")
-      bValue = getSafeRevenue(b, "other", "total_other_revenue")
-    } else if (sortConfig.key === "nett_revenue") {
-      aValue = a.nett_revenue ?? 0
-      bValue = b.nett_revenue ?? 0
-    } else if (sortConfig.key === "gross_revenue") {
-      aValue = a.gross_revenue ?? 0
-      bValue = b.gross_revenue ?? 0
-    } else if (sortConfig.key === "occupancy") {
-      aValue = a.room_stats?.occupancy ?? 0
-      bValue = b.room_stats?.occupancy ?? 0
-    } else {
-      aValue = a[sortConfig.key]
-      bValue = b[sortConfig.key]
-    }
-
-    if (aValue < bValue) {
-      return sortConfig.direction === "asc" ? -1 : 1
-    }
-    if (aValue > bValue) {
-      return sortConfig.direction === "asc" ? 1 : -1
-    }
-    return 0
-  })
-
-  const getSortIcon = (key) => {
-    if (sortConfig.key !== key) {
-      return <ArrowUpDown className="ml-1 h-4 w-4 opacity-50" />
-    }
-    return sortConfig.direction === "asc" ? (
-      <ChevronDown className="ml-1 h-4 w-4" />
-    ) : (
-      <ChevronDown className="ml-1 h-4 w-4 rotate-180" />
-    )
-  }
-
   return (
     <>
       <div className="rounded-md border shadow-sm overflow-hidden">
         <Table className="mx-2">
           <TableHeader>
             <TableRow className="mx-4">
-              <TableHead className="w-[120px] ">
-                <Button
-                  variant="ghost"
-                  onClick={() => requestSort("date")}
-                  className="flex items-center font-semibold -ml-3"
-                >
-                  Date {getSortIcon("date")}
-                </Button>
-              </TableHead>
+              <TableHead className="w-[120px]">Date</TableHead>
 
-              {(view === "all" || view === "room") && (
-                <TableHead>
-                  <Button
-                    variant="ghost"
-                    onClick={() => requestSort("room_revenue")}
-                    className="flex items-center font-semibold -ml-3"
-                  >
-                    Room Revenue {getSortIcon("room_revenue")}
-                  </Button>
-                </TableHead>
-              )}
+              {(view === "all" || view === "room") && <TableHead>Room Revenue</TableHead>}
 
-              {(view === "all" || view === "restaurant") && (
-                <TableHead>
-                  <Button
-                    variant="ghost"
-                    onClick={() => requestSort("restaurant_revenue")}
-                    className="flex items-center font-semibold -ml-3"
-                  >
-                    Restaurant Revenue {getSortIcon("restaurant_revenue")}
-                  </Button>
-                </TableHead>
-              )}
+              {(view === "all" || view === "restaurant") && <TableHead>Restaurant Revenue</TableHead>}
 
-              {(view === "all" || view === "other") && (
-                <TableHead>
-                  <Button
-                    variant="ghost"
-                    onClick={() => requestSort("other_revenue")}
-                    className="flex items-center font-semibold -ml-3"
-                  >
-                    Other Revenue {getSortIcon("other_revenue")}
-                  </Button>
-                </TableHead>
-              )}
+              {(view === "all" || view === "other") && <TableHead>Other Revenue</TableHead>}
 
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  onClick={() => requestSort("nett_revenue")}
-                  className="flex items-center font-semibold -ml-3"
-                >
-                  Nett Revenue {getSortIcon("nett_revenue")}
-                </Button>
-              </TableHead>
+              <TableHead>Nett Revenue</TableHead>
 
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  onClick={() => requestSort("gross_revenue")}
-                  className="flex items-center font-semibold -ml-3"
-                >
-                  Gross Revenue {getSortIcon("gross_revenue")}
-                </Button>
-              </TableHead>
+              <TableHead>Gross Revenue</TableHead>
 
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  onClick={() => requestSort("occupancy")}
-                  className="flex items-center font-semibold -ml-3"
-                >
-                  Occupancy {getSortIcon("occupancy")}
-                </Button>
-              </TableHead>
+              <TableHead>Occupancy</TableHead>
 
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -260,18 +136,18 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all", isLoading =
                     </TableCell>
                   </TableRow>
                 ))
-            ) : sortedData.length === 0 ? (
+            ) : data.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                     <p className="mb-2 text-lg font-medium">No results found</p>
-                    <p className="text-sm">Try adjusting your filters or adding new revenue data</p>
+                    <p className="text-sm">Try adding new revenue data</p>
                   </div>
                 </TableCell>
               </TableRow>
             ) : (
               <AnimatePresence>
-                {sortedData.map((item, index) => (
+                {data.map((item, index) => (
                   <motion.tr
                     key={item._id}
                     initial={{ opacity: 0, y: 10 }}
@@ -291,10 +167,10 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all", isLoading =
                           {view === "room"
                             ? "Room"
                             : view === "restaurant"
-                              ? "Restaurant"
-                              : view === "other"
-                                ? "Other"
-                                : "All Revenue"}
+                            ? "Restaurant"
+                            : view === "other"
+                            ? "Other"
+                            : "All Revenue"}
                         </Badge>
                       </div>
                     </TableCell>
