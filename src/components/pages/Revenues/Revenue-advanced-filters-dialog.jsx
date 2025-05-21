@@ -26,7 +26,7 @@ export function RevenueAdvancedFiltersDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] ">
         <DialogHeader>
           <DialogTitle>Advanced Filters</DialogTitle>
           <DialogDescription>Set additional filters to refine your revenue data.</DialogDescription>
