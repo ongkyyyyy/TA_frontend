@@ -118,7 +118,7 @@ export default function ReviewsWithFilters() {
   return (
     <div className="container mx-auto py-6 ">
       <h1 className="text-3xl font-bold mb-2">Customer Reviews and Sentiments</h1>
-       <h2 className="text-sm text-muted-foreground mt-2">Browse and search through guest feedback</h2>
+       <h2 className="text-sm text-muted-foreground mt-2">Browse and search through guest feedback.</h2>
        <Separator className="my-6"/>
       <div className="mb-8" >
         <ScrapePage onScrapeComplete={() => {
@@ -131,7 +131,7 @@ export default function ReviewsWithFilters() {
         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
-          placeholder="Search by guest name, hotel, comment or OTA..."
+          placeholder="Search by guest name, hotel, comment or OTA"
           className="pl-10 py-6 pr-4 rounded-xl"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}

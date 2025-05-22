@@ -175,7 +175,7 @@ export default function RevenuePage() {
         <div className="mb-6">
           <CardTitle className="text-3xl font-bold">Hotel Revenues Management</CardTitle>
           <CardDescription className="mt-2">
-            Manage and analyze revenue data across all hotel properties
+            Manage and analyze revenue data across all hotel properties.
           </CardDescription>
         </div>
 

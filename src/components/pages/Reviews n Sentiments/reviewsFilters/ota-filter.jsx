@@ -43,7 +43,7 @@ export function OtaFilter({ onFilterChange, resetSignal}) {
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search OTA..." />
+          <CommandInput placeholder="Search OTA" />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>

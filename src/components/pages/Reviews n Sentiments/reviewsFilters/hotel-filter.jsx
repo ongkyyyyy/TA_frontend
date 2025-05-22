@@ -66,7 +66,7 @@ export function HotelFilter({ onFilterChange, resetSignal }) {
       </PopoverTrigger>
       <PopoverContent className="w-[250px] p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search hotels..." />
+          <CommandInput placeholder="Search hotels" />
           <CommandList className="max-h-[300px]">
             <CommandEmpty>No hotels found.</CommandEmpty>
             <CommandGroup>

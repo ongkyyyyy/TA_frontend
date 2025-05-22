@@ -83,7 +83,7 @@ export default function ScrapePage({ onScrapeComplete }) {
                 <div className="mt-1.5 relative">
                   <Select value={hotelId} onValueChange={setHotelId} disabled={hotelsLoading}>
                     <SelectTrigger id="hotel-select" className="w-full">
-                      <SelectValue placeholder={hotelsLoading ? "Loading hotels..." : "-- Select a Hotel --"} />
+                      <SelectValue placeholder={hotelsLoading ? "Loading hotels" : "Hotel name"} />
                     </SelectTrigger>
                     <SelectContent>
                       {hotels.map((hotel) => (

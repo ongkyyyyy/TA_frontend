@@ -72,7 +72,7 @@ export function HotelAnalyticsHeader({
           <h2 className="text-sm text-muted-foreground mt-2">
             Showing data for:{" "}
             <span className="font-medium">
-              {hotelName} ({displayYear})
+              {hotelName} ({displayYear}).
             </span>
           </h2>
         </div>

@@ -9,7 +9,7 @@ export default function SearchBar({ searchTerm, setSearchTerm, onClear }) {
       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
       <Input
         type="text"
-        placeholder="Search hotels..."
+        placeholder="Search hotels"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="pl-9 pr-10"
