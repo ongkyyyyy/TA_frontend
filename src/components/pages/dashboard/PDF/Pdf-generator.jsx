@@ -14,12 +14,6 @@ const COLORS = {
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-/**
- * @param {string} hotelName 
- * @param {string|number} year 
- * @param {string} activeTab 
- * @returns {Promise<boolean>} 
- */
 export const generatePDF = async (hotelName, year, activeTab) => {
   try {
     const pdf = new jsPDF({
@@ -130,10 +124,6 @@ export const generatePDF = async (hotelName, year, activeTab) => {
   }
 }
 
-/**
- * @param {Element} chartElement 
- * @returns {Promise<string|null>} 
- */
 const captureChart = async (chartElement) => {
   try {
     const rect = chartElement.getBoundingClientRect()
@@ -393,11 +383,6 @@ const getChartTitle = (index, activeTab) => {
   }
 }
 
-/**
- * @param {number} index 
- * @param {string} activeTab 
- * @returns {string}
- */
 const getChartDescription = (index, activeTab) => {
   if (activeTab === "single") {
     const singleAnalysisDescriptions = [

@@ -46,7 +46,7 @@ export function SentimentDistribution({ data, isLoading = false }) {
                 {summary.total_positive_sentiment} ({positivePercentage.toFixed(1)}%)
               </span>
             </div>
-            <Progress value={positivePercentage} className="h-3 bg-gray-100" indicatorClassName="bg-green-500" />
+            <Progress value={positivePercentage} className="h-3 bg-gray-100"  />
           </div>
 
           <div>
@@ -56,7 +56,7 @@ export function SentimentDistribution({ data, isLoading = false }) {
                 {summary.total_neutral_sentiment} ({neutralPercentage.toFixed(1)}%)
               </span>
             </div>
-            <Progress value={neutralPercentage} className="h-3 bg-gray-100" indicatorClassName="bg-amber-500" />
+            <Progress value={neutralPercentage} className="h-3 bg-gray-100" />
           </div>
 
           <div>
@@ -66,7 +66,7 @@ export function SentimentDistribution({ data, isLoading = false }) {
                 {summary.total_negative_sentiment} ({negativePercentage.toFixed(1)}%)
               </span>
             </div>
-            <Progress value={negativePercentage} className="h-3 bg-gray-100" indicatorClassName="bg-red-500" />
+            <Progress value={negativePercentage} className="h-3 bg-gray-100" />
           </div>
         </div>
       </CardContent>

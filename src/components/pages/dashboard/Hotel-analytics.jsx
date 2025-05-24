@@ -128,7 +128,6 @@ export default function HotelAnalyticsDashboard() {
 
       <div className="space-y-6">
         <SummaryOverview data={data} isLoading={isLoading} />
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="col-span-1 md:col-span-2">
             <MonthlyHighlights data={data} isLoading={isLoading} />
@@ -136,7 +135,7 @@ export default function HotelAnalyticsDashboard() {
           <GrowthMetrics data={data} isLoading={isLoading} />
           <SentimentDistribution data={data} isLoading={isLoading} />
         </div>
-      </div>
+      </div> 
 
       {hasNoRevenueData && !showPlaceholder && (
         <Alert className="mb-6 border-amber-200 bg-amber-50">

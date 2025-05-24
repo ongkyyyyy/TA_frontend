@@ -1,28 +1,8 @@
 import useAxios from './index.jsx';
 
-export const getScrapeLog = async ({
-  page = 1,
-  limit = 15,
-  ota,
-  status,
-  startDate,
-  endDate,
-} = {}) => {
+export const getScrapeLog = async ({ page = 1, limit = 15 } = {}) => {
   try {
     const params = { page, limit };
-
-    if (ota) {
-      params.ota = ota;
-    }
-    if (status) {
-      params.status = status;
-    }
-    if (startDate) {
-      params.start_date = startDate; 
-    }
-    if (endDate) {
-      params.end_date = endDate; 
-    }
 
     const token = localStorage.getItem("token");
 
@@ -33,6 +13,7 @@ export const getScrapeLog = async ({
       },
       params,
     });
+
     return response.data;
   } catch (error) {
     console.error('Error fetching scrape logs data:', error);
