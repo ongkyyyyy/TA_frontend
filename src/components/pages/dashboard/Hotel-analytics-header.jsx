@@ -23,6 +23,7 @@ export function HotelAnalyticsHeader({
   onYearChange,
   activeTab,
   onResetFilters,
+  data
 }) {
   const [years, setYears] = useState([])
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -137,6 +138,7 @@ export function HotelAnalyticsHeader({
             hotelName={hotelName}
             year={year}
             activeTab={activeTab}
+            data={data}
           />
         </div>
       </div>

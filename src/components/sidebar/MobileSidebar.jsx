@@ -1,14 +1,12 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import { CgClose } from "react-icons/cg";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import menuItems from "./menuItems";
-import { logoutUser } from "@/api/apiUser";
 
-function MobileSidebar({ mobileSidebar, toggleMobileSidebar }) {
+function MobileSidebar({ mobileSidebar, toggleMobileSidebar, setConfirmLogout }) {
   const [openMenus, setOpenMenus] = useState({});
-  const navigate = useNavigate();
 
   const toggleMenu = (name) => {
     setOpenMenus((prev) => ({ ...prev, [name]: !prev[name] }));
@@ -38,9 +36,8 @@ function MobileSidebar({ mobileSidebar, toggleMobileSidebar }) {
                 {name === "Log Out" ? (
                   <button
                     onClick={() => {
-                      logoutUser();
                       toggleMobileSidebar();
-                      navigate("/login");
+                      setConfirmLogout(true);
                     }}
                     className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition rounded-lg"
                   >
@@ -73,6 +70,7 @@ function MobileSidebar({ mobileSidebar, toggleMobileSidebar }) {
                     <li key={subItem.name}>
                       <Link
                         to={subItem.route}
+                        onClick={toggleMobileSidebar}
                         className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 transition"
                       >
                         <ChevronRight className="h-4 w-4 text-primary" />

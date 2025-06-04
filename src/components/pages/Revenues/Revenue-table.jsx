@@ -126,7 +126,7 @@ export function RevenueTable({ data, onEdit, onDelete, view = "all", isLoading =
           >
             <TableCell className="text-center">
               <div className="flex flex-col items-center">
-                <span>{format(parse(item.date, "dd-MM-yyyy", new Date()), "dd MMM")}</span>
+                <span>{format(parse(item.date, "dd-MM-yyyy", new Date()), "dd MMMM yyyy")}</span>
                 <Badge variant="outline" className={`mt-1 text-[10px] ${categoryColors[view]}`}>
                   {view === "room"
                     ? "Room"

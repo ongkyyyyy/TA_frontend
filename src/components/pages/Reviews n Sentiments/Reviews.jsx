@@ -51,8 +51,8 @@ export default function ReviewsWithFilters() {
   const formatDate = (dateString) => {
     const [day, month, year] = dateString.split("-")
     const date = new Date(`${year}-${month}-${day}`)
-    return new Intl.DateTimeFormat("en-US", {
-      day: "numeric",
+    return new Intl.DateTimeFormat("en-GB", {
+      day: "2-digit",
       month: "long",
       year: "numeric",
     }).format(date)

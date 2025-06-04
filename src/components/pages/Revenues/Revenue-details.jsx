@@ -30,7 +30,7 @@ export function RevenueDetails({ data, isOpen, onClose }) {
         <div className="px-6 pt-6 pb-2">
           <h2 className="text-xl font-semibold">Revenue Details</h2>
           <p className="text-sm text-muted-foreground">
-            Revenue data for {format(parse(data.date, "dd-MM-yyyy", new Date()), "PPP")}
+            Revenue data for {format(parse(data.date, "dd-MM-yyyy", new Date()), "dd MMMM yyyy")}
           </p>
         </div>
 
@@ -40,16 +40,16 @@ export function RevenueDetails({ data, isOpen, onClose }) {
           <Tabs defaultValue="summary" className="pt-4">
             <TabsList className="grid grid-cols-4 mb-2">
               <TabsTrigger value="summary">Summary</TabsTrigger>
-              <TabsTrigger value="room">Room Details</TabsTrigger>
+              <TabsTrigger value="room">Room</TabsTrigger>
               <TabsTrigger value="restaurant">Restaurant</TabsTrigger>
-              <TabsTrigger value="other">Other Revenue</TabsTrigger>
+              <TabsTrigger value="other">Other</TabsTrigger>
             </TabsList>
 
             <TabsContent value="summary" className="space-y-4">
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">Date</p>
-                  <p className="text-lg">{format(parse(data.date, "dd-MM-yyyy", new Date()), "PPP")}</p>
+                  <p className="text-lg">{format(parse(data.date, "dd-MM-yyyy", new Date()), "dd MMMM yyyy")}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">Hotel Name</p>

@@ -155,13 +155,6 @@ const captureChart = async (chartElement) => {
   }
 }
 
-/**
- * @param {jsPDF} pdf
- * @param {string} hotelName
- * @param {string|number} year 
- * @param {string} activeTab 
- * @returns {Promise<void>}
- */
 const addCoverPage = async (pdf, hotelName, year, activeTab) => {
   const pageWidth = pdf.internal.pageSize.getWidth()
   const pageHeight = pdf.internal.pageSize.getHeight()
@@ -250,11 +243,6 @@ const addCoverPage = async (pdf, hotelName, year, activeTab) => {
   pdf.text(confidentialText, confidentialX, pageHeight - 30)
 }
 
-/**
- * @param {jsPDF} pdf 
- * @param {number} chartCount 
- * @param {string} activeTab 
- */
 const addTableOfContents = (pdf, chartCount, activeTab) => {
   pdf.addPage()
 
@@ -293,11 +281,6 @@ const addTableOfContents = (pdf, chartCount, activeTab) => {
   addFooter(pdf, 2)
 }
 
-/**
- * @param {jsPDF} pdf 
- * @param {string} hotelName 
- * @param {string|number} year 
- */
 const addHeader = (pdf, hotelName, year) => {
   const pageWidth = pdf.internal.pageSize.getWidth()
 
@@ -320,10 +303,6 @@ const addHeader = (pdf, hotelName, year) => {
   pdf.line(10, 20, pageWidth - 10, 20)
 }
 
-/**
- * @param {jsPDF} pdf 
- * @param {number} pageNumber 
- */
 const addFooter = (pdf, pageNumber) => {
   const pageWidth = pdf.internal.pageSize.getWidth()
   const pageHeight = pdf.internal.pageSize.getHeight()
@@ -346,21 +325,12 @@ const addFooter = (pdf, pageNumber) => {
   pdf.text("Confidential", pageWidth - 20, pageHeight - 10, { align: "right" })
 }
 
-/**
- * @param {jsPDF} pdf 
- * @param {number} yPosition
- */
 const addSectionDivider = (pdf, yPosition) => {
   pdf.setDrawColor(COLORS.accent.r, COLORS.accent.g, COLORS.accent.b)
   pdf.setLineWidth(0.3)
   pdf.line(20, yPosition, 60, yPosition)
 }
 
-/**
- * @param {number} index 
- * @param {string} activeTab 
- * @returns {string}
- */
 const getChartTitle = (index, activeTab) => {
   if (activeTab === "revenue") {
     const revenueTitles = [
@@ -400,4 +370,6 @@ const getChartDescription = (index, activeTab) => {
     return hybridAnalysisDescriptions[index % hybridAnalysisDescriptions.length]
   }
 }
+
+
 

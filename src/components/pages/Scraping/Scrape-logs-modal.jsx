@@ -89,7 +89,7 @@ export default function ScrapeLogsModal({ open, onOpenChange }) {
                       <div className="flex justify-between mb-1">
                         <span className="font-medium">{log.ota || "Unknown Source"}</span>
                         <span className="text-sm text-gray-500">
-                          {log.timestamp?.$date ? new Date(log.timestamp.$date).toLocaleString() : "Unknown Time"}
+                          {log.timestamp ? new Date(log.timestamp).toLocaleString() : "Unknown Time"}
                         </span>
                       </div>
                       <div className="bg-gray-50 p-3 rounded-md">

@@ -44,7 +44,7 @@ export const getRevenues = async ({
       },
       params,
     });
-
+    console.log('Revenues data fetched:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching revenues data:', error);

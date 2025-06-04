@@ -1,15 +1,15 @@
 import useAxios from './index.jsx';
 
-export const getHotels = async (page = 1, limit = 15) => {
+export const getHotels = async (page = 1, limit = 15, searchTerm = "") => {
   try {
-    const token = localStorage.getItem("token"); 
+    const token = localStorage.getItem("token");
 
     const response = await useAxios.get('/hotels', {
-      params: { page, limit },
-      headers: { 
+      params: { page, limit, q: searchTerm || undefined },
+      headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`, 
-       },
+        'Authorization': `Bearer ${token}`,
+      },
     });
 
     return response.data;
@@ -33,24 +33,6 @@ export const getHotelsDropdown = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching hotels data:', error);
-    throw error;
-  }
-};
-
-export const searchHotels = async (searchTerm, page = 1, limit = 15) => {
-  try {
-    const token = localStorage.getItem("token"); 
-
-    const response = await useAxios.get('/hotels/search', {
-      params: { q: searchTerm, page, limit },
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`, 
-       },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error searching hotels:', error);
     throw error;
   }
 };

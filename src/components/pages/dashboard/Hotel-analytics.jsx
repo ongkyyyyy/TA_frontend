@@ -124,6 +124,7 @@ export default function HotelAnalyticsDashboard() {
         activeTab={activeTab}
         resetSignal={resetFilters}
         onResetFilters={resetAllFilters}
+        data={data}
       />
 
       <div className="space-y-6">

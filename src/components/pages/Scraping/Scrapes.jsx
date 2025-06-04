@@ -60,7 +60,7 @@ export default function ScrapePage({ onScrapeComplete }) {
       <CardHeader className="pb-0 justify-between">
         <CardTitle className="flex items-center gap-2 text-2xl">
           <Search className="h-6 w-6" />
-          <h1 className="text-2xl font-bold">Review Scraper Dashboard</h1>
+          <h1 className="text-2xl font-bold">Review Scraper</h1>
            <Button
             variant="outline"
             size="sm"

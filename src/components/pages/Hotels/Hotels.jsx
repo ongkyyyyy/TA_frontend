@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from "../../ui/pagination"
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { getHotels, deleteHotel, searchHotels } from "@/api/apiHotels"
+import { getHotels, deleteHotel} from "@/api/apiHotels"
 import HotelsList from "./hotels-list"
 import HotelForm from "./hotel-form"
 import SearchBar from "./hotel-search"
@@ -26,33 +26,27 @@ export default function Hotels() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalHotels, setTotalHotels] = useState(0)
   const HOTELS_PER_PAGE = 15
+  const [isSearching, setIsSearching] = useState(false);
 
-  const fetchHotels = useCallback(async (page = 1, silent = false) => {
-    if (typeof page !== "number") {
-      console.warn("fetchHotels received invalid page value:", page)
-      page = 1
-    }
+  const fetchHotels = useCallback(async (page = 1, silent = false, term = "", searching = false) => {
+    if (!silent && !searching) setIsLoading(true);
+    if (searching) setIsSearching(true);
+    setError(null);
 
-    if (!silent) {
-      setIsLoading(true)
-    }
-
-    setError(null)
     try {
-      const res = await getHotels(page, HOTELS_PER_PAGE)
-      setFilteredHotels(res.data)
-      setTotalHotels(res.total)
-      setCurrentPage(res.page)
+      const res = await getHotels(page, HOTELS_PER_PAGE, term);
+      setFilteredHotels(res.data);
+      setTotalHotels(res.total);
+      setCurrentPage(res.page);
     } catch (error) {
-      console.log(error)
-      setError("Failed to fetch hotels. Please try again later.")
-      toast.error("Failed to fetch hotels. Please try again later.")
+      console.log(error);
+      setError("Failed to fetch hotels. Please try again later.");
+      toast.error("Failed to fetch hotels. Please try again later.");
     } finally {
-      if (!silent) {
-        setIsLoading(false)
-      }
+      if (!silent && !searching) setIsLoading(false);
+      if (searching) setIsSearching(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     fetchHotels()
@@ -61,32 +55,19 @@ export default function Hotels() {
   const debouncedSearch = useMemo(
     () =>
       debounce((term, page = 1) => {
-        if (term.trim() !== "") {
-          searchHotels(term, page, HOTELS_PER_PAGE)
-            .then((res) => {
-              setFilteredHotels(res.data)
-              setTotalHotels(res.total)
-              setCurrentPage(res.page)
-            })
-            .catch((error) => {
-              console.error(error)
-              toast.error("Failed to search hotels.")
-            })
-        } else {
-          fetchHotels(page)
-        }
+        fetchHotels(page, false, term, true);
       }, 500),
-    [fetchHotels],
-  )
+    [fetchHotels]
+  );
 
   useEffect(() => {
-    if (searchTerm.trim() !== "") {
-      debouncedSearch(searchTerm, currentPage)
-    } else {
-      fetchHotels(currentPage)
-    }
-    return () => debouncedSearch.cancel()
-  }, [searchTerm, currentPage])
+  setCurrentPage(1);
+}, [searchTerm]);
+
+  useEffect(() => {
+    debouncedSearch(searchTerm, currentPage);
+    return () => debouncedSearch.cancel();
+  }, [searchTerm, currentPage]);
 
   const handleAddHotel = () => {
     setSelectedHotel(null)
@@ -139,7 +120,7 @@ export default function Hotels() {
   return (
     <div className="space-y-6 py-6">
       <div>
-        <CardTitle className="text-3xl font-bold">Hotel Revenues Management</CardTitle>
+        <CardTitle className="text-3xl font-bold">Hotels Management</CardTitle>
         <CardDescription className="mt-2">
           Manage hotel names, locations, and OTA links efficiently in one place.
         </CardDescription>
@@ -148,6 +129,7 @@ export default function Hotels() {
       <Separator />
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <SearchBar setSearchTerm={setSearchTerm} searchTerm={searchTerm} onClear={handleClearSearch} />
+        {isSearching && <span className="text-muted-foreground text-sm"></span>}
         <div className="flex gap-2">
           <Button onClick={handleAddHotel} className="flex items-center gap-2">
             <PlusCircle className="h-4 w-4" />

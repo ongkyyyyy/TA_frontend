@@ -5,14 +5,14 @@ import { Download, Loader2 } from "lucide-react"
 import { generatePDF } from "./Pdf-generator"
 import { toast } from "react-toastify"
 
-export function PDFButton({ hotelName, year, activeTab }) {
+export function PDFButton({ hotelName, year, activeTab, data}) {
   const [isGenerating, setIsGenerating] = useState(false)
 
   const handleDownload = async () => {
     setIsGenerating(true)
 
     try {
-      const success = await generatePDF(hotelName, year, activeTab)
+      const success = await generatePDF(hotelName, year, activeTab, data)
 
       if (success) {
         toast.success("PDF generated successfully! Your analytics report has been downloaded.")
