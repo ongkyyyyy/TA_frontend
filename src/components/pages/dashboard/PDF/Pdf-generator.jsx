@@ -4,17 +4,15 @@ import { format } from "date-fns"
 import "jspdf/dist/polyfills.es.js"
 
 const COLORS = {
-  primary: { r: 41, g: 128, b: 185 }, 
-  secondary: { r: 44, g: 62, b: 80 }, 
-  accent: { r: 26, g: 188, b: 156 }, 
-  light: { r: 236, g: 240, b: 241 }, 
-  dark: { r: 52, g: 73, b: 94 }, 
-  white: { r: 255, g: 255, b: 255 }, 
+  primary: { r: 41, g: 128, b: 185 },
+  secondary: { r: 44, g: 62, b: 80 },
+  accent: { r: 26, g: 188, b: 156 },
+  light: { r: 236, g: 240, b: 241 },
+  dark: { r: 52, g: 73, b: 94 },
+  white: { r: 255, g: 255, b: 255 },
 }
 
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-
-export const generatePDF = async (hotelName, year, activeTab) => {
+export const generatePDF = async (hotelName, year, data) => {
   try {
     const pdf = new jsPDF({
       orientation: "portrait",
@@ -31,18 +29,9 @@ export const generatePDF = async (hotelName, year, activeTab) => {
       creator: "Hotel Analytics System",
     })
 
-    await addCoverPage(pdf, hotelName, year, activeTab)
+    await addCoverPage(pdf, hotelName, year)
 
-    const tabsContent = document.querySelectorAll('[role="tabpanel"]')
-    const originalDisplay = []
-
-    tabsContent.forEach((el, i) => {
-      originalDisplay[i] = el.style.display
-      el.style.display = "block"
-    })
-
-    await wait(800)
-
+    // Make sure all charts are visible for capture
     const chartElements = document.querySelectorAll(".recharts-wrapper")
 
     if (chartElements.length === 0) {
@@ -50,10 +39,15 @@ export const generatePDF = async (hotelName, year, activeTab) => {
       throw new Error("No charts found to export.")
     }
 
-    addTableOfContents(pdf, chartElements.length, activeTab)
+    addTableOfContents(pdf, chartElements.length)
+
+    // Add summary page
+    if (data && data.summary) {
+      addSummaryPage(pdf, hotelName, year, data.summary)
+    }
 
     let yPosition = 40
-    let pageCount = 3 
+    let pageCount = 4 // Updated to account for cover, TOC, and summary pages
 
     pdf.addPage()
     addHeader(pdf, hotelName, year)
@@ -80,7 +74,7 @@ export const generatePDF = async (hotelName, year, activeTab) => {
         addSectionDivider(pdf, yPosition - 5)
         yPosition += 5
 
-        const chartTitle = getChartTitle(i, activeTab)
+        const chartTitle = getChartTitle(i)
         pdf.setFont("helvetica", "bold")
         pdf.setFontSize(14)
         pdf.setTextColor(COLORS.secondary.r, COLORS.secondary.g, COLORS.secondary.b)
@@ -90,7 +84,7 @@ export const generatePDF = async (hotelName, year, activeTab) => {
         pdf.addImage(dataUrl, "PNG", 20, yPosition, pdfWidth, imgHeight)
         yPosition += imgHeight + 5
 
-        const description = getChartDescription(i, activeTab)
+        const description = getChartDescription(i)
         pdf.setFont("helvetica", "normal")
         pdf.setFontSize(10)
         pdf.setTextColor(COLORS.dark.r, COLORS.dark.g, COLORS.dark.b)
@@ -104,10 +98,6 @@ export const generatePDF = async (hotelName, year, activeTab) => {
         console.error(`Failed to add chart ${i + 1}`, err)
       }
     }
-
-    tabsContent.forEach((el, i) => {
-      el.style.display = originalDisplay[i]
-    })
 
     try {
       const formattedDate = format(new Date(), "yyyy-MM-dd")
@@ -124,6 +114,171 @@ export const generatePDF = async (hotelName, year, activeTab) => {
   }
 }
 
+const addSummaryPage = (pdf, hotelName, year, summary) => {
+  pdf.addPage()
+  addHeader(pdf, hotelName, year)
+
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  let yPos = 40
+
+  // Title
+  pdf.setFont("helvetica", "bold")
+  pdf.setFontSize(18)
+  pdf.setTextColor(COLORS.secondary.r, COLORS.secondary.g, COLORS.secondary.b)
+  pdf.text("EXECUTIVE SUMMARY", 20, yPos)
+  yPos += 15
+
+  // Divider
+  pdf.setDrawColor(COLORS.accent.r, COLORS.accent.g, COLORS.accent.b)
+  pdf.setLineWidth(1)
+  pdf.line(20, yPos, pageWidth - 20, yPos)
+  yPos += 15
+
+  // Key Metrics Section
+  pdf.setFont("helvetica", "bold")
+  pdf.setFontSize(14)
+  pdf.setTextColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
+  pdf.text("Key Performance Metrics", 20, yPos)
+  yPos += 12
+
+  // Revenue Metrics
+  addMetricBox(pdf, 20, yPos, 80, 25, "Total Revenue", `$${formatNumber(summary.total_revenue)}`, COLORS.primary)
+  addMetricBox(
+    pdf,
+    110,
+    yPos,
+    80,
+    25,
+    "Avg Monthly Revenue",
+    `$${formatNumber(summary.avg_monthly_revenue)}`,
+    COLORS.accent,
+  )
+  yPos += 35
+
+  addMetricBox(
+    pdf,
+    20,
+    yPos,
+    80,
+    25,
+    "Active Revenue Months",
+    summary.active_revenue_months.toString(),
+    COLORS.secondary,
+  )
+  addMetricBox(pdf, 110, yPos, 80, 25, "Total Reviews", summary.total_reviews.toString(), COLORS.dark)
+  yPos += 40
+
+  // Best/Worst Performance
+  pdf.setFont("helvetica", "bold")
+  pdf.setFontSize(14)
+  pdf.setTextColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
+  pdf.text("Performance Highlights", 20, yPos)
+  yPos += 12
+
+  // Best Month
+  pdf.setFont("helvetica", "bold")
+  pdf.setFontSize(11)
+  pdf.setTextColor(COLORS.secondary.r, COLORS.secondary.g, COLORS.secondary.b)
+  pdf.text("Best Revenue Month:", 20, yPos)
+  pdf.setFont("helvetica", "normal")
+  pdf.text(`${summary.best_month.month} - $${formatNumber(summary.best_month.revenue)}`, 70, yPos)
+  yPos += 8
+
+  // Worst Month
+  pdf.setFont("helvetica", "bold")
+  pdf.text("Lowest Revenue Month:", 20, yPos)
+  pdf.setFont("helvetica", "normal")
+  pdf.text(`${summary.worst_month.month} - $${formatNumber(summary.worst_month.revenue)}`, 70, yPos)
+  yPos += 15
+
+  // Sentiment Analysis
+  pdf.setFont("helvetica", "bold")
+  pdf.setFontSize(14)
+  pdf.setTextColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
+  pdf.text("Sentiment Analysis", 20, yPos)
+  yPos += 12
+
+  // Sentiment Metrics
+  addMetricBox(pdf, 20, yPos, 50, 20, "Positive", summary.total_positive_sentiment.toString(), {
+    r: 46,
+    g: 204,
+    b: 113,
+  })
+  addMetricBox(pdf, 75, yPos, 50, 20, "Neutral", summary.total_neutral_sentiment.toString(), { r: 241, g: 196, b: 15 })
+  addMetricBox(pdf, 130, yPos, 50, 20, "Negative", summary.total_negative_sentiment.toString(), {
+    r: 231,
+    g: 76,
+    b: 60,
+  })
+  yPos += 30
+
+  pdf.setFont("helvetica", "normal")
+  pdf.setFontSize(10)
+  pdf.setTextColor(COLORS.dark.r, COLORS.dark.g, COLORS.dark.b)
+  pdf.text(`Average Sentiment Score: ${summary.avg_sentiment_score}%`, 20, yPos)
+  yPos += 6
+  pdf.text(`Latest Sentiment Score: ${summary.latest_sentiment_score}%`, 20, yPos)
+  yPos += 6
+  pdf.text(`Positive/Negative Ratio: ${summary.positive_negative_ratio}:1`, 20, yPos)
+  yPos += 15
+
+  // Best Sentiment Month
+  pdf.setFont("helvetica", "bold")
+  pdf.setFontSize(11)
+  pdf.setTextColor(COLORS.secondary.r, COLORS.secondary.g, COLORS.secondary.b)
+  pdf.text("Best Sentiment Month:", 20, yPos)
+  pdf.setFont("helvetica", "normal")
+  pdf.text(`${summary.best_sentiment_month.month} (${summary.best_sentiment_month.score}%)`, 70, yPos)
+  yPos += 8
+
+  pdf.setFont("helvetica", "bold")
+  pdf.text("Worst Sentiment Month:", 20, yPos)
+  pdf.setFont("helvetica", "normal")
+  pdf.text(`${summary.worst_sentiment_month.month} (${summary.worst_sentiment_month.score}%)`, 70, yPos)
+
+  addFooter(pdf, 3)
+}
+
+const addMetricBox = (pdf, x, y, width, height, label, value, color) => {
+  // Background with lighter shade (no alpha needed)
+  const lightColor = {
+    r: Math.min(255, color.r + 200),
+    g: Math.min(255, color.g + 200),
+    b: Math.min(255, color.b + 200),
+  }
+
+  pdf.setFillColor(lightColor.r, lightColor.g, lightColor.b)
+  pdf.roundedRect(x, y, width, height, 2, 2, "F")
+
+  // Border
+  pdf.setDrawColor(color.r, color.g, color.b)
+  pdf.setLineWidth(0.5)
+  pdf.roundedRect(x, y, width, height, 2, 2, "S")
+
+  // Label
+  pdf.setFont("helvetica", "normal")
+  pdf.setFontSize(9)
+  pdf.setTextColor(COLORS.dark.r, COLORS.dark.g, COLORS.dark.b)
+  pdf.text(label, x + 3, y + 8)
+
+  // Value
+  pdf.setFont("helvetica", "bold")
+  pdf.setFontSize(12)
+  pdf.setTextColor(color.r, color.g, color.b)
+  pdf.text(value, x + 3, y + 18)
+}
+
+const formatNumber = (num) => {
+  if (num >= 1000000000) {
+    return (num / 1000000000).toFixed(2) + "B"
+  } else if (num >= 1000000) {
+    return (num / 1000000).toFixed(2) + "M"
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(2) + "K"
+  }
+  return num.toFixed(2)
+}
+
 const captureChart = async (chartElement) => {
   try {
     const rect = chartElement.getBoundingClientRect()
@@ -133,15 +288,15 @@ const captureChart = async (chartElement) => {
     }
 
     const canvas = await html2canvas(chartElement, {
-      scale: 3, 
+      scale: 3,
       useCORS: true,
       backgroundColor: "#ffffff",
       logging: false,
       allowTaint: false,
-      imageTimeout: 15000, 
+      imageTimeout: 15000,
     })
 
-    const dataUrl = canvas.toDataURL("image/png", 0.95) 
+    const dataUrl = canvas.toDataURL("image/png", 0.95)
 
     if (!dataUrl.startsWith("data:image/png")) {
       console.warn("Invalid PNG data generated.")
@@ -155,7 +310,7 @@ const captureChart = async (chartElement) => {
   }
 }
 
-const addCoverPage = async (pdf, hotelName, year, activeTab) => {
+const addCoverPage = async (pdf, hotelName, year) => {
   const pageWidth = pdf.internal.pageSize.getWidth()
   const pageHeight = pdf.internal.pageSize.getHeight()
 
@@ -209,7 +364,7 @@ const addCoverPage = async (pdf, hotelName, year, activeTab) => {
   pdf.setFont("helvetica", "normal")
   pdf.setFontSize(18)
   pdf.setTextColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
-  const subtitle = `${activeTab === "single" ? "Single" : "Hybrid"} Analysis`
+  const subtitle = "Revenue & Sentiment Analysis"
   const subtitleWidth = (pdf.getStringUnitWidth(subtitle) * 18) / pdf.internal.scaleFactor
   const subtitleX = (pageWidth - subtitleWidth) / 2
   pdf.text(subtitle, subtitleX, 145)
@@ -243,10 +398,18 @@ const addCoverPage = async (pdf, hotelName, year, activeTab) => {
   pdf.text(confidentialText, confidentialX, pageHeight - 30)
 }
 
-const addTableOfContents = (pdf, chartCount, activeTab) => {
+const addTableOfContents = (pdf, chartCount) => {
   pdf.addPage()
 
   const pageWidth = pdf.internal.pageSize.getWidth()
+
+  // Calculate page numbers based on content
+  const summaryPageNumber = 3
+  const firstChartPageNumber = summaryPageNumber + 1
+
+  // Estimate how many pages the charts will take (assuming ~2 charts per page)
+  const chartPagesEstimate = Math.ceil(chartCount / 2)
+  const correlationChartsStartPage = firstChartPageNumber + Math.min(3, chartPagesEstimate)
 
   pdf.setFillColor(COLORS.light.r, COLORS.light.g, COLORS.light.b)
   pdf.rect(0, 0, pageWidth, 20, "F")
@@ -254,7 +417,7 @@ const addTableOfContents = (pdf, chartCount, activeTab) => {
   pdf.setFont("helvetica", "bold")
   pdf.setFontSize(16)
   pdf.setTextColor(COLORS.secondary.r, COLORS.secondary.g, COLORS.secondary.b)
-  pdf.text("CHARTS LIST", 20, 15)
+  pdf.text("TABLE OF CONTENTS", 20, 15)
 
   pdf.setDrawColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
   pdf.setLineWidth(0.5)
@@ -266,17 +429,41 @@ const addTableOfContents = (pdf, chartCount, activeTab) => {
 
   let yPos = 40
 
+  // Summary Section
   pdf.setFont("helvetica", "bold")
-  pdf.text(`${activeTab === "revenue" ? "Revenue" : "Sentiment"} Analysis Charts`, 20, yPos)
+  pdf.text("Executive Summary", 20, yPos)
+  pdf.text(summaryPageNumber.toString(), 180, yPos, { align: "right" })
+  yPos += 20
+
+  // Charts Section
+  pdf.setFont("helvetica", "bold")
+  pdf.text("Performance and Trends", 20, yPos)
+  pdf.text(firstChartPageNumber.toString(), 180, yPos, { align: "right" })
   yPos += 15
 
-  for (let i = 0; i < chartCount; i++) {
-    const chartTitle = getChartTitle(i, activeTab)
-    pdf.setFont("helvetica", "normal")
-    pdf.text(`${i + 1}. ${chartTitle}`, 30, yPos)
-    pdf.text(`${i + 3}`, 180, yPos, { align: "right" })
-    yPos += 10
-  }
+  pdf.setFont("helvetica", "normal")
+  pdf.text("1. Monthly Revenue Trends", 30, yPos)
+  yPos += 10
+
+  pdf.text("2. Sentiment Ratios", 30, yPos)
+  yPos += 10
+
+  pdf.text("3. Composite Sentiment Index", 30, yPos)
+  yPos += 15
+
+  pdf.setFont("helvetica", "bold")
+  pdf.text("Performance Correlations", 20, yPos)
+  pdf.text(correlationChartsStartPage.toString(), 180, yPos, { align: "right" })
+  yPos += 15
+
+  pdf.setFont("helvetica", "normal")
+  pdf.text("4. Review Volume vs Revenue", 30, yPos)
+  yPos += 10
+
+  pdf.text("5. CSI Revenue Correlation", 30, yPos)
+  yPos += 10
+
+  pdf.text("6. Revenue vs Sentiment", 30, yPos)
 
   addFooter(pdf, 2)
 }
@@ -331,45 +518,26 @@ const addSectionDivider = (pdf, yPosition) => {
   pdf.line(20, yPosition, 60, yPosition)
 }
 
-const getChartTitle = (index, activeTab) => {
-  if (activeTab === "revenue") {
-    const revenueTitles = [
-      "Monthly Revenue Trends",
-      "Revenue vs Sentiment Analysis",
-      "Review Volume vs Revenue",
-      "Revenue by Channel",
-      "Year-over-Year Revenue Comparison",
-    ]
-    return revenueTitles[index % revenueTitles.length]
-  } else {
-    const sentimentTitles = [
-      "Composite Sentiment Index (CSI)",
-      "Sentiment Distribution Analysis",
-      "CSI Revenue Correlation",
-      "Sentiment Trends Over Time",
-      "Category-Specific Sentiment Analysis",
-    ]
-    return sentimentTitles[index % sentimentTitles.length]
-  }
+const getChartTitle = (index) => {
+  const chartTitles = [
+    "Monthly Revenue Trends",
+    "Sentiment Ratios Distribution",
+    "Composite Sentiment Index",
+    "Review Volume vs Revenue",
+    "CSI Revenue Correlation",
+    "Revenue vs Sentiment Analysis",
+  ]
+  return chartTitles[index] || `Chart ${index + 1}`
 }
 
-const getChartDescription = (index, activeTab) => {
-  if (activeTab === "single") {
-    const singleAnalysisDescriptions = [
-      "This chart illustrates the monthly revenue trends, highlighting seasonal fluctuations and peak financial periods.",
-      "The Composite Sentiment Index aggregates customer satisfaction levels, offering a high-level view of overall sentiment throughout the year.",
-      "This chart categorizes sentiment into positive, neutral, and negative segments, helping visualize customer feedback distribution."
-    ]
-    return singleAnalysisDescriptions[index % singleAnalysisDescriptions.length]
-  } else {
-    const hybridAnalysisDescriptions = [
-      "This analysis explores how sentiment metrics correlate with revenue performance, revealing how customer satisfaction impacts financial outcomes.",
-      "This chart shows the relationship between the number of reviews and revenue, highlighting the business effect of customer engagement.",
-      "This scatter plot visualizes the correlation between composite sentiment, revenue, and review volume to assess their combined impact."
-    ]
-    return hybridAnalysisDescriptions[index % hybridAnalysisDescriptions.length]
-  }
+const getChartDescription = (index) => {
+  const descriptions = [
+    "This chart illustrates the monthly revenue trends across different revenue streams, highlighting seasonal fluctuations and peak financial periods throughout the year.",
+    "This chart shows the distribution of positive, negative, and neutral sentiment ratios, providing insights into overall customer satisfaction patterns.",
+    "The Composite Sentiment Index aggregates customer satisfaction levels, offering a comprehensive view of sentiment trends over time.",
+    "This analysis explores the relationship between review volume and revenue performance, showing how customer engagement correlates with business outcomes.",
+    "This scatter plot visualizes the correlation between composite sentiment index, revenue, and review volume to assess their combined impact on business performance.",
+    "This chart demonstrates the direct relationship between revenue performance and sentiment scores, revealing how customer satisfaction impacts financial outcomes.",
+  ]
+  return descriptions[index] || "Detailed analysis of hotel performance metrics and customer satisfaction indicators."
 }
-
-
-

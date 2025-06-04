@@ -1,5 +1,6 @@
+"use client"
+
 import { useState, useEffect, useMemo } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 import { getDiagram } from "@/api/apiDiagram"
@@ -16,13 +17,13 @@ import { SummaryOverview } from "./Summaries/Summary-overview"
 import { MonthlyHighlights } from "./Summaries/Monthly-highlights"
 import { GrowthMetrics } from "./Summaries/Growth-metrics"
 import { SentimentDistribution } from "./Summaries/Sentiment-distribution"
+import { Separator } from "@/components/ui/separator"
 
 export default function HotelAnalyticsDashboard() {
   const currentYear = new Date().getFullYear().toString()
   const [year, setYear] = useState(currentYear)
   const [selectedHotels, setSelectedHotels] = useState([])
   const [data, setData] = useState(null)
-  const [activeTab, setActiveTab] = useState("single")
   const [resetFilters, setResetFilters] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -47,7 +48,7 @@ export default function HotelAnalyticsDashboard() {
     if (typeof window !== "undefined") {
       window.downloadPDF = async () => {
         try {
-          await generatePDF(selectedHotels.length > 0 ? selectedHotels : "All", year, activeTab)
+          await generatePDF(selectedHotels.length > 0 ? selectedHotels : "All", year, data)
         } catch (error) {
           console.error("Error generating PDF:", error)
         }
@@ -59,7 +60,7 @@ export default function HotelAnalyticsDashboard() {
         delete window.downloadPDF
       }
     }
-  }, [selectedHotels, year, activeTab])
+  }, [selectedHotels, year, data])
 
   const handleHotelFilterChange = (hotels) => {
     setSelectedHotels(hotels)
@@ -115,13 +116,12 @@ export default function HotelAnalyticsDashboard() {
   const showPlaceholder = !data || isLoading
 
   return (
-    <div className="space-y-6 py-6 container bg-white min-h-screen">
+    <div className="space-y-8 py-6 container bg-white min-h-screen">
       <HotelAnalyticsHeader
         selectedHotels={selectedHotels}
         year={year}
         onHotelChange={handleHotelFilterChange}
         onYearChange={setYear}
-        activeTab={activeTab}
         resetSignal={resetFilters}
         onResetFilters={resetAllFilters}
         data={data}
@@ -136,10 +136,11 @@ export default function HotelAnalyticsDashboard() {
           <GrowthMetrics data={data} isLoading={isLoading} />
           <SentimentDistribution data={data} isLoading={isLoading} />
         </div>
-      </div> 
+      </div>
 
+      <Separator className="my-8" />
       {hasNoRevenueData && !showPlaceholder && (
-        <Alert className="mb-6 border-amber-200 bg-amber-50">
+        <Alert className="mb-8 border-amber-200 bg-amber-50">
           <AlertCircle className="h-4 w-4 text-amber-500" />
           <AlertTitle className="text-amber-700">No Revenue Data Available</AlertTitle>
           <AlertDescription className="text-amber-600">
@@ -147,59 +148,47 @@ export default function HotelAnalyticsDashboard() {
           </AlertDescription>
         </Alert>
       )}
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 lg:w-[400px] bg-gray-100 p-1 rounded-lg">
-          <TabsTrigger
-            value="single"
-            className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-300"
-          >
-            Single Analysis
-          </TabsTrigger>
-          <TabsTrigger
-            value="hybrid"
-            className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-300"
-          >
-            Hybrid Analysis
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="single" id="single" className="transition-all duration-300 ease-in-out">
-          {showPlaceholder ? (
-            <ChartLoading />
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div>
+      {showPlaceholder ? (
+        <ChartLoading />
+      ) : (
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <div className="h-1 w-8 bg-green-500 rounded-full"></div>
+              <h2 className="text-xl font-semibold text-gray-800">Performance and Trends</h2>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <MonthlyRevenueTrends data={transformedData} />
               </div>
-              <div>
-                <CompositeSentimentIndex data={transformedData} />
-              </div>
-              <div>
+              <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <SentimentRatios data={transformedData} />
               </div>
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="hybrid" id="hybrid" className="transition-all duration-300 ease-in-out">
-          {showPlaceholder ? (
-            <ChartLoading />
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div>
-                <RevenueSentiment data={transformedData} />
+              <div className="transform transition-all duration-200 hover:scale-[1.02]">
+                <CompositeSentimentIndex data={transformedData} />
               </div>
-              <div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <div className="h-1 w-8 bg-purple-500 rounded-full"></div>
+              <h2 className="text-xl font-semibold text-gray-800">Performance Correlations</h2>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <ReviewVolumeRevenue data={transformedData} />
               </div>
-              <div>
+              <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <CSIRevenueCorrelation data={scatterData} />
               </div>
+              <div className="transform transition-all duration-200 hover:scale-[1.02]">
+                <RevenueSentiment data={transformedData} />
+              </div>
             </div>
-          )}
-        </TabsContent>
-      </Tabs>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

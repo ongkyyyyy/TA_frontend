@@ -1,3 +1,5 @@
+"use client"
+
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -21,9 +23,8 @@ export function HotelAnalyticsHeader({
   year,
   onHotelChange,
   onYearChange,
-  activeTab,
   onResetFilters,
-  data
+  data,
 }) {
   const [years, setYears] = useState([])
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -86,9 +87,7 @@ export function HotelAnalyticsHeader({
                 Filters
                 {selectedHotels.length > 0 && (
                   <span className="ml-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-xs font-medium">
-                    {selectedHotels.length === 1
-                      ? "Hotel selected"
-                      : `${selectedHotels.length} Hotels selected`}
+                    {selectedHotels.length === 1 ? "Hotel selected" : `${selectedHotels.length} Hotels selected`}
                   </span>
                 )}
                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -137,7 +136,6 @@ export function HotelAnalyticsHeader({
             hotelId={selectedHotels.length > 0 ? selectedHotels : "All"}
             hotelName={hotelName}
             year={year}
-            activeTab={activeTab}
             data={data}
           />
         </div>
