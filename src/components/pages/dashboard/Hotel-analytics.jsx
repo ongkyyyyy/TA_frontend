@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect, useMemo } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"

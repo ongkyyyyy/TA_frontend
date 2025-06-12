@@ -97,18 +97,22 @@ export default function HotelForm({ hotel, onClose }) {
           <div className="pt-2">
             <h3 className="text-sm font-medium mb-2">Booking Links</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {["agoda_link", "traveloka_link", "tripcom_link", "ticketcom_link"].map((linkField) => (
-                <div key={linkField} className="space-y-2">
-                  <Label htmlFor={linkField}>{linkField.split("_")[0]} Link</Label>
-                  <Input
-                    id={linkField}
-                    name={linkField}
-                    value={formData[linkField] || ""}
-                    onChange={handleChange}
-                    placeholder={`https://${linkField.split("_")[0]}.com/...`}
-                  />
-                </div>
-              ))}
+              {["agoda_link", "traveloka_link", "tripcom_link", "ticketcom_link"].map((linkField) => {
+                const platform = linkField.split("_")[0];
+                const capitalizedPlatform = platform.charAt(0).toUpperCase() + platform.slice(1);
+                return (
+                  <div key={linkField} className="space-y-2">
+                    <Label htmlFor={linkField}>{capitalizedPlatform} Link</Label>
+                    <Input
+                      id={linkField}
+                      name={linkField}
+                      value={formData[linkField] || ""}
+                      onChange={handleChange}
+                      placeholder={`https://${platform}.com/...`}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
 
