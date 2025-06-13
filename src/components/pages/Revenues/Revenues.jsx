@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { PlusCircle} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import RevenueTable from './RevenueTable';
+import { RevenueTable } from "./Revenue-table.jsx"
 import { RevenueForm } from "./revenue-form"
 import { getRevenues, deleteRevenue } from "@/api/apiRevenues"
 import { RevenueFiltersBar } from "./revenue-filter"
