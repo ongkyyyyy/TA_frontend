@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { RevenueDetails } from "./revenue-details"
+import { RevenueDetails } from "./Revenue-details.jsx"
 import { Skeleton } from "@/components/ui/skeleton"
 import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
