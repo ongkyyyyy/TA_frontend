@@ -32,6 +32,9 @@ export function GrowthMetrics({ data, isLoading = false }) {
       <CardHeader className="pb-2">
         <CardDescription>Performance</CardDescription>
         <CardTitle>Growth Metrics</CardTitle>
+        <CardDescription>
+          Performance compared to the previous month.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-3 gap-4">

@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect, useMemo } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
@@ -127,12 +129,25 @@ export default function HotelAnalyticsDashboard() {
 
       <div className="space-y-6">
         <SummaryOverview data={data} isLoading={isLoading} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="col-span-1 md:col-span-2">
-            <MonthlyHighlights data={data} isLoading={isLoading} />
+
+        {/* Monthly Insights Section */}
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <div className="h-1 w-8 bg-blue-500 rounded-full"></div>
+            <h2 className="text-xl font-semibold text-gray-800">Monthly Insights & Calculations</h2>
+            <div className="flex-1 h-px bg-gradient-to-r from-blue-200 to-transparent"></div>
           </div>
-          <GrowthMetrics data={data} isLoading={isLoading} />
-          <SentimentDistribution data={data} isLoading={isLoading} />
+          <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/30 rounded-xl p-6 border border-blue-100/50 shadow-sm">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="col-span-1 md:col-span-2">
+                  <MonthlyHighlights data={data} isLoading={isLoading} />
+                </div>
+                <GrowthMetrics data={data} isLoading={isLoading} />
+                <SentimentDistribution data={data} isLoading={isLoading} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
