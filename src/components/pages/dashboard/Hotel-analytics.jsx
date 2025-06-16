@@ -130,7 +130,6 @@ export default function HotelAnalyticsDashboard() {
       <div className="space-y-6">
         <SummaryOverview data={data} isLoading={isLoading} />
 
-        {/* Monthly Insights Section */}
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
             <div className="h-1 w-8 bg-blue-500 rounded-full"></div>
