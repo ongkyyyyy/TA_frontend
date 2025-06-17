@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react"
+import { Eye, EyeOff, Lock, ArrowRight, User } from "lucide-react"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
@@ -61,7 +61,7 @@ export default function LoginPage() {
             <form className="space-y-5" onSubmit={handleSubmit}>
               <div className="space-y-1">
                 <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4bb3ba] transition-colors group-focus-within:text-[#18446a]" />
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4bb3ba] transition-colors group-focus-within:text-[#18446a]" />
                   <Input
                     type="text"
                     placeholder="Username"
