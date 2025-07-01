@@ -205,10 +205,6 @@ export default function ReviewsWithFilters() {
                       <span className="text-sm font-medium">{review.negative_score} negative points</span>
                     </div>
                   </div>
-
-                  <div className="text-xs text-muted-foreground">
-                    ID: {review.hotel_id?.$oid?.substring(0, 8) || "N/A"}
-                  </div>
                 </CardFooter>
               </Card>
             ))}

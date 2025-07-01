@@ -53,6 +53,7 @@ export const getReviews = async ({
       params,
     });
 
+    console.log('Reviews data fetched:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching reviews data:', error);
