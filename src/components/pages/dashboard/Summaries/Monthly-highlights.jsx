@@ -85,7 +85,7 @@ export function MonthlyHighlights({ data, isLoading = false }) {
     <Card className="bg-white shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 h-full">
       <CardHeader>
         <div className="text-sm text-gray-500 font-medium">Performance</div>
-        <CardTitle className="text-gray-800 text-xl">Monthly Highlights</CardTitle>
+        <CardTitle className="text-gray-800 text-xl">Highlights</CardTitle>
       </CardHeader>
       <CardContent>
         <motion.div

@@ -133,7 +133,7 @@ export default function HotelAnalyticsDashboard() {
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
             <div className="h-1 w-8 bg-blue-500 rounded-full"></div>
-            <h2 className="text-xl font-semibold text-gray-800">Monthly Insights & Calculations</h2>
+            <h2 className="text-xl font-semibold text-gray-800">Insights & Calculations</h2>
             <div className="flex-1 h-px bg-gradient-to-r from-blue-200 to-transparent"></div>
           </div>
           <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/30 rounded-xl p-6 border border-blue-100/50 shadow-sm">
