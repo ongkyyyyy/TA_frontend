@@ -94,7 +94,7 @@ export default function ScrapeLogsModal({ open, onOpenChange }) {
                       </div>
                       <div className="bg-gray-50 p-3 rounded-md">
                         <pre className="whitespace-pre-wrap text-sm font-mono text-gray-800">
-                          {log.note || "No additional information"}
+                          {log.status}. {log.note || "No additional information"}
                         </pre>
                       </div>
                     </div>
