@@ -51,7 +51,7 @@ export function SummaryOverview({ data, isLoading = false }) {
   const cards = [
     {
       title: "Revenue Overview",
-      value: formatCurrency(summary.total_revenue, true),
+      value: `Total: ${formatCurrency(summary.total_revenue, true)}`,
       secondaryValue: `Avg. Monthly: ${formatCurrency(summary.avg_monthly_revenue, true)}`,
       icon: DollarSign,
       gradientFrom: "from-emerald-50",
@@ -70,30 +70,9 @@ export function SummaryOverview({ data, isLoading = false }) {
         },
       ],
     },
-    {
-      title: "Sentiment Analysis",
-      value: summary.latest_sentiment_score.toFixed(1),
-      secondaryValue: `Avg. Score: ${summary.avg_sentiment_score.toFixed(1)}`,
-      icon: Star,
-      gradientFrom: "from-violet-50",
-      gradientTo: "to-violet-100",
-      iconBg: "bg-violet-100",
-      iconColor: "text-violet-600",
-      borderColor: "border-violet-200",
-      details: [
         {
-          label: "Best Month",
-          value: `${summary.best_sentiment_month.month} (${summary.best_sentiment_month.score.toFixed(1)})`,
-        },
-        {
-          label: "Worst Month",
-          value: `${summary.worst_sentiment_month.month} (${summary.worst_sentiment_month.score.toFixed(1)})`,
-        },
-      ],
-    },
-    {
       title: "Review Metrics",
-      value: summary.total_reviews,
+      value: `Total: ${summary.total_reviews}`,
       secondaryValue: `Avg. Volume: ${summary.avg_review_volume.toFixed(1)}`,
       icon: BarChart3,
       gradientFrom: "from-sky-50",
@@ -109,6 +88,27 @@ export function SummaryOverview({ data, isLoading = false }) {
         {
           label: "Positive/Negative Ratio",
           value: summary.positive_negative_ratio.toFixed(1),
+        },
+      ],
+    },
+    {
+      title: "Sentiment Analysis",
+      value: `Last Month: ${summary.latest_sentiment_score.toFixed(1)}`,
+      secondaryValue: `Avg. Score: ${summary.avg_sentiment_score.toFixed(1)}`,
+      icon: Star,
+      gradientFrom: "from-violet-50",
+      gradientTo: "to-violet-100",
+      iconBg: "bg-violet-100",
+      iconColor: "text-violet-600",
+      borderColor: "border-violet-200",
+      details: [
+        {
+          label: "Best Month",
+          value: `${summary.best_sentiment_month.month} (${summary.best_sentiment_month.score.toFixed(1)})`,
+        },
+        {
+          label: "Worst Month",
+          value: `${summary.worst_sentiment_month.month} (${summary.worst_sentiment_month.score.toFixed(1)})`,
         },
       ],
     },
