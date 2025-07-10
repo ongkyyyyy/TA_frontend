@@ -93,7 +93,7 @@ export function SummaryOverview({ data, isLoading = false }) {
     },
     {
       title: "Sentiment Score",
-      value: `Last Month: ${summary.latest_sentiment_score.toFixed(1)}`,
+      value: `This Month: ${summary.latest_sentiment_score.toFixed(1)}`,
       secondaryValue: `Avg. Score: ${summary.avg_sentiment_score.toFixed(1)}`,
       icon: Star,
       gradientFrom: "from-violet-50",
