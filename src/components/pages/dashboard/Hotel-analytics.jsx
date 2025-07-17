@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator"
 //Revenue Chart
 import { TotalRevenueTrendChart } from "./Charts/Total-Revenue-Trend-Chart"
 import { MonthlyRevenueTrends } from "./Charts/Monthly-revenue-trends"
+import { RevenueStreamContributionAnalysis } from "./Charts/Revenue-Stream-Contribution"
 
 //Sentiment Chart
 import { SentimentBreakdownChart } from "./Charts/Sentiment-Breakdown-Chart"
@@ -93,6 +94,9 @@ export default function HotelAnalyticsDashboard() {
       positive_sentiment: data.positive_sentiment?.[index] || 0,
       neutral_sentiment: data.neutral_sentiment?.[index] || 0,
       negative_sentiment: data.negative_sentiment?.[index] || 0,
+      room_revenue_ratio: data.room_revenue_ratio?.[index] || 0,
+      restaurant_revenue_ratio: data.restaurant_revenue_ratio?.[index] || 0,
+      other_revenue_ratio: data.other_revenue_ratio?.[index] || 0,
     }))
   }, [data])
 
@@ -165,6 +169,9 @@ export default function HotelAnalyticsDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <TotalRevenueTrendChart data={transformedData} />
+              </div>
+              <div className="transform transition-all duration-200 hover:scale-[1.02]">
+                <RevenueStreamContributionAnalysis data={transformedData} />
               </div>
               <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <MonthlyRevenueTrends data={transformedData} />
