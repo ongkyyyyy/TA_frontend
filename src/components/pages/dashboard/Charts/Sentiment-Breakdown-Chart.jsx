@@ -12,6 +12,21 @@ export function SentimentBreakdownChart({ data }) {
     }
   }
 
+  const chartConfig = {
+    positive_sentiment: {
+      label: "Positive Sentiment",
+      color: "hsl(142 76% 36%)",
+    },
+    neutral_sentiment: {
+      label: "Neutral Sentiment",
+      color: "hsl(43 74% 66%)",
+    },
+    negative_sentiment: {
+      label: "Negative Sentiment",
+      color: "hsl(0 84% 60%)",
+    },
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -28,23 +43,7 @@ export function SentimentBreakdownChart({ data }) {
             </p>
           </div>
         ) : (
-          <ChartContainer
-            config={{
-              positive_sentiment: {
-                label: "Positive Sentiment",
-                color: "hsl(142 76% 36%)",
-              },
-              neutral_sentiment: {
-                label: "Neutral Sentiment",
-                color: "hsl(43 74% 66%)",
-              },
-              negative_sentiment: {
-                label: "Negative Sentiment",
-                color: "hsl(0 84% 60%)",
-              },
-            }}
-            className="h-full w-full aspect-[16/9]"
-          >
+          <ChartContainer config={chartConfig} className="h-full w-full aspect-[16/9]">
             <LineChart
               data={data}
               margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
@@ -57,22 +56,21 @@ export function SentimentBreakdownChart({ data }) {
               <YAxis tickLine={false} axisLine={false} tickMargin={10} />
               <ChartTooltip
                 content={({ active, payload, label }) => {
-                    if (active && payload && payload.length) {
+                  if (active && payload && payload.length) {
                     return (
-                        <div className="bg-white p-3 border rounded-lg shadow-lg">
+                      <div className="bg-white p-3 border rounded-lg shadow-lg">
                         <p className="font-semibold mb-2 text-black">{`Month: ${label}`}</p>
                         {payload.map((entry, index) => (
-                            <p key={index} className="text-sm text-black">
-                            {`${entry.name}: ${entry.value} reviews`}
-                            </p>
+                          <p key={index} className="text-sm text-black">
+                            {`${chartConfig[entry.dataKey].label}: ${entry.value} Reviews`}
+                          </p>
                         ))}
-                        </div>
+                      </div>
                     )
-                    }
-                    return null
+                  }
+                  return null
                 }}
-                />
-
+              />
               <Line
                 type="monotone"
                 dataKey="positive_sentiment"
