@@ -11,6 +11,7 @@ import { GrowthMetrics } from "./Summaries/Growth-metrics"
 import { Separator } from "@/components/ui/separator"
 
 //Revenue Chart
+import { TotalRevenueTrendChart } from "./Charts/Total-Revenue-Trend-Chart"
 import { MonthlyRevenueTrends } from "./Charts/Monthly-revenue-trends"
 import { RevenueBreakdownChart } from "./Charts/Revenue-Breakdown-Chart"
 
@@ -160,20 +161,15 @@ export default function HotelAnalyticsDashboard() {
               <h2 className="text-xl font-semibold text-gray-800">Revenue Analysis</h2>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="transform transition-all duration-200 hover:scale-[1.02]">
+                <TotalRevenueTrendChart data={transformedData} />
+              </div>
               <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <MonthlyRevenueTrends data={transformedData} />
               </div>
               <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <RevenueBreakdownChart data={transformedData} />
               </div>
-
-              <div className="transform transition-all duration-200 hover:scale-[1.02]">
-                <SentimentRatios data={transformedData} />
-              </div>
-              <div className="transform transition-all duration-200 hover:scale-[1.02]">
-                <CompositeSentimentIndex data={transformedData} />
-              </div>
-
             </div>
           </div>
 
