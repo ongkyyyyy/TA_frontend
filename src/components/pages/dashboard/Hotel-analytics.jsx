@@ -91,6 +91,9 @@ export default function HotelAnalyticsDashboard() {
       positive_ratio: data.positive_ratio[index] || 0,
       negative_ratio: data.negative_ratio[index] || 0,
       neutral_ratio: data.neutral_ratio[index] || 0,
+      positive_sentiment: data.positive_sentiment?.[index] || 0,
+      neutral_sentiment: data.neutral_sentiment?.[index] || 0,
+      negative_sentiment: data.negative_sentiment?.[index] || 0,
     }))
   }, [data])
 
