@@ -11,7 +11,7 @@ export function TotalRevenueTrendChart({ data }) {
       break
     }
   }
-
+  
   const formatCurrency = (value) => {
     if (value >= 1000000000) return `Rp ${(value / 1000000000).toFixed(1)}B`
     if (value >= 1000000) return `Rp ${(value / 1000000).toFixed(1)}M`
@@ -38,7 +38,7 @@ export function TotalRevenueTrendChart({ data }) {
             config={{
               grand_total_revenue: {
                 label: "Total Revenue",
-                color: "#66BB6A", 
+                color: "#66BB6A",
               },
             }}
             className="h-full w-full aspect-[16/9]"
@@ -69,7 +69,7 @@ export function TotalRevenueTrendChart({ data }) {
                 }}
               />
               <Bar
-                dataKey="Grand Total Revenue"
+                dataKey="grand_total_revenue"
                 fill="#66BB6A"
                 radius={[4, 4, 0, 0]}
                 animationDuration={800}
