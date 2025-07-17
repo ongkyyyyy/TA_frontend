@@ -173,9 +173,9 @@ export default function HotelAnalyticsDashboard() {
               <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <MonthlyRevenueTrends data={transformedData} />
               </div>
-              {/* <div className="transform transition-all duration-200 hover:scale-[1.02]">
+              <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <RevenueStreamContributionAnalysis data={transformedData} />
-              </div> */}
+              </div>
             </div>
           </div>
 

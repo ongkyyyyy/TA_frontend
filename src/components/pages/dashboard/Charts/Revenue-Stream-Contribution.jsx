@@ -57,12 +57,7 @@ export function RevenueStreamContributionAnalysis({ data }) {
                 tickMargin={10}
                 tickFormatter={(value) => `${(value * 100).toFixed(0)}%`} 
               />
-              <ChartTooltip content={
-                <ChartTooltip
-                    content={<ChartTooltipContent />}
-                    formatter={(value) => `${(value * 100).toFixed(1)}%`}
-                    />
-                } />
+              <ChartTooltip content={<ChartTooltipContent />} />
               <Line
                 type="monotone"
                 dataKey="room_revenue_ratio" 
