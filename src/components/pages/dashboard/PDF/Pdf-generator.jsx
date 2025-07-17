@@ -417,33 +417,33 @@ const addTableOfContents = (pdf, chartCount) => {
   yPos += 20
 
   pdf.setFont("helvetica", "bold")
-  pdf.text("Performance and Trends", 20, yPos)
+  pdf.text("Revenue Breakdown", 20, yPos)
   pdf.text(firstChartPageNumber.toString(), 180, yPos, { align: "right" })
   yPos += 15
 
   pdf.setFont("helvetica", "normal")
-  pdf.text("1. Monthly Revenue Trends", 30, yPos)
+  pdf.text("1. Total Revenue Trends", 30, yPos)
   yPos += 10
 
-  pdf.text("2. Sentiment Ratios", 30, yPos)
+  pdf.text("2. Monthly Revenue Trends", 30, yPos)
   yPos += 10
 
-  pdf.text("3. Composite Sentiment Index", 30, yPos)
+  pdf.text("3. Revenue Stream Contribution", 30, yPos)
   yPos += 15
 
   pdf.setFont("helvetica", "bold")
-  pdf.text("Performance Correlations", 20, yPos)
+  pdf.text("Sentiment Breakdown", 20, yPos)
   pdf.text(correlationChartsStartPage.toString(), 180, yPos, { align: "right" })
   yPos += 15
 
   pdf.setFont("helvetica", "normal")
-  pdf.text("4. Review Volume vs Revenue", 30, yPos)
+  pdf.text("4. Sentiment Trends", 30, yPos)
   yPos += 10
 
-  pdf.text("5. CSI Revenue Correlation", 30, yPos)
+  pdf.text("5. Sentiment Ratios", 30, yPos)
   yPos += 10
 
-  pdf.text("6. Revenue vs Sentiment", 30, yPos)
+  pdf.text("6. Composite Sentiment Index", 30, yPos)
 
   addFooter(pdf, 2)
 }
@@ -500,24 +500,24 @@ const addSectionDivider = (pdf, yPosition) => {
 
 const getChartTitle = (index) => {
   const chartTitles = [
+    "Total Revenue Trends",
     "Monthly Revenue Trends",
-    "Sentiment Ratios Distribution",
+    "Revenue Stream Contribution",
+    "Sentiment Trends",
+    "Sentiment Ratios",
     "Composite Sentiment Index",
-    "Review Volume vs Revenue",
-    "CSI Revenue Correlation",
-    "Revenue vs Sentiment Analysis",
   ]
   return chartTitles[index] || `Chart ${index + 1}`
 }
 
 const getChartDescription = (index) => {
   const descriptions = [
-    "This chart illustrates the monthly revenue trends across different revenue streams, highlighting seasonal fluctuations and peak financial periods throughout the year.",
-    "This chart shows the distribution of positive, negative, and neutral sentiment ratios, providing insights into overall customer satisfaction patterns.",
-    "The Composite Sentiment Index aggregates customer satisfaction levels, offering a comprehensive view of sentiment trends over time.",
-    "This analysis explores the relationship between review volume and revenue performance, showing how customer engagement correlates with business outcomes.",
-    "This scatter plot visualizes the correlation between composite sentiment index, revenue, and review volume to assess their combined impact on business performance.",
-    "This chart demonstrates the direct relationship between revenue performance and sentiment scores, revealing how customer satisfaction impacts financial outcomes.",
+    "This chart displays the monthly total revenue from all sources, capturing overall financial performance and highlighting trends across the year.",
+    "This chart illustrates monthly revenue trends by individual streams such as rooms, restaurant, and others, allowing for detailed performance tracking over time.",
+    "This chart presents the contribution of each revenue stream to total revenue on a monthly basis, helping identify the dominant sources of income and shifts in revenue structure.",
+    "This chart shows the number of positive, neutral, and negative sentiments per month, revealing fluctuations in guest satisfaction and service perception over time.",
+    "This chart displays the proportion of each sentiment category—positive, neutral, and negative—offering a clear view of sentiment distribution trends across months.",
+    "This chart tracks the aggregated sentiment score over time, providing an overall index of customer satisfaction to gauge general sentiment direction.",
   ]
   return descriptions[index] || "Detailed analysis of hotel performance metrics and customer satisfaction indicators."
 }
