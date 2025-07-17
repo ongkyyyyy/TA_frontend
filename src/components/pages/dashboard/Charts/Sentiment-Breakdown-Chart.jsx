@@ -56,26 +56,25 @@ export function SentimentBreakdownChart({ data }) {
               <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={10} interval={0} />
               <YAxis tickLine={false} axisLine={false} tickMargin={10} />
               <ChartTooltip
-                content={({ active, payload, label }) => {
-                  if (active && payload && payload.length) {
-                    return (
-                      <div className="bg-white p-3 border rounded-lg shadow-lg">
-                        <p className="font-semibold mb-2">{`Month: ${label}`}</p>
-                        {payload.map((entry, index) => (
-                          <p key={index} style={{ color: entry.color }} className="text-sm">
-                            {`${entry.name}: ${entry.value} reviews`}
-                          </p>
-                        ))}
-                      </div>
-                    )
-                  }
-                  return null
-                }}
-              />
-
+                    content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                        return (
+                            <div className="bg-white p-3 border rounded-lg shadow-lg">
+                            <p className="font-semibold mb-2 text-black">{`Month: ${label}`}</p>
+                            {payload.map((entry, index) => (
+                                <p key={index} className="text-sm text-black">
+                                {`${entry.name}: ${entry.value} reviews`}
+                                </p>
+                            ))}
+                            </div>
+                        )
+                        }
+                        return null
+                    }}
+                    />
               <Line
                 type="monotone"
-                dataKey="positive_sentiment"
+                dataKey="Positive Sentiment"
                 stroke="hsl(142 76% 36%)"
                 strokeWidth={2}
                 dot={{ r: 4 }}
@@ -83,7 +82,7 @@ export function SentimentBreakdownChart({ data }) {
               />
               <Line
                 type="monotone"
-                dataKey="neutral_sentiment"
+                dataKey="Neutral Sentiment"
                 stroke="hsl(43 74% 66%)"
                 strokeWidth={2}
                 dot={{ r: 4 }}
@@ -91,7 +90,7 @@ export function SentimentBreakdownChart({ data }) {
               />
               <Line
                 type="monotone"
-                dataKey="negative_sentiment"
+                dataKey="Negative Sentiment"
                 stroke="hsl(0 84% 60%)"
                 strokeWidth={2}
                 dot={{ r: 4 }}

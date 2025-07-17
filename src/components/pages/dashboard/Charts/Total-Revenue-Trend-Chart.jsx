@@ -61,8 +61,8 @@ export function TotalRevenueTrendChart({ data }) {
                   if (active && payload && payload.length) {
                     return (
                       <div className="bg-white p-3 border rounded-lg shadow-lg">
-                        <p className="font-semibold mb-2">{`Month: ${label}`}</p>
-                        <p style={{ color: payload[0].color }} className="text-sm">
+                        <p className="font-semibold mb-2 text-black">{`Month: ${label}`}</p>
+                        <p style={{ color: payload[0].color }} className="text-sm text-black">
                           {`${payload[0].name}: Rp ${payload[0].value.toLocaleString("id-ID")}`}
                         </p>
                       </div>
@@ -73,7 +73,7 @@ export function TotalRevenueTrendChart({ data }) {
               />
               <Line
                 type="monotone"
-                dataKey="grand_total_revenue"
+                dataKey="Grand Total Revenue"
                 stroke="hsl(142 76% 36%)" 
                 strokeWidth={3}
                 dot={{ r: 5 }}
