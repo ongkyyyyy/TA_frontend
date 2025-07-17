@@ -13,7 +13,6 @@ import { Separator } from "@/components/ui/separator"
 //Revenue Chart
 import { TotalRevenueTrendChart } from "./Charts/Total-Revenue-Trend-Chart"
 import { MonthlyRevenueTrends } from "./Charts/Monthly-revenue-trends"
-import { RevenueBreakdownChart } from "./Charts/Revenue-Breakdown-Chart"
 
 //Sentiment Chart
 import { SentimentBreakdownChart } from "./Charts/Sentiment-Breakdown-Chart"
@@ -161,7 +160,7 @@ export default function HotelAnalyticsDashboard() {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="h-1 w-8 bg-green-500 rounded-full"></div>
-              <h2 className="text-xl font-semibold text-gray-800">Revenue Analysis</h2>
+              <h2 className="text-xl font-semibold text-gray-800">Revenue Breakdown</h2>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="transform transition-all duration-200 hover:scale-[1.02]">
@@ -170,16 +169,13 @@ export default function HotelAnalyticsDashboard() {
               <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <MonthlyRevenueTrends data={transformedData} />
               </div>
-              <div className="transform transition-all duration-200 hover:scale-[1.02]">
-                <RevenueBreakdownChart data={transformedData} />
-              </div>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="h-1 w-8 bg-purple-500 rounded-full"></div>
-              <h2 className="text-xl font-semibold text-gray-800">Sentiment Analysis</h2>
+              <h2 className="text-xl font-semibold text-gray-800">Sentiment Breakdown</h2>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="transform transition-all duration-200 hover:scale-[1.02]">
