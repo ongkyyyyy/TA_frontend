@@ -30,14 +30,17 @@ export function RevenueStreamContributionAnalysis({ data }) {
               room_revenue_ratio: {
                 label: "Room Revenue Ratio",
                 color: "hsl(222.2 47.4% 11.2%)", 
+                format: (value) => `${value}%`, 
               },
               restaurant_revenue_ratio: {
                 label: "Restaurant Revenue Ratio",
-                color: "hsl(162 47.4% 50.2%)", 
+                color: "hsl(162 47.4% 50.2%)",
+                format: (value) => `${value}%`, 
               },
               other_revenue_ratio: {
                 label: "Other Revenue Ratio",
                 color: "hsl(291.1 47.4% 51.2%)",
+                format: (value) => `${value}%`, 
               },
             }}
             className="h-full w-full aspect-[16/9]"
@@ -55,17 +58,16 @@ export function RevenueStreamContributionAnalysis({ data }) {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={10}
-                tickFormatter={(value) => `${(value * 100).toFixed(0)}%`} 
+                tickFormatter={(value) => `${value}%`} // Format for Y-axis ticks: just append %
               />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Line
                 type="monotone"
-                dataKey="room_revenue_ratio" 
+                dataKey="room_revenue_ratio"
                 stroke="var(--color-room_revenue_ratio)"
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
-                formatter={(value) => `${value}%`}
               />
               <Line
                 type="monotone"
@@ -74,7 +76,6 @@ export function RevenueStreamContributionAnalysis({ data }) {
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
-                formatter={(value) => `${value}%`}
               />
               <Line
                 type="monotone"
@@ -83,7 +84,6 @@ export function RevenueStreamContributionAnalysis({ data }) {
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
-                formatter={(value) => `${value}%`}
               />
             </LineChart>
           </ChartContainer>

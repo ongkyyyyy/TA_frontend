@@ -31,7 +31,6 @@ export const generatePDF = async (hotelName, year, data) => {
 
     await addCoverPage(pdf, hotelName, year)
 
-    // Make sure all charts are visible for capture
     const chartElements = document.querySelectorAll(".recharts-wrapper")
 
     if (chartElements.length === 0) {
@@ -41,13 +40,12 @@ export const generatePDF = async (hotelName, year, data) => {
 
     addTableOfContents(pdf, chartElements.length)
 
-    // Add summary page
     if (data && data.summary) {
       addSummaryPage(pdf, hotelName, year, data.summary)
     }
 
     let yPosition = 40
-    let pageCount = 4 // Updated to account for cover, TOC, and summary pages
+    let pageCount = 4
 
     pdf.addPage()
     addHeader(pdf, hotelName, year)
@@ -121,27 +119,23 @@ const addSummaryPage = (pdf, hotelName, year, summary) => {
   const pageWidth = pdf.internal.pageSize.getWidth()
   let yPos = 40
 
-  // Title
   pdf.setFont("helvetica", "bold")
   pdf.setFontSize(18)
   pdf.setTextColor(COLORS.secondary.r, COLORS.secondary.g, COLORS.secondary.b)
   pdf.text("EXECUTIVE SUMMARY", 20, yPos)
   yPos += 15
 
-  // Divider
   pdf.setDrawColor(COLORS.accent.r, COLORS.accent.g, COLORS.accent.b)
   pdf.setLineWidth(1)
   pdf.line(20, yPos, pageWidth - 20, yPos)
   yPos += 15
 
-  // Key Metrics Section
   pdf.setFont("helvetica", "bold")
   pdf.setFontSize(14)
   pdf.setTextColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
   pdf.text("Key Performance Metrics", 20, yPos)
   yPos += 12
 
-  // Revenue Metrics
   addMetricBox(pdf, 20, yPos, 80, 25, "Total Revenue", `$${formatNumber(summary.total_revenue)}`, COLORS.primary)
   addMetricBox(
     pdf,
@@ -168,14 +162,12 @@ const addSummaryPage = (pdf, hotelName, year, summary) => {
   addMetricBox(pdf, 110, yPos, 80, 25, "Total Reviews", summary.total_reviews.toString(), COLORS.dark)
   yPos += 40
 
-  // Best/Worst Performance
   pdf.setFont("helvetica", "bold")
   pdf.setFontSize(14)
   pdf.setTextColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
   pdf.text("Performance Highlights", 20, yPos)
   yPos += 12
 
-  // Best Month
   pdf.setFont("helvetica", "bold")
   pdf.setFontSize(11)
   pdf.setTextColor(COLORS.secondary.r, COLORS.secondary.g, COLORS.secondary.b)
@@ -184,21 +176,18 @@ const addSummaryPage = (pdf, hotelName, year, summary) => {
   pdf.text(`${summary.best_month.month} - $${formatNumber(summary.best_month.revenue)}`, 70, yPos)
   yPos += 8
 
-  // Worst Month
   pdf.setFont("helvetica", "bold")
   pdf.text("Lowest Revenue Month:", 20, yPos)
   pdf.setFont("helvetica", "normal")
   pdf.text(`${summary.worst_month.month} - $${formatNumber(summary.worst_month.revenue)}`, 70, yPos)
   yPos += 15
 
-  // Sentiment Analysis
   pdf.setFont("helvetica", "bold")
   pdf.setFontSize(14)
   pdf.setTextColor(COLORS.primary.r, COLORS.primary.g, COLORS.primary.b)
   pdf.text("Sentiment Analysis", 20, yPos)
   yPos += 12
 
-  // Sentiment Metrics
   addMetricBox(pdf, 20, yPos, 50, 20, "Positive", summary.total_positive_sentiment.toString(), {
     r: 46,
     g: 204,
@@ -222,7 +211,6 @@ const addSummaryPage = (pdf, hotelName, year, summary) => {
   pdf.text(`Positive/Negative Ratio: ${summary.positive_negative_ratio}:1`, 20, yPos)
   yPos += 15
 
-  // Best Sentiment Month
   pdf.setFont("helvetica", "bold")
   pdf.setFontSize(11)
   pdf.setTextColor(COLORS.secondary.r, COLORS.secondary.g, COLORS.secondary.b)
@@ -240,7 +228,6 @@ const addSummaryPage = (pdf, hotelName, year, summary) => {
 }
 
 const addMetricBox = (pdf, x, y, width, height, label, value, color) => {
-  // Background with lighter shade (no alpha needed)
   const lightColor = {
     r: Math.min(255, color.r + 200),
     g: Math.min(255, color.g + 200),
@@ -250,18 +237,15 @@ const addMetricBox = (pdf, x, y, width, height, label, value, color) => {
   pdf.setFillColor(lightColor.r, lightColor.g, lightColor.b)
   pdf.roundedRect(x, y, width, height, 2, 2, "F")
 
-  // Border
   pdf.setDrawColor(color.r, color.g, color.b)
   pdf.setLineWidth(0.5)
   pdf.roundedRect(x, y, width, height, 2, 2, "S")
 
-  // Label
   pdf.setFont("helvetica", "normal")
   pdf.setFontSize(9)
   pdf.setTextColor(COLORS.dark.r, COLORS.dark.g, COLORS.dark.b)
   pdf.text(label, x + 3, y + 8)
 
-  // Value
   pdf.setFont("helvetica", "bold")
   pdf.setFontSize(12)
   pdf.setTextColor(color.r, color.g, color.b)
@@ -403,11 +387,9 @@ const addTableOfContents = (pdf, chartCount) => {
 
   const pageWidth = pdf.internal.pageSize.getWidth()
 
-  // Calculate page numbers based on content
   const summaryPageNumber = 3
   const firstChartPageNumber = summaryPageNumber + 1
 
-  // Estimate how many pages the charts will take (assuming ~2 charts per page)
   const chartPagesEstimate = Math.ceil(chartCount / 2)
   const correlationChartsStartPage = firstChartPageNumber + Math.min(3, chartPagesEstimate)
 
@@ -429,13 +411,11 @@ const addTableOfContents = (pdf, chartCount) => {
 
   let yPos = 40
 
-  // Summary Section
   pdf.setFont("helvetica", "bold")
   pdf.text("Executive Summary", 20, yPos)
   pdf.text(summaryPageNumber.toString(), 180, yPos, { align: "right" })
   yPos += 20
 
-  // Charts Section
   pdf.setFont("helvetica", "bold")
   pdf.text("Performance and Trends", 20, yPos)
   pdf.text(firstChartPageNumber.toString(), 180, yPos, { align: "right" })
