@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect, useMemo } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
@@ -18,6 +16,8 @@ import { MonthlyHighlights } from "./Summaries/Monthly-highlights"
 import { GrowthMetrics } from "./Summaries/Growth-metrics"
 import { SentimentDistribution } from "./Summaries/Sentiment-distribution"
 import { Separator } from "@/components/ui/separator"
+
+import { RevenueBreakdownChart } from "./Charts/Revenue-Breakdown-Chart"
 
 export default function HotelAnalyticsDashboard() {
   const currentYear = new Date().getFullYear().toString()
@@ -167,35 +167,37 @@ export default function HotelAnalyticsDashboard() {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="h-1 w-8 bg-green-500 rounded-full"></div>
-              <h2 className="text-xl font-semibold text-gray-800">Performance and Trends</h2>
+              <h2 className="text-xl font-semibold text-gray-800">Revenue Analysis</h2>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <MonthlyRevenueTrends data={transformedData} />
               </div>
               <div className="transform transition-all duration-200 hover:scale-[1.02]">
+                <RevenueBreakdownChart data={transformedData} />
+              </div>
+
+              <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <SentimentRatios data={transformedData} />
               </div>
               <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <CompositeSentimentIndex data={transformedData} />
               </div>
+
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="h-1 w-8 bg-purple-500 rounded-full"></div>
-              <h2 className="text-xl font-semibold text-gray-800">Performance Correlations</h2>
+              <h2 className="text-xl font-semibold text-gray-800">Sentiment Analysis</h2>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="transform transition-all duration-200 hover:scale-[1.02]">
-                <ReviewVolumeRevenue data={transformedData} />
+                <SentimentRatios data={transformedData} />
               </div>
               <div className="transform transition-all duration-200 hover:scale-[1.02]">
-                <CSIRevenueCorrelation data={scatterData} />
-              </div>
-              <div className="transform transition-all duration-200 hover:scale-[1.02]">
-                <RevenueSentiment data={transformedData} />
+                <CompositeSentimentIndex data={transformedData} />
               </div>
             </div>
           </div>

@@ -140,7 +140,6 @@ export function HotelAnalyticsHeader({
           />
         </div>
       </div>
-
       <Separator />
     </div>
   )
