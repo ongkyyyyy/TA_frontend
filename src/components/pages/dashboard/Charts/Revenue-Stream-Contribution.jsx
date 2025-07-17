@@ -65,6 +65,7 @@ export function RevenueStreamContributionAnalysis({ data }) {
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
+                formatter={(value) => `${value}%`}
               />
               <Line
                 type="monotone"
@@ -73,6 +74,7 @@ export function RevenueStreamContributionAnalysis({ data }) {
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
+                formatter={(value) => `${value}%`}
               />
               <Line
                 type="monotone"
@@ -81,6 +83,7 @@ export function RevenueStreamContributionAnalysis({ data }) {
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
+                formatter={(value) => `${value}%`}
               />
             </LineChart>
           </ChartContainer>
