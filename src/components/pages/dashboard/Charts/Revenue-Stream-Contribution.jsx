@@ -1,13 +1,10 @@
 /* eslint-disable react/prop-types */
-"use client"
-
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
 export function RevenueStreamContributionAnalysis({ data }) {
-  // Check if all ratio values are zero to display the "No Data" message
   const allRatiosZero = data.every(
     (item) => item.room_revenue_ratio === 0 && item.restaurant_revenue_ratio === 0 && item.other_revenue_ratio === 0,
   )
@@ -31,16 +28,19 @@ export function RevenueStreamContributionAnalysis({ data }) {
           <ChartContainer
             config={{
               room_revenue_ratio: {
-                label: "Room Revenue Ratio",
-                color: "hsl(222.2 47.4% 11.2%)", // A dark blue/gray
+                label: "Room Revenue Ratio(%)",
+                color: "hsl(222.2 47.4% 11.2%)", 
+                format: (value) => `${value}%`, 
               },
               restaurant_revenue_ratio: {
-                label: "Restaurant Revenue Ratio",
-                color: "hsl(162 47.4% 50.2%)", // A teal/green
+                label: "Restaurant Revenue Ratio(%) ",
+                color: "hsl(162 47.4% 50.2%)",
+                format: (value) => `${ value}%`, 
               },
               other_revenue_ratio: {
-                label: "Other Revenue Ratio",
-                color: "hsl(291.1 47.4% 51.2%)", // A purple
+                label: "Other Revenue Ratio(%)",
+                color: "hsl(291.1 47.4% 51.2%)",
+                format: (value) => `${value}%`, 
               },
             }}
             className="h-full w-full aspect-[16/9]"
@@ -58,7 +58,7 @@ export function RevenueStreamContributionAnalysis({ data }) {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={10}
-                // Y-axis shows raw numbers
+                tickFormatter={(value) => `${value}%`}
               />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Line
@@ -68,7 +68,6 @@ export function RevenueStreamContributionAnalysis({ data }) {
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
-                formatter={(value) => `${value}%`} // Add % for tooltip
               />
               <Line
                 type="monotone"
@@ -77,7 +76,6 @@ export function RevenueStreamContributionAnalysis({ data }) {
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
-                formatter={(value) => `${value}%`} // Add % for tooltip
               />
               <Line
                 type="monotone"
@@ -86,7 +84,6 @@ export function RevenueStreamContributionAnalysis({ data }) {
                 strokeWidth={2}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
-                formatter={(value) => `${value}%`} // Add % for tooltip
               />
             </LineChart>
           </ChartContainer>
