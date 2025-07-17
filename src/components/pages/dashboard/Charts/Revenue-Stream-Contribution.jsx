@@ -28,17 +28,17 @@ export function RevenueStreamContributionAnalysis({ data }) {
           <ChartContainer
             config={{
               room_revenue_ratio: {
-                label: "Room Revenue Ratio",
+                label: "Room Revenue Ratio(%)",
                 color: "hsl(222.2 47.4% 11.2%)", 
                 format: (value) => `${value}%`, 
               },
               restaurant_revenue_ratio: {
-                label: "Restaurant Revenue Ratio",
+                label: "Restaurant Revenue Ratio(%) ",
                 color: "hsl(162 47.4% 50.2%)",
                 format: (value) => `${value}%`, 
               },
               other_revenue_ratio: {
-                label: "Other Revenue Ratio",
+                label: "Other Revenue Ratio(%)",
                 color: "hsl(291.1 47.4% 51.2%)",
                 format: (value) => `${value}%`, 
               },
