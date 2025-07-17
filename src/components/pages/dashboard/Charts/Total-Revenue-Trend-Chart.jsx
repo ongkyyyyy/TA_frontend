@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
+import { CartesianGrid, Bar, BarChart, XAxis, YAxis } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
 
@@ -37,49 +37,42 @@ export function TotalRevenueTrendChart({ data }) {
             }}
             className="h-full w-full aspect-[16/9]"
           >
-            <LineChart
-              data={data}
-              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-              width="100%"
-              height="100%"
-              responsive={true}
-            >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={10} interval={0} />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                tickMargin={10}
-                tickFormatter={(value) => {
-                  if (value >= 1000000000) return `Rp ${(value / 1000000000).toFixed(1)}B`
-                  if (value >= 1000000) return `Rp ${(value / 1000000).toFixed(1)}M`
-                  return `Rp ${value.toLocaleString("id-ID")}`
-                }}
-              />
-              <ChartTooltip
-                content={({ active, payload, label }) => {
-                  if (active && payload && payload.length) {
-                    return (
-                      <div className="bg-white p-3 border rounded-lg shadow-lg">
-                        <p className="font-semibold mb-2 text-black">{`Month: ${label}`}</p>
-                        <p style={{ color: payload[0].color }} className="text-sm text-black">
-                          {`${payload[0].name}: Rp ${payload[0].value.toLocaleString("id-ID")}`}
-                        </p>
-                      </div>
-                    )
-                  }
-                  return null
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="Grand Total Revenue"
-                stroke="hsl(142 76% 36%)" 
-                strokeWidth={3}
-                dot={{ r: 5 }}
-                activeDot={{ r: 7 }}
-              />
-            </LineChart>
+            <BarChart
+                data={data}
+                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                width="100%"
+                height="100%"
+                responsive={true}
+                >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={10} interval={0} />
+                <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={10}
+                    tickFormatter={(value) => {
+                    if (value >= 1000000000) return `Rp ${(value / 1000000000).toFixed(1)}B`
+                    if (value >= 1000000) return `Rp ${(value / 1000000).toFixed(1)}M`
+                    return `Rp ${value.toLocaleString("id-ID")}`
+                    }}
+                />
+                <ChartTooltip
+                    content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                        return (
+                        <div className="bg-white p-3 border rounded-lg shadow-lg">
+                            <p className="font-semibold mb-2 text-black">{`Month: ${label}`}</p>
+                            <p className="text-sm text-black">
+                            {`${payload[0].name}: Rp ${payload[0].value.toLocaleString("id-ID")}`}
+                            </p>
+                        </div>
+                        )
+                    }
+                    return null
+                    }}
+                />
+                <Bar dataKey="grand_total_revenue" fill="hsl(142 76% 36%)" />
+            </BarChart>
           </ChartContainer>
         )}
       </CardContent>
