@@ -15,7 +15,7 @@ export function TotalRevenueTrendChart({ data }) {
   const chartConfig = {
     grand_total_revenue: {
       label: "Grand Total Revenue",
-      color: "#e8fcec",
+      color: "#9adab8",
     },
   }
 
@@ -70,7 +70,7 @@ export function TotalRevenueTrendChart({ data }) {
                   return null
                 }}
               />
-              <Bar dataKey="grand_total_revenue" fill="#e8fcec" />
+              <Bar dataKey="grand_total_revenue" fill="#9adab8" />
             </BarChart>
           </ChartContainer>
         )}
