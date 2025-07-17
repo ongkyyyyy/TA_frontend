@@ -4,20 +4,21 @@ import { AlertCircle } from "lucide-react"
 import { getDiagram } from "@/api/apiDiagram"
 import { HotelAnalyticsHeader } from "./Hotel-analytics-header"
 import { ChartLoading } from "./Charts/Chart-Loading"
-import { MonthlyRevenueTrends } from "./Charts/Monthly-revenue-trends"
-import { RevenueSentiment } from "./Charts/Revenue-vs-sentiment"
-import { ReviewVolumeRevenue } from "./Charts/Review-volume-vs-revenue"
-import { CompositeSentimentIndex } from "./Charts/Composite-sentiment-index"
-import { SentimentRatios } from "./Charts/Sentiment-ratios"
-import { CSIRevenueCorrelation } from "./Charts/Csi-revenue-correlation"
 import { generatePDF } from "./PDF/Pdf-generator"
 import { SummaryOverview } from "./Summaries/Summary-overview"
 import { MonthlyHighlights } from "./Summaries/Monthly-highlights"
 import { GrowthMetrics } from "./Summaries/Growth-metrics"
-import { SentimentDistribution } from "./Summaries/Sentiment-distribution"
 import { Separator } from "@/components/ui/separator"
 
+//Revenue Chart
+import { MonthlyRevenueTrends } from "./Charts/Monthly-revenue-trends"
 import { RevenueBreakdownChart } from "./Charts/Revenue-Breakdown-Chart"
+
+//Sentiment Chart
+import { SentimentBreakdownChart } from "./Charts/Sentiment-Breakdown-Chart"
+import { CompositeSentimentIndex } from "./Charts/Composite-sentiment-index"
+import { SentimentRatios } from "./Charts/Sentiment-ratios"
+import { SentimentDistribution } from "./Summaries/Sentiment-distribution"
 
 export default function HotelAnalyticsDashboard() {
   const currentYear = new Date().getFullYear().toString()
@@ -89,17 +90,6 @@ export default function HotelAnalyticsDashboard() {
       positive_ratio: data.positive_ratio[index] || 0,
       negative_ratio: data.negative_ratio[index] || 0,
       neutral_ratio: data.neutral_ratio[index] || 0,
-    }))
-  }, [data])
-
-  const scatterData = useMemo(() => {
-    if (!data) return []
-
-    return data.months.map((month, index) => ({
-      month,
-      x: data.composite_sentiment_index[index] || 0,
-      y: data.gross_revenue[index] || 0,
-      z: data.review_volume[index] || 0,
     }))
   }, [data])
 
@@ -193,6 +183,9 @@ export default function HotelAnalyticsDashboard() {
               <h2 className="text-xl font-semibold text-gray-800">Sentiment Analysis</h2>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="transform transition-all duration-200 hover:scale-[1.02]">
+                <SentimentBreakdownChart data={transformedData} />
+              </div>
               <div className="transform transition-all duration-200 hover:scale-[1.02]">
                 <SentimentRatios data={transformedData} />
               </div>
